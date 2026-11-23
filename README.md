@@ -89,3 +89,7 @@ Then visit http://localhost:8000. An internet connection is needed for D3 and we
 ## Deployment
 
 The site is served by GitHub Pages from the root of the `main` branch. Pushing to `main` publishes a new version.
+
+## License
+
+[MIT](LICENSE)
