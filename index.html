@@ -271,7 +271,7 @@ body.no-tree section[aria-labelledby="h-map"] { display: none; }
 .msg-note { display: block; margin-top: 10px; color: var(--muted); font: 400 .8rem/1.4 var(--body); }
 .kindbar .kind-label { flex: 1 1 100%; }
 .kindbar .seg button { padding: 4px 7px; }
-.review-bar.large .btn { padding: 3px 6px; }
+.review-bar.large .btn { flex: 1 1 auto; padding: 3px 5px; font-size: .78rem; white-space: nowrap; }
 .coverage { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 28px; }
 .coverage h3 { margin: 0 0 4px; font-size: .84rem; font-weight: 600; }
 .coverage ul { margin: 0; padding-left: 18px; display: grid; gap: 3px; color: var(--muted); font-size: .88rem; }
@@ -1593,7 +1593,10 @@ function renderReviewBar() {
   bar.classList.toggle('large', messageLevel);
   $('reviewPrev').hidden = $('reviewNext').hidden = !q.length;
   $('reviewOk').hidden = !inQueue; $('reviewNote').hidden = $('reviewFail').hidden = !inQueue || !messageLevel;
-  $('reviewOk').textContent = messageLevel ? 'Count it' : 'Looks right';
+  const askReuse = inQueue && flags[0]?.type === 'reused';
+  if (askReuse) $('reviewFail').hidden = true;
+  $('reviewNote').textContent = askReuse ? 'Handoff notes' : 'Continuity';
+  $('reviewOk').textContent = askReuse ? 'Story text' : messageLevel ? 'Count it' : 'Looks right';
   const at = inQueue ? q.findIndex(x => x.id === n.id) : -1;
   $('reviewPos').textContent = !q.length ? 'Nothing left to review here' : at >= 0 ? `${flags[0].label}: ${at + 1} of ${q.length}` : `${q.length} left to review`;
   $('reviewReason').textContent = inQueue ? flags[0].reason : ''; $('reviewReason').hidden = !inQueue;
@@ -1663,7 +1666,7 @@ function computeFlags() {
     if (!settled && n.loopInfo) n.flags.push({ type: 'loop', label: 'Likely loop', reason: n.loopInfo.reason });
     if (!settled && !copied) {
       const reuse = n.role === 'assistant' ? state.reuse.get(n.id) : null;
-      if (reuse) n.flags.push({ type: 'reused', label: 'Reused output', reason: `Pasted into ${[...reuse.by].slice(0, 3).join(', ')}${reuse.by.size > 3 ? ` and ${reuse.by.size - 3} more` : ''}. It may be a handoff.` });
+      if (reuse) { const places = [...reuse.by].map(x => x === n.chatTitle ? 'a later message in this chat' : x), where = `${places.slice(0, 2).join(' and ')}${places.length > 2 ? ` and ${places.length - 2} more` : ''}`; n.flags.push({ type: 'reused', label: 'Reused AI reply', short: `Copied into ${where}`, reason: `You copied this AI reply into ${where}. That copy is already left out. Is this original a handoff or story text?` }); }
       if (n.words >= state.largeAt) n.flags.push({ type: 'long', label: 'Long message', reason: `${fmt(n.words)} words, over your ${fmt(state.largeAt)}-word limit` });
       else if (n.text.length >= state.largeAt * 20) n.flags.push({ type: 'long', label: 'Long message', reason: `${fmt(n.text.length)} characters in only ${fmt(n.words)} words` });
     }
@@ -1699,12 +1702,12 @@ function batchCandidates(type) { const seen = new Set(); return state.nodes.filt
 function openBatch(type) {
   batchType = type;
   const list = batchCandidates(type), box = $('batchList'), loop = type === 'loop'; box.textContent = '';
-  $('batchTitle').textContent = loop ? 'Ignore likely loops' : 'Mark reused outputs as continuity';
+  $('batchTitle').textContent = loop ? 'Ignore likely loops' : 'Mark reused replies as handoff notes';
   $('batchSub').textContent = loop ? 'Uncheck anything that is real writing, such as a poem or refrain.' : 'Uncheck anything that is real story text, such as a chapter you pasted for context.';
   list.forEach(n => {
     const li = document.createElement('li'), label = document.createElement('label'), box2 = document.createElement('input'), text = document.createElement('span'), sub = document.createElement('small');
     box2.type = 'checkbox'; box2.checked = true; box2.value = n.id; box2.onchange = updateBatchButton;
-    text.textContent = `${n.chatTitle}, turn ${n.depth} · ${fmt(n.words)} words`; sub.textContent = n.flags.find(f => f.type === type).reason;
+    text.textContent = `${n.chatTitle}, turn ${n.depth} · ${fmt(n.words)} words`; const found = n.flags.find(f => f.type === type); sub.textContent = found.short || found.reason;
     text.append(sub); label.append(box2, text); li.append(label); box.append(li);
   });
   updateBatchButton(); $('batchDialog').showModal();
@@ -1712,7 +1715,7 @@ function openBatch(type) {
 function updateBatchButton() {
   const count = $('batchList').querySelectorAll('input:checked').length;
   $('batchApply').disabled = !count;
-  $('batchApply').textContent = batchType === 'loop' ? `Ignore ${fmt(count)}` : `Mark ${fmt(count)} as continuity`;
+  $('batchApply').textContent = batchType === 'loop' ? `Ignore ${fmt(count)}` : `Mark ${fmt(count)} as handoff notes`;
 }
 $('batchApply').addEventListener('click', () => {
   const ids = [...$('batchList').querySelectorAll('input:checked')].map(x => x.value); if (!ids.length) return;
@@ -1885,14 +1888,6 @@ function syncViews(n) {
 }
 try { matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => renderViews()); } catch {}
 document.querySelectorAll('[data-audit]').forEach(b => b.addEventListener('click', () => { state.auditFilter = b.dataset.audit; renderAudit(totals(activeChats())); }));
-$('bulkNotes').addEventListener('click', () => {
-  const list = auditRows().filter(r => r.reused && !isDecided(r.n)).map(r => r.n);
-  state.lastBulk = list.map(n => n.id); list.forEach(n => decide(n, 'continuity')); refreshCounts();
-});
-$('bulkUndo').addEventListener('click', () => {
-  (state.lastBulk || []).forEach(id => { if (state.over[id] === 'continuity') delete state.over[id]; });
-  state.lastBulk = null; saveDecisions(); refreshCounts();
-});
 let largeTimer; $('largeAt').addEventListener('input', e => { clearTimeout(largeTimer); largeTimer = setTimeout(() => {
   const v = Number(e.target.value); if (!(v >= 100)) return;
   state.largeAt = v; saveRules(); computeFlags(); renderAudit(totals(activeChats())); renderViews(); if (state.selected) renderReviewBar();
