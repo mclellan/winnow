@@ -23,9 +23,9 @@ Your chat logs are read by your browser and are not uploaded. Winnow has no back
 
 1. Export your chats from Open WebUI as JSON. You can export a single chat from its menu, or all chats from the data settings. Menu names can vary by version.
 2. Open Winnow and click **Add chat logs**, or drag the files onto the page. You can add several files.
-3. Open **Repeated text and continuity** and review flagged messages.
-4. Use **Review next** under **What the person wrote** to check passages Winnow was unsure about.
-5. Read the totals, then click marks on the map to inspect individual messages.
+3. On **Summary**, click **Review** to step through messages that need a decision.
+4. Use **Clean up** for long or repeated messages, working time, and advanced sorting rules.
+5. Use **Messages** to inspect the project in **Chapters**, **List**, or **Full map**.
 
 Before exporting, select the branch you consider final in each chat. Winnow treats the selected branch as the kept version.
 
@@ -47,8 +47,19 @@ You can correct the sorting at several levels:
 - **One message:** use **Sort this message** in the details panel.
 - **Handoff documents:** under **Advanced sorting**, exclude a word or filename such as `bible.md`.
 - **HTML tags:** under **Advanced sorting**, choose how text inside tags such as `<scene>` or `<note>` counts.
-- **Line labels:** add markers such as `OOC` or `Director:`.
-- **Long messages:** set a word limit, then mark flagged messages as continuity or keep them counted.
+- **Built-in markers:** under **Advanced sorting**, turn off any default such as `[square brackets]`, `((double parentheses))`, `OOC:`, or `<details>` if your writing uses it differently.
+- **Line labels:** add your own labels such as `Director:`. Each one gets a checkbox beside the built-in line markers.
+- **Long messages:** set a word limit, then mark flagged messages as continuity, keep them counted, or ignore them.
+- **Technical failures:** use **Ignore** on broken inputs or outputs, such as a model stuck in a loop. Ignored messages are removed from words, attempts, repeat detection, and hours. They appear in their own section and can be restored.
+
+## Reviewing faster
+
+- **Chapters** shows one row per chat. Bars above a row show abandoned attempts, and alerts stay visible at any zoom. Click a row to see its messages.
+- **List** shows every message in a keyboard-friendly list with the same filters.
+- **Full map** keeps the complete branching tree.
+- **Suggestions** flag likely loops, reused AI outputs, long messages, and unsure sorting. Each flag states its reason.
+- **Batch preview** lets you uncheck false positives before applying a suggestion.
+- **History** records your decisions, and **Undo** reverses the latest one.
 
 ## How the numbers work
 

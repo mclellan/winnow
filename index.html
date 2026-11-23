@@ -30,7 +30,7 @@ button, select, input { font: inherit; color: inherit; }
 .wrap { width: 100%; max-width: 1180px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
 body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--surface); }
 
-.topbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 9; background: var(--surface); border-bottom: 1px solid var(--line); }
+.topbar { background: var(--surface); }
 .topbar .wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; padding-block: 10px; }
 .brand { font: 650 1.15rem/1 var(--display); margin-right: auto; display: flex; align-items: center; gap: 8px; }
 .brand svg { color: var(--keep); }
@@ -94,7 +94,7 @@ h2 { font: 650 1.3rem/1.25 var(--display); margin: 0; text-wrap: balance; }
 .map-head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 10px 24px; }
 .legend { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: .84rem; color: var(--muted); }
 .legend span { display: inline-flex; align-items: center; gap: 6px; }
-.map { position: relative; height: min(76vh, 720px); min-height: 420px; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.map { position: relative; height: calc(100dvh - 230px); min-height: 460px; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
 .map svg.canvas { display: block; width: 100%; height: 100%; cursor: grab; touch-action: pan-y; }
 .map svg.canvas:active { cursor: grabbing; }
 .tools { position: absolute; left: 10px; top: 10px; display: flex; gap: 4px; z-index: 2; }
@@ -141,8 +141,6 @@ h2 { font: 650 1.3rem/1.25 var(--display); margin: 0; text-wrap: balance; }
 .chip button:hover { color: var(--cut-ink); }
 .link-btn { border: 0; background: none; padding: 4px; color: var(--keep); cursor: pointer; text-decoration: underline; }
 .sort-row { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px 24px; }
-.markers { display: grid; gap: 3px; font-size: .84rem; color: var(--muted); width: min(360px, 100%); }
-.markers input { min-height: 38px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
 .kindbar { display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 7px 14px; border-bottom: 1px solid var(--line); flex-wrap: wrap; font-size: .78rem; color: var(--muted); }
 .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
 .seg button { border: 0; background: none; padding: 4px 8px; cursor: pointer; font-size: .78rem; }
@@ -153,22 +151,23 @@ h2 { font: 650 1.3rem/1.25 var(--display); margin: 0; text-wrap: balance; }
 .advanced > summary { color: var(--muted); font-size: .9rem; font-weight: 500; }
 .advanced > summary:hover { color: var(--ink); }
 .adv-grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 20px 32px; padding-block: 14px 4px; }
-.adv-col { display: grid; gap: 10px; align-content: start; min-width: 0; }
+.adv-col { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; align-content: start; min-width: 0; }
+.adv-col > * { min-width: 0; }
 .adv-col h3 { margin: 0; font-size: .98rem; font-weight: 600; }
 .phrase-form { display: flex; gap: 6px; }
 .phrase-form input { flex: 1; min-width: 0; min-height: 38px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
 .phrase-list { display: flex; flex-wrap: wrap; gap: 6px; font-size: .85rem; }
 .phrase-list:empty { display: none; }
-.adv-col .markers { width: 100%; }
 .tag-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
 .tag-table { width: 100%; min-width: 450px; border-collapse: collapse; font-size: .84rem; }
 .tag-table th { text-align: left; font-size: .74rem; font-weight: 600; color: var(--muted); }
-.tag-table th, .tag-table td { padding: 7px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.tag-table .seg button { padding: 4px 6px; }
+.tag-table th, .tag-table td { padding: 7px 6px; border-bottom: 1px solid var(--line); white-space: nowrap; }
 .tag-table tr:last-child td { border-bottom: 0; }
 .tag-table .num { text-align: right; font-variant-numeric: tabular-nums; }
 .tag-name { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: .82rem; }
 .empty-note { margin: 0; padding: 12px; font-size: .86rem; color: var(--muted); }
-@media (max-width: 760px) { .adv-grid { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 980px) { .adv-grid { grid-template-columns: minmax(0, 1fr); } }
 .kindbar #pKindNote, .kind-hint { flex: 1 1 100%; }
 .kind-label { margin-right: auto; }
 .part { cursor: pointer; border-radius: 2px; }
@@ -236,6 +235,185 @@ body.shared .counts { grid-template-columns: minmax(0, 1fr); }
 body.shared .counts div + div { display: none; }
 body.no-tree section[aria-labelledby="h-map"] { display: none; }
 @media (max-width: 760px) { .share-actions { width: 100%; } .share-actions .btn { flex: 1; } .share-lists { grid-template-columns: minmax(0, 1fr); } }
+.adv-wide { grid-column: 1 / -1; padding-top: 14px; border-top: 1px solid var(--line); }
+.adv-title { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 12px; }
+.marker-groups { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px 24px; }
+.marker-group { display: grid; grid-template-columns: minmax(0, 1fr); gap: 5px; align-content: start; min-width: 0; }
+.marker-group > * { min-width: 0; }
+.marker-group h4 { margin: 0; font-size: .78rem; font-weight: 600; color: var(--muted); }
+.marker-toggle { display: flex; align-items: center; gap: 7px; min-height: 26px; font-size: .84rem; cursor: pointer; }
+.marker-toggle input { flex: none; accent-color: var(--keep); }
+.marker-toggle code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: .8rem; overflow-wrap: anywhere; }
+.marker-toggle span { margin-left: auto; color: var(--muted); font-size: .76rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.custom-labels { display: grid; gap: 1px; }
+.custom-labels:empty { display: none; }
+.custom-row { display: flex; align-items: center; gap: 2px; min-width: 0; }
+.custom-row .marker-toggle { flex: 1; min-width: 0; }
+.custom-row button { flex: none; width: 24px; height: 24px; padding: 0; border: 0; border-radius: 3px; background: none; color: var(--muted); cursor: pointer; }
+.custom-row button:hover { color: var(--cut-ink); background: var(--paper); }
+.label-form { display: flex; gap: 5px; margin-top: 5px; }
+.label-form input { flex: 1; min-width: 0; min-height: 34px; padding: 4px 8px; border: 1px solid var(--line); border-radius: 5px; background: var(--surface); font-size: .84rem; }
+.label-form .btn { min-height: 34px; padding: 3px 10px; font-size: .82rem; }
+@media (max-width: 760px) { .marker-groups { grid-template-columns: minmax(0, 1fr); } }
+@media (min-width: 981px) {
+  .adv-grid { grid-template-rows: auto 1fr; }
+  .adv-handoffs { grid-column: 1; grid-row: 1; }
+  .adv-tags { grid-column: 2; grid-row: 1 / span 2; }
+  .adv-wide { grid-column: 1; grid-row: 2; }
+  .marker-groups { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 18px; }
+  .marker-group.lines { grid-column: 2; grid-row: 1 / span 2; }
+}
+.n-fail { fill: none; stroke: var(--cut-ink); stroke-width: 2.4; stroke-linecap: round; }
+.fail-section { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; padding-top: 14px; border-top: 1px solid var(--line); }
+.fail-section > * { min-width: 0; }
+.fail-section h3 { margin: 0; font-size: 1rem; font-weight: 600; color: var(--cut-ink); }
+.state.fail { color: var(--cut-ink); }
+.msg-note { display: block; margin-top: 10px; color: var(--muted); font: 400 .8rem/1.4 var(--body); }
+.kindbar .kind-label { flex: 1 1 100%; }
+.kindbar .seg button { padding: 4px 7px; }
+.review-bar.large .btn { padding: 3px 6px; }
+.coverage { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 28px; }
+.coverage h3 { margin: 0 0 4px; font-size: .84rem; font-weight: 600; }
+.coverage ul { margin: 0; padding-left: 18px; display: grid; gap: 3px; color: var(--muted); font-size: .88rem; }
+.view-tabs { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.view-tabs button { min-height: 36px; padding: 5px 13px; border: 0; background: var(--surface); cursor: pointer; font-size: .86rem; font-weight: 500; }
+.view-tabs button + button { border-left: 1px solid var(--line); }
+.view-tabs button[aria-selected="true"] { background: var(--keep); color: var(--on-keep); }
+.flag-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.flag-chips { display: flex; flex-wrap: wrap; gap: 4px; margin-right: auto; }
+.flag-chips button { min-height: 32px; padding: 3px 10px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); cursor: pointer; font-size: .8rem; font-variant-numeric: tabular-nums; }
+.flag-chips button[aria-pressed="true"] { border-color: var(--keep); background: var(--keep-soft); font-weight: 600; }
+.flag-chips button:disabled { opacity: .4; cursor: default; }
+.flag-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.flag-actions .btn { min-height: 34px; padding: 4px 11px; font-size: .84rem; }
+.history { position: relative; border: 0; padding: 0; }
+.history > summary { display: inline-flex; align-items: center; min-height: 34px; padding: 4px 11px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); font-size: .84rem; font-weight: 500; list-style: none; }
+.history > summary::-webkit-details-marker { display: none; }
+.history-pop { position: absolute; right: 0; top: calc(100% + 4px); z-index: 8; width: min(340px, 86vw); max-height: 280px; overflow: auto; padding: 8px 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; box-shadow: 0 10px 28px rgb(15 23 42 / .25); }
+.history-pop ol { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; font-size: .82rem; }
+.history-pop small { display: block; color: var(--muted); }
+.map[data-mode="strip"] .canvas, .map[data-mode="strip"] .tools, .map[data-mode="strip"] .hint,
+.map[data-mode="list"] .canvas, .map[data-mode="list"] .tools, .map[data-mode="list"] .hint,
+.map:not([data-mode="strip"]) .strip-view, .map:not([data-mode="list"]) .list-view { display: none; }
+.strip-view, .list-view { position: absolute; inset: 0; overflow: auto; }
+.strip-view { padding: 6px 10px; }
+.strip-row { border-bottom: 1px solid var(--line); padding: 6px 0; }
+.strip-row.dim { opacity: .42; }
+.strip-main { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.strip-head { flex: 0 0 190px; min-width: 0; padding: 3px 5px; border: 0; border-radius: 4px; background: none; cursor: pointer; text-align: left; }
+.strip-head:hover { background: var(--paper); }
+.strip-head b { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .85rem; font-weight: 600; }
+.strip-head span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); font-size: .72rem; }
+.strip-track { flex: 1; min-width: 0; height: 54px; }
+.strip-track canvas { display: block; height: 54px; cursor: pointer; }
+.lane { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; padding: 9px 5px 5px; }
+.cell { position: relative; flex: none; width: 15px; height: 15px; padding: 0; border: 0; background: var(--keep); cursor: pointer; border-radius: 50%; }
+.cell.k-prose { background: var(--human); border-radius: 1px; }
+.cell.k-instruction { background: var(--direct); border-radius: 0; transform: rotate(45deg) scale(.82); }
+.cell.k-mixed { background: var(--human); border-radius: 0; clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+.cell.k-continuity { width: 20px; height: 9px; background: var(--note); border-radius: 1px; }
+.cell.k-failed { background: none; border-radius: 0; color: var(--cut-ink); font: 700 15px/15px var(--body); }
+.cell.k-failed::before { content: "\00D7"; }
+.cell.cut:not(.k-failed) { background: var(--surface); box-shadow: inset 0 0 0 1.5px var(--muted); }
+.cell.flagged { outline: 2px solid var(--direct); outline-offset: 1px; }
+.cell.sel { outline: 2.5px solid var(--cut-ink); outline-offset: 2px; z-index: 1; }
+.stub { flex: none; height: 17px; padding: 0 4px; border: 1px solid var(--line); border-radius: 3px; background: var(--paper); color: var(--muted); cursor: pointer; font-size: .68rem; line-height: 1; }
+.branch-cells { flex: 1 0 100%; display: flex; flex-wrap: wrap; gap: 4px; padding: 5px 7px; border-left: 2px solid var(--line); }
+.list-head, .list-row { display: grid; grid-template-columns: 150px 118px 66px 138px minmax(0, 1fr); gap: 8px; align-items: center; padding: 0 10px; font-size: .8rem; }
+.list-head { position: sticky; top: 0; z-index: 2; height: 32px; background: var(--surface); border-bottom: 1px solid var(--line); color: var(--muted); font-size: .72rem; font-weight: 600; }
+.list-space { position: relative; }
+.list-row { position: absolute; left: 0; right: 0; height: 44px; width: 100%; border: 0; border-bottom: 1px solid var(--line); background: none; cursor: pointer; text-align: left; }
+.list-row:hover { background: var(--paper); }
+.list-row.sel { background: var(--keep-soft); }
+.list-row > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.list-row .num { text-align: right; font-variant-numeric: tabular-nums; }
+.list-row .flagtxt { color: var(--direct); font-weight: 600; }
+.list-empty { padding: 26px; color: var(--muted); font-size: .9rem; }
+#reviewReason { flex: 1 0 100%; margin: 0; color: var(--muted); font-size: .76rem; font-weight: 400; }
+.batch-list { max-height: 44dvh; overflow: auto; margin: 0; padding: 0; list-style: none; border: 1px solid var(--line); border-radius: 6px; }
+.batch-list li { border-bottom: 1px solid var(--line); }
+.batch-list li:last-child { border-bottom: 0; }
+.batch-list label { display: flex; gap: 8px; padding: 7px 9px; font-size: .84rem; cursor: pointer; }
+.batch-list small { display: block; color: var(--muted); }
+body.shared .flag-bar, body.shared #coverageMeasured { display: none !important; }
+@media (min-width: 761px) { .map.with-panel .strip-view, .map.with-panel .list-view { right: 400px; } }
+@media (max-width: 760px) {
+  .coverage { grid-template-columns: minmax(0, 1fr); }
+  .strip-main { display: block; } .strip-head { width: 100%; }
+  .list-head, .list-row { grid-template-columns: minmax(0, 1fr) 62px minmax(0, 1fr); }
+  .list-head > :nth-child(2), .list-head > :nth-child(5), .list-row > :nth-child(2), .list-row > :nth-child(5) { display: none; }
+}
+.page-nav { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 9; background: var(--surface); border-bottom: 1px solid var(--line); }
+.page-tabs { display: flex; gap: 22px; }
+.page-tabs button { min-height: 42px; padding: 0 2px; border: 0; border-bottom: 2px solid transparent; background: none; color: var(--muted); cursor: pointer; font-size: .92rem; font-weight: 500; }
+.page-tabs button:hover { color: var(--ink); }
+.page-tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--keep); font-weight: 600; }
+.hero { padding-block: clamp(26px, 4vw, 44px) 12px; gap: 10px; }
+.hero h1 { font-size: clamp(1.65rem, 3.3vw, 2.5rem); max-width: 25em; }
+.hero p { font-size: 1rem; }
+.attention { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; margin-block: 6px; padding-block: 2px; font-size: .92rem; color: var(--muted); }
+.attention .btn { min-height: 34px; }
+#reviewWrap { display: none !important; }
+section.summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 44px; }
+.summary-col { display: grid; grid-template-columns: minmax(0, 1fr); gap: 11px; align-content: start; min-width: 0; }
+.summary-col h2, .chart-head h2, .limits h2, .clean-head h2 { font-size: 1.12rem; }
+.summary-col .sub { display: none; }
+.summary-col .ledger { height: 24px; }
+.summary-col .ledger-key { display: grid; gap: 5px; font-size: .86rem; }
+.summary-col .ledger-key > span { display: grid; grid-template-columns: 17px minmax(0, 1fr) auto; column-gap: 2px; align-items: baseline; }
+.summary-col .ledger-key b { justify-self: end; padding-left: 12px; white-space: nowrap; }
+.summary-col .swatch { margin: 0; }
+#keyCutSplit { grid-column: 2 / -1; color: var(--muted); font-size: .76rem; }
+.chart-head { align-items: baseline; }
+.limits { padding-top: 18px; }
+.limits h3 { color: var(--muted); font-weight: 500; }
+.limits .coverage ul { font-size: .84rem; }
+.method { padding-top: 0; }
+.page-intro { display: grid; gap: 3px; padding-block: 28px 4px; }
+.page-intro h1 { margin: 0; font: 650 1.6rem/1.2 var(--display); }
+.page-intro p { margin: 0; color: var(--muted); }
+#pageCleanup section.block { padding-block: 16px; }
+#pageCleanup .audit-fold { border: 0; padding: 0; }
+.clean-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 12px; }
+#pageCleanup .audit-body { padding-top: 8px; }
+#pageCleanup .ledger { height: 24px; }
+#pageCleanup .time-controls { width: min(380px, 100%); }
+#pageCleanup .advanced { padding-top: 14px; }
+#pageCleanup .advanced > summary { color: var(--ink); font: 650 1.12rem/1.25 var(--display); }
+#pageMessages section.block { padding-block: 14px 18px; gap: 10px; }
+.map-head { align-items: center; }
+.map-head h2 { font-size: 1.12rem; }
+.map-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.key-pop { position: relative; border: 0; padding: 0; }
+.key-pop > summary { display: inline-flex; align-items: center; min-height: 36px; padding: 5px 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); font-size: .86rem; font-weight: 500; list-style: none; }
+.key-pop > summary::-webkit-details-marker { display: none; }
+.key-pop .legend { position: absolute; right: 0; top: calc(100% + 4px); z-index: 8; display: grid; gap: 6px; width: 190px; padding: 10px 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; box-shadow: 0 10px 28px rgb(15 23 42 / .25); }
+.flag-chips button { min-height: 30px; }
+body.shared #tabCleanup, body.shared #timeAdjust { display: none; }
+@media (max-width: 760px) {
+  section.summary-grid { grid-template-columns: minmax(0, 1fr); }
+  .topbar .brand { width: auto; margin-right: auto; }
+  .topbar .field { order: 3; flex: 1 1 0; }
+  .topbar .files-pop { order: 4; }
+  .files-menu { right: 0; }
+  .topbar .share-actions, .topbar .upload { width: auto; flex: 0 0 auto; }
+  .topbar .share-actions .btn { flex: none; }
+  .topbar .upload .btn { width: auto; }
+  .map { height: calc(100dvh - 260px); }
+  .key-pop .legend { right: auto; left: 0; }
+}
+.files-pop { position: relative; flex: none; border: 0; padding: 0; }
+.files-pop > summary { display: inline-flex; align-items: center; min-height: 38px; padding: 6px 4px; border-radius: 6px; color: var(--muted); cursor: pointer; font-size: .86rem; font-weight: 500; list-style: none; white-space: nowrap; }
+.files-pop > summary::-webkit-details-marker { display: none; }
+.files-pop > summary::after { content: "\25BE"; margin-left: 5px; font-size: .75rem; }
+.files-pop > summary:hover, .files-pop[open] > summary { color: var(--ink); }
+.files-menu { position: absolute; right: 0; top: calc(100% + 4px); z-index: 20; display: grid; gap: 9px; width: min(340px, calc(100vw - 32px)); padding: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; box-shadow: 0 12px 30px rgb(15 23 42 / .3); }
+.files-menu p { margin: 0; color: var(--muted); font-size: .82rem; line-height: 1.4; }
+.files-menu p b { color: var(--ink); font-weight: 600; }
+.files-menu .source-list { display: grid; gap: 5px; padding: 0; }
+.files-menu .chip { display: flex; justify-content: space-between; min-width: 0; }
+.files-menu .chip span { min-width: 0; }
+.files-menu .link-btn { justify-self: start; font-size: .82rem; }
 .method { padding-block: 10px 56px; }
 details { border-top: 1px solid var(--line); padding-top: 14px; }
 summary { cursor: pointer; font-weight: 600; }
@@ -258,16 +436,21 @@ body.dragging .map, body.dragging .hero { outline: 2px dashed var(--keep); outli
 <div class="topbar"><div class="wrap">
   <div class="brand"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22V7"/><path d="M12 7c-2-1-2.5-3 0-5 2.5 2 2 4 0 5z"/><path d="M12 13c-1-2.5-3-3.5-6-3.5 0 3 2 4.5 6 3.5z"/><path d="M12 13c1-2.5 3-3.5 6-3.5 0 3-2 4.5-6 3.5z"/><path d="M12 19c-1-2.5-3-3.5-6-3.5 0 3 2 4.5 6 3.5z"/><path d="M12 19c1-2.5 3-3.5 6-3.5 0 3-2 4.5-6 3.5z"/></svg>Winnow</div>
   <div class="field"><label for="project">Showing</label><select id="project"></select></div>
+  <details class="files-pop" id="filesPop" hidden><summary id="filesLabel"></summary><div class="files-menu"><p id="filesNote"></p><div class="source-list" id="sources"></div></div></details>
   <div class="share-actions"><button class="btn" id="shareBtn">Share</button><button class="btn" id="sharedImage">Download image</button><button class="btn primary" id="ownLogs">Analyze your own logs</button></div>
   <div class="upload"><input class="sr" type="file" id="file" accept=".json,application/json" multiple><label class="btn primary" for="file">Add chat logs</label></div>
 </div></div>
+<nav class="page-nav" aria-label="Winnow sections"><div class="wrap"><div class="page-tabs" role="tablist"><button role="tab" data-page="summary">Summary</button><button role="tab" data-page="messages">Messages</button><button role="tab" data-page="cleanup" id="tabCleanup">Clean up</button></div></div></nav>
 <div class="notice" id="notice" role="status"><div class="wrap" id="noticeText"></div></div>
 
 <main>
-  <div class="wrap sources" id="sources" hidden></div>
+  
+  <div class="page" id="pageSummary">
   <div class="wrap hero"><p class="tagline">What the human wrote, kept, and cut.</p><h1 id="thesis"></h1><p id="subthesis"></p></div>
-
-  <section class="wrap block" aria-labelledby="h-words">
+  <div class="wrap attention" id="attention" hidden><span id="attentionText"></span><button class="btn primary" id="attentionBtn">Review</button></div>
+  <section class="wrap block" aria-label="Human effort totals"><div class="stats" id="stats"></div></section>
+  <section class="wrap block summary-grid">
+    <div class="summary-col" role="group" aria-labelledby="h-words">
     <h2 id="h-words">Where the words went</h2>
     <div class="ledger" id="ledger" role="img"><div class="human" id="ledgerHuman"></div><div class="kept" id="ledgerKept"></div><div class="cut"></div></div>
     <div class="ledger-key">
@@ -275,11 +458,8 @@ body.dragging .map, body.dragging .hero { outline: 2px dashed var(--keep); outli
       <span><i class="swatch" style="background:var(--keep)"></i>Kept, written by AI <b id="keyKept"></b></span>
       <span><i class="swatch" style="background:var(--cut)"></i>Abandoned <b id="keyCut"></b><span id="keyCutSplit"></span></span>
     </div>
-  </section>
-
-  <section class="wrap block" aria-label="Human effort totals"><div class="stats" id="stats"></div></section>
-
-  <section class="wrap block" aria-labelledby="h-human">
+  </div>
+    <div class="summary-col" role="group" aria-labelledby="h-human">
     <div class="sort-row">
       <div><h2 id="h-human">What the person wrote</h2><p class="sub" id="humanSub"></p></div>
     </div>
@@ -290,27 +470,102 @@ body.dragging .map, body.dragging .hero { outline: 2px dashed var(--keep); outli
       <span><i class="swatch" style="background:var(--direct)"></i>Instructions to the AI <b id="keyDirect"></b></span>
       <span id="reviewWrap"><span id="reviewText"></span> <button class="link-btn" id="reviewBtn">Review next</button></span>
     </div>
-    <details class="advanced" id="advanced">
-      <summary>Advanced sorting <span id="advCount"></span></summary>
-      <div class="adv-grid">
-        <div class="adv-col">
-          <h3>Handoffs and reference documents</h3>
-          <p class="sub">A message that contains one of these, or has an attached file with it in the name, counts as continuity notes. This applies to your messages and AI replies.</p>
-          <form class="phrase-form" id="phraseForm"><label class="sr" for="phraseInput">Word or file name to exclude from prose</label><input id="phraseInput" type="text" placeholder="e.g. bible.md" autocomplete="off"><button class="btn" type="submit">Exclude</button></form>
-          <div class="phrase-list" id="phraseList"></div>
-          <label class="markers" for="markers">Count lines starting with these as instructions (comma separated)<input id="markers" type="text" placeholder="e.g. OOC, Director:, >>" autocomplete="off"></label>
-        </div>
-        <div class="adv-col">
-          <h3>HTML tags in the chats</h3>
-          <p class="sub">Choose how the text inside each tag counts. Prose and Not prose apply to your messages. Continuity applies to your messages and AI replies. The innermost tag wins when nested.</p>
-          <div id="tagCatalog"></div>
-        </div>
-      </div>
-    </details>
+    
+  </div>
   </section>
+  <section class="wrap block" aria-labelledby="h-time">
+    <div class="chart-head">
+      <div><h2 id="h-time">When the person was working</h2><p class="sub" id="timeSub"></p></div>
+      <button class="link-btn" id="timeAdjust" type="button">Adjust</button>
+      
+    </div>
+    <div class="chart-scroll"><div class="chart-inner" id="chartInner"><div class="chart" id="chart" role="img"></div><div class="axis"><span id="axisA"></span><span id="axisB"></span></div></div></div>
+  </section>
+  <section class="wrap block limits" aria-labelledby="h-limits">
+    <h2 id="h-limits">What this can't show</h2>
+    <div class="coverage">
+      <div><h3>Not visible in chat logs</h3><ul><li>Edits made in another app</li><li>Planning, research, and rereading away from the chat</li><li>Whether kept text reached the final book</li></ul></div>
+      <div id="coverageMeasured"><h3>Available in these logs</h3><ul id="coverageList"></ul></div>
+    </div>
+  </section>
+  <div class="wrap method"><details>
+    <summary>How these numbers are calculated</summary>
+    <ul>
+      <li><b>Kept</b> counts AI words and the person's story prose on the branch that was selected when the chat was exported. Some AI words may be planning or feedback, so treat it as the most that could have reached the manuscript.</li>
+      <li><b>Story prose and instructions</b> are sorted automatically. By default, text in ((double parentheses)), [square brackets], {{double braces}}, or after labels such as OOC: counts as instruction. Each marker can be turned off under Advanced sorting. Unmarked paragraphs are judged by their wording, and uncertain ones are flagged for review. Open a message to correct all of its guessed text, or click one passage to switch it. Corrections are remembered in this browser.</li>
+      <li><b>Advanced sorting</b> follows these rules. A switched passage always wins. Choosing Prose, Instruction, or Story for a message sets its guessed text and lifts any word exclusion on it, while HTML tag choices and explicit markers stay in place. Choosing Continuity applies to the whole message. Otherwise, excluded words apply first, then tags and markers, then the automatic sorting. Tag markup itself is not counted as prose or instruction.</li>
+      <li><b>Multiple chat logs</b> are combined. A chat found in two files is counted once using its fullest copy, and messages shared by copied chats are counted once.</li>
+      <li><b>Abandoned</b> counts every other AI word and story-prose word: regenerated replies and branches the person left. Instructions are never counted as manuscript.</li>
+      <li><b>Continuity notes</b> are summaries, handoffs, and background records. They are kept out of the manuscript, AI output, the person's prose, and direction totals.</li>
+      <li><b>Automatic suggestions</b> never change the totals by themselves, except exact repeats and retried text. A likely loop must end with at least 200 words of one phrase repeating. Every decision is recorded in History and can be undone.</li>
+      <li><b>Technical failures</b> are messages you chose to ignore, such as a model stuck in an output loop. They are removed from words, attempts, repeat detection, and hours, and are listed separately.</li>
+      <li><b>Repeated text</b> is any run of 40 or more identical words already seen in an earlier message, ignoring capitalization and punctuation. Only the first appearance counts, so a summary pasted into a new chat is not counted again. Text on a kept branch takes priority over an abandoned copy.</li>
+      <li><b>Hours worked</b> adds the time between consecutive messages, using the export's timestamps. Any pause longer than the break setting counts as time away. AI generation time is subtracted when the export records it; otherwise the total includes waiting for the AI. Time around messages that are mostly continuity notes or repeated text is left out unless you choose to count it. Work done outside the chat is not included.</li>
+      <li><b>Reading time</b> assumes 238 words per minute, a typical adult silent reading speed. It shows how long reading every generated word once would take, whether or not the person read all of it.</li>
+      <li><b>Attempts rejected</b> counts each extra branch at a fork. Three replies to one prompt counts as two rejected attempts.</li>
+      <li><b>Retried prompts</b> count only the words that changed. A prompt is treated as a retry when at least 60% of its words match, in order, an earlier version beside it or one of the three prompts before it on the same branch. The kept version receives credit for the shared words, and abandoned versions count only what was unique to them. The retry still counts as an attempt, and its time still counts as work.</li>
+      <li><b>Discarded words above</b>, for a single message, adds all words at earlier turns that are not on that message's own path. Other attempts at the same turn are not included.</li>
+      <li><b>Shared dashboards</b> contain only totals, weekly hours, node shapes, categories, and rough lengths. They are self-reported and are not independently verified.</li>
+      <li>Hidden model reasoning and tool output stored in collapsible blocks is left out of every count unless you turn that off under Advanced sorting. Your file is read in this browser and is not uploaded.</li>
+    </ul>
+  </details></div>
+  </div>
 
+  <div class="page" id="pageMessages" hidden>
+  <section class="wrap block" aria-labelledby="h-map">
+    <div class="map-head">
+      <div><h2 id="h-map">Every draft</h2><p class="sub" id="mapSub"></p></div>
+      <div class="map-controls"><div class="view-tabs" role="tablist" aria-label="Choose a view"><button role="tab" data-view="strip">Chapters</button><button role="tab" data-view="list">List</button><button role="tab" data-view="tree">Full map</button></div><details class="key-pop"><summary>Key</summary><div class="legend" aria-label="Map legend">
+        <span><svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="var(--keep)"/></svg>Kept AI reply</span>
+        <span><svg width="12" height="12"><rect x="1" y="1" width="10" height="10" fill="var(--human)"/></svg>Person's prose</span>
+        <span><svg width="12" height="12"><path d="M6 0l6 6-6 6-6-6z" fill="var(--direct)"/></svg>Instruction</span>
+        <span><svg width="12" height="12"><path d="M6 1l5 10H1z" fill="var(--human)" stroke="var(--direct)" stroke-width="1.5"/></svg>Both</span>
+        <span><svg width="14" height="12"><rect x="0" y="2.5" width="14" height="7" fill="var(--note)"/></svg>Continuity</span>
+        <span><svg width="12" height="12"><circle cx="6" cy="6" r="4.5" fill="var(--surface)" stroke="var(--muted)"/></svg>Abandoned</span>
+        <span><svg width="12" height="12"><path d="M2 2l8 8M10 2l-8 8" fill="none" stroke="var(--cut-ink)" stroke-width="2" stroke-linecap="round"/></svg>Technical failure</span>
+      </div></details></div>
+      
+    </div>
+    <div class="flag-bar" id="flagBar">
+      <div class="flag-chips" id="flagChips" role="group" aria-label="Filter messages"></div>
+      <div class="flag-actions">
+        <button class="btn" id="batchLoops" hidden></button>
+        <button class="btn primary" id="startReview" hidden></button>
+        <button class="btn" id="undoLast" hidden>Undo</button>
+        <details class="history" id="historyBox" hidden><summary id="historyLabel">History</summary><div class="history-pop"><ol id="historyList"></ol></div></details>
+      </div>
+    </div>
+    <div class="map" id="map" data-mode="strip" tabindex="0" role="application" aria-label="Conversation map. Use arrow keys to move between messages and Escape to close the details.">
+      <div class="tools">
+        <button class="btn" id="zoomIn" aria-label="Zoom in">+</button>
+        <button class="btn" id="zoomOut" aria-label="Zoom out">&minus;</button>
+        <button class="btn" id="fit">Show all</button>
+      </div>
+      <div class="strip-view" id="stripView"></div>
+      <div class="list-view" id="listView"><div class="list-head" aria-hidden="true"><span>Where</span><span>Type</span><span class="num">Words</span><span>Flag</span><span>Preview</span></div><div class="list-space" id="listSpace"></div></div>
+      <svg class="canvas" id="canvas" aria-hidden="true"><g id="scene"><path class="l-cut" id="linksCut"/><path class="l-keep" id="linksKeep"/><path class="l-trail" id="trail"/><path class="n-cut" id="nodesCut"/><path class="n-keep" id="nodesKeep"/><path class="n-prose" id="nodesProse"/><path class="n-instr" id="nodesInstr"/><path class="n-mixed" id="nodesMixed"/><path class="n-note" id="nodesNote"/><path class="n-fail" id="nodesFail"/><g id="labels"></g><circle class="ring" id="ring" r="10" visibility="hidden"/></g></svg>
+      <div class="hint">Click any mark to read it. Drag to move. Ctrl + scroll to zoom.</div>
+      <aside class="panel" id="panel" aria-label="Message details" hidden>
+        <header><span class="pill" id="pStatus"></span><h3 id="pTitle"></h3><button class="icon" id="pClose" aria-label="Close details">&times;</button></header>
+        <div class="counts">
+          <div><b id="pWords"></b><span>words in this message</span></div>
+          <div><b id="pCum"></b><span>total words up to here</span></div>
+          <div class="bad"><b id="pDisc"></b><span>discarded words above</span></div>
+        </div>
+        <div class="meta" id="pMeta"></div>
+        <div class="kindbar" id="pKindBar"><span id="pKindNote"></span><span class="kind-label">Sort this message</span><span class="seg" role="group" aria-label="Sort this message as"><button data-kind="auto">Auto</button><button data-kind="output">Story</button><button data-kind="prose">Prose</button><button data-kind="instruction">Instruction</button><button data-kind="continuity">Continuity</button><button data-kind="failed">Ignore</button></span><span class="kind-hint">Click any passage below to switch just that passage.</span></div>
+        <div class="msg" id="pText" tabindex="0"></div>
+        <div class="review-bar" id="reviewBar" hidden><span id="reviewPos" aria-live="polite"></span><p id="reviewReason"></p><button class="btn" id="reviewPrev">Back</button><button class="btn" id="reviewNext">Skip</button><button class="btn" id="reviewFail" hidden>Ignore</button><button class="btn" id="reviewNote" hidden>Continuity</button><button class="btn primary" id="reviewOk">Looks right</button></div>
+        <footer><button class="btn" id="pPrev">Earlier message</button><button class="btn" id="pNext">Later message</button></footer>
+      </aside>
+    </div>
+  </section>
+  </div>
+
+  <div class="page" id="pageCleanup" hidden>
+  <div class="wrap page-intro"><h1>Clean up the counts</h1><p>Decide what should not count as writing. Message decisions can be undone.</p></div>
   <section class="wrap block" aria-labelledby="h-audit">
-    <details class="audit-fold" id="auditFold"><summary><h2 id="h-audit">Repeated text and continuity</h2><span id="auditCount"></span></summary><div class="audit-body"><p class="sub" id="auditSub"></p>
+    <div class="audit-fold" id="auditFold"><div class="clean-head"><h2 id="h-audit">Repeated text and continuity</h2><span id="auditCount"></span></div><div class="audit-body"><p class="sub" id="auditSub"></p>
     <div class="ledger" id="auditBar" role="img"><div class="plain" id="auditCounted"></div><div class="note" id="auditNotes"></div><div class="cut"></div></div>
     <div class="ledger-key">
       <span><i class="swatch" style="background:var(--keep)"></i>Counted <b id="keyCounted"></b></span>
@@ -323,73 +578,50 @@ body.dragging .map, body.dragging .hero { outline: 2px dashed var(--keep); outli
       <div class="audit-actions"><button class="btn" id="bulkUndo" hidden>Undo</button><button class="btn" id="bulkNotes" hidden></button><button class="btn primary" id="auditReview" hidden>Review flagged</button></div>
     </div>
     <div id="auditList"></div>
-    </div></details>
-  </section>
-
-  <section class="wrap block" aria-labelledby="h-time">
-    <div class="chart-head">
-      <div><h2 id="h-time">When the person was working</h2><p class="sub" id="timeSub"></p></div>
-      <div class="time-controls"><label class="range" for="gap"><span id="gapLabel"></span><input id="gap" type="range" min="5" max="60" step="5" value="20"></label><label class="check" for="countNotes"><input id="countNotes" type="checkbox">Count time on continuity notes</label></div>
-    </div>
-    <div class="chart-scroll"><div class="chart-inner" id="chartInner"><div class="chart" id="chart" role="img"></div><div class="axis"><span id="axisA"></span><span id="axisB"></span></div></div></div>
-  </section>
-
-  <section class="wrap block" aria-labelledby="h-map">
-    <div class="map-head">
-      <div><h2 id="h-map">Every draft, every dead end</h2><p class="sub">Read from top to bottom. The straight line on the left of each chat is what survived. Each branch is an attempt the person tried and left behind.</p></div>
-      <div class="legend" aria-label="Map legend">
-        <span><svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="var(--keep)"/></svg>Kept AI reply</span>
-        <span><svg width="12" height="12"><rect x="1" y="1" width="10" height="10" fill="var(--human)"/></svg>Person's prose</span>
-        <span><svg width="12" height="12"><path d="M6 0l6 6-6 6-6-6z" fill="var(--direct)"/></svg>Instruction</span>
-        <span><svg width="12" height="12"><path d="M6 1l5 10H1z" fill="var(--human)" stroke="var(--direct)" stroke-width="1.5"/></svg>Both</span>
-        <span><svg width="14" height="12"><rect x="0" y="2.5" width="14" height="7" fill="var(--note)"/></svg>Continuity</span>
-        <span><svg width="12" height="12"><circle cx="6" cy="6" r="4.5" fill="var(--surface)" stroke="var(--muted)"/></svg>Abandoned</span>
+      <div class="fail-section" aria-labelledby="h-fail">
+        <h3 id="h-fail">Technical failures</h3>
+        <p class="sub" id="failSub"></p>
+        <div id="failList"></div>
       </div>
-    </div>
-    <div class="map" id="map" tabindex="0" role="application" aria-label="Conversation map. Use arrow keys to move between messages and Escape to close the details.">
-      <div class="tools">
-        <button class="btn" id="zoomIn" aria-label="Zoom in">+</button>
-        <button class="btn" id="zoomOut" aria-label="Zoom out">&minus;</button>
-        <button class="btn" id="fit">Show all</button>
-      </div>
-      <svg class="canvas" id="canvas" aria-hidden="true"><g id="scene"><path class="l-cut" id="linksCut"/><path class="l-keep" id="linksKeep"/><path class="l-trail" id="trail"/><path class="n-cut" id="nodesCut"/><path class="n-keep" id="nodesKeep"/><path class="n-prose" id="nodesProse"/><path class="n-instr" id="nodesInstr"/><path class="n-mixed" id="nodesMixed"/><path class="n-note" id="nodesNote"/><g id="labels"></g><circle class="ring" id="ring" r="10" visibility="hidden"/></g></svg>
-      <div class="hint">Click any mark to read it. Drag to move. Ctrl + scroll to zoom.</div>
-      <aside class="panel" id="panel" aria-label="Message details" hidden>
-        <header><span class="pill" id="pStatus"></span><h3 id="pTitle"></h3><button class="icon" id="pClose" aria-label="Close details">&times;</button></header>
-        <div class="counts">
-          <div><b id="pWords"></b><span>words in this message</span></div>
-          <div><b id="pCum"></b><span>total words up to here</span></div>
-          <div class="bad"><b id="pDisc"></b><span>discarded words above</span></div>
+    </div></div>
+  </section>
+  <section class="wrap block" aria-labelledby="h-work"><h2 id="h-work">Working time</h2><div class="time-controls"><label class="range" for="gap"><span id="gapLabel"></span><input id="gap" type="range" min="5" max="60" step="5" value="20"></label><label class="check" for="countNotes"><input id="countNotes" type="checkbox">Count time on continuity notes</label></div></section>
+  <section class="wrap block"><details class="advanced" id="advanced">
+      <summary>Advanced sorting <span id="advCount"></span></summary>
+      <div class="adv-grid">
+        <div class="adv-col adv-handoffs">
+          <h3>Handoffs and reference documents</h3>
+          <p class="sub">A message that contains one of these, or has an attached file with it in the name, counts as continuity notes. This applies to your messages and AI replies.</p>
+          <form class="phrase-form" id="phraseForm"><label class="sr" for="phraseInput">Word or file name to exclude from prose</label><input id="phraseInput" type="text" placeholder="e.g. bible.md" autocomplete="off"><button class="btn" type="submit">Exclude</button></form>
+          <div class="phrase-list" id="phraseList"></div>
         </div>
-        <div class="meta" id="pMeta"></div>
-        <div class="kindbar" id="pKindBar"><span id="pKindNote"></span><span class="kind-label">Sort this message</span><span class="seg" role="group" aria-label="Sort this message as"><button data-kind="auto">Auto</button><button data-kind="output">Story</button><button data-kind="prose">Prose</button><button data-kind="instruction">Instruction</button><button data-kind="continuity">Continuity</button></span><span class="kind-hint">Click any passage below to switch just that passage.</span></div>
-        <div class="msg" id="pText" tabindex="0"></div>
-        <div class="review-bar" id="reviewBar" hidden><span id="reviewPos" aria-live="polite"></span><button class="btn" id="reviewPrev">Back</button><button class="btn" id="reviewNext">Skip</button><button class="btn" id="reviewNote" hidden>Continuity</button><button class="btn primary" id="reviewOk">Looks right</button></div>
-        <footer><button class="btn" id="pPrev">Earlier message</button><button class="btn" id="pNext">Later message</button></footer>
-      </aside>
-    </div>
-  </section>
-
-  <div class="wrap method"><details>
-    <summary>How these numbers are calculated</summary>
-    <ul>
-      <li><b>Kept</b> counts AI words and the person's story prose on the branch that was selected when the chat was exported. Some AI words may be planning or feedback, so treat it as the most that could have reached the manuscript.</li>
-      <li><b>Story prose and instructions</b> are sorted automatically. Text in ((double parentheses)), [square brackets], {{double braces}}, or after labels such as OOC: counts as instruction. Unmarked paragraphs are judged by their wording, and uncertain ones are flagged for review. Open a message to correct all of its guessed text, or click one passage to switch it. Corrections are remembered in this browser.</li>
-      <li><b>Advanced sorting</b> follows these rules. A switched passage always wins. Choosing Prose, Instruction, or Story for a message sets its guessed text and lifts any word exclusion on it, while HTML tag choices and explicit markers stay in place. Choosing Continuity applies to the whole message. Otherwise, excluded words apply first, then tags and markers, then the automatic sorting. Tag markup itself is not counted as prose or instruction.</li>
-      <li><b>Multiple chat logs</b> are combined. A chat found in two files is counted once using its fullest copy, and messages shared by copied chats are counted once.</li>
-      <li><b>Abandoned</b> counts every other AI word and story-prose word: regenerated replies and branches the person left. Instructions are never counted as manuscript.</li>
-      <li><b>Continuity notes</b> are summaries, handoffs, and background records. They are kept out of the manuscript, AI output, the person's prose, and direction totals.</li>
-      <li><b>Repeated text</b> is any run of 40 or more identical words already seen in an earlier message, ignoring capitalization and punctuation. Only the first appearance counts, so a summary pasted into a new chat is not counted again. Text on a kept branch takes priority over an abandoned copy.</li>
-      <li><b>Hours worked</b> adds the time between consecutive messages, using the export's timestamps. Any pause longer than the break setting counts as time away. AI generation time is subtracted when the export records it; otherwise the total includes waiting for the AI. Time around messages that are mostly continuity notes or repeated text is left out unless you choose to count it. Work done outside the chat is not included.</li>
-      <li><b>Reading time</b> assumes 238 words per minute, a typical adult silent reading speed. It shows how long reading every generated word once would take, whether or not the person read all of it.</li>
-      <li><b>Attempts rejected</b> counts each extra branch at a fork. Three replies to one prompt counts as two rejected attempts.</li>
-      <li><b>Retried prompts</b> count only the words that changed. A prompt is treated as a retry when at least 60% of its words match, in order, an earlier version beside it or one of the three prompts before it on the same branch. The kept version receives credit for the shared words, and abandoned versions count only what was unique to them. The retry still counts as an attempt, and its time still counts as work.</li>
-      <li><b>Discarded words above</b>, for a single message, adds all words at earlier turns that are not on that message's own path. Other attempts at the same turn are not included.</li>
-      <li><b>Shared dashboards</b> contain only totals, weekly hours, node shapes, categories, and rough lengths. They are self-reported and are not independently verified.</li>
-      <li>Hidden model reasoning and tool output stored in collapsible blocks is left out of every count. Your file is read in this browser and is not uploaded.</li>
-    </ul>
-  </details></div>
+        <div class="adv-col adv-tags">
+          <h3>HTML tags in the chats</h3>
+          <p class="sub">Choose how the text inside each tag counts. Prose and Not prose apply to your messages. Continuity applies to your messages and AI replies. The innermost tag wins when nested.</p>
+          <div id="tagCatalog"></div>
+        </div>
+        <div class="adv-col adv-wide">
+          <div class="adv-title"><h3>Built-in markers</h3><button class="link-btn" id="markerReset" type="button">Restore defaults</button></div>
+          <p class="sub">Checked markers are applied automatically. Numbers show how many of your messages contain each one. Turn off any your writing uses for story text.</p>
+          <div class="marker-groups">
+            <div class="marker-group"><h4>Text inside counts as instruction</h4><div id="markerWrap"></div></div>
+            <div class="marker-group lines"><h4>Lines starting with these count as instruction</h4><div id="markerLine"></div><div class="custom-labels" id="markerCustom"></div>
+              <form class="label-form" id="labelForm"><label class="sr" for="labelInput">Add line labels, separated by commas</label><input id="labelInput" type="text" placeholder="Add label, e.g. Director:" maxlength="200" autocomplete="off"><button class="btn" type="submit">Add</button></form></div>
+            <div class="marker-group"><h4>Left out of every count</h4><div id="markerHidden"></div></div>
+          </div>
+        </div>
+      </div>
+    </details></section>
+  </div>
 </main>
+
+<dialog class="share-dialog" id="batchDialog" aria-labelledby="batchTitle">
+  <div class="share-body">
+    <div class="share-head"><div><h2 id="batchTitle"></h2><p id="batchSub"></p></div><button class="icon" id="batchClose" aria-label="Close preview">&times;</button></div>
+    <ul class="batch-list" id="batchList"></ul>
+    <div class="share-foot"><span class="share-warning">You can undo this from History.</span><button class="btn primary" id="batchApply"></button></div>
+  </div>
+</dialog>
 
 <dialog class="share-dialog" id="shareDialog" aria-labelledby="shareTitle">
   <div class="share-body">
@@ -412,12 +644,12 @@ body.dragging .map, body.dragging .hero { outline: 2px dashed var(--keep); outli
 const $ = id => document.getElementById(id);
 const fmt = n => Math.round(n).toLocaleString();
 const SPACE_X = 24, SPACE_Y = 30, WPM_READ = 238, WORK_WEEK = 40, WORDS_PER_PAGE = 250;
-const state = { chats: [], view: 'all', gap: 20, sample: true, selected: null, shared: null, nodes: [], files: [], markers: '', over: {}, passages: {}, confirmed: {}, phrases: [], tagRules: {}, catalog: [], unclosedTags: [], largeAt: 2000, largeOk: {}, countNotes: false, auditFilter: 'all', queueMode: 'unsure', repeats: new Map(), reuse: new Map(), lastBulk: null, t: { k: 1, x: 0, y: 0 } };
+const state = { chats: [], view: 'all', gap: 20, sample: true, selected: null, shared: null, page: 'summary', mapMode: 'strip', flagFilter: 'all', ledger: [], openChat: null, openStubs: new Set(), listRows: [], nodes: [], files: [], customLabels: [], markerUsers: [], markerOff: {}, markerCounts: {}, stripDetails: true, hiddenCount: 0, over: {}, failed: {}, passages: {}, confirmed: {}, phrases: [], tagRules: {}, catalog: [], unclosedTags: [], largeAt: 2000, largeOk: {}, countNotes: false, auditFilter: 'all', queueMode: 'unsure', repeats: new Map(), reuse: new Map(), lastBulk: null, t: { k: 1, x: 0, y: 0 } };
 
 /* ---------- Reading the export ---------- */
 function cleanText(c) {
   let s = typeof c === 'string' ? c : Array.isArray(c) ? c.map(p => typeof p === 'string' ? p : (p && p.text) || '').join('\n') : '';
-  return s.replace(/<details\b[^>]*>[\s\S]*?<\/details>/gi, '').trim();
+  return (state.stripDetails ? s.replace(/<details\b[^>]*>[\s\S]*?<\/details>/gi, '') : s).trim();
 }
 const countWords = s => { const m = s.match(/\S+/g); return m ? m.length : 0; };
 function toMs(v) {
@@ -494,7 +726,9 @@ function buildChat(raw, idx) {
   const title = raw.title || body.title || `Conversation ${idx + 1}`;
   order.forEach(n => { n.chatTitle = title; n.rootList = roots; });
   const first = order.reduce((v, n) => n.ts && (!v || n.ts < v) ? n.ts : v, null);
-  return { title, roots, nodes: order, first };
+  const chat = { title, roots, nodes: order, first, hasCurrent: hist.currentId != null && byId.has(String(hist.currentId)) };
+  order.forEach(n => { n.chat = chat; });
+  return chat;
 }
 
 /* ---------- Sorting the person's words into prose and instructions ---------- */
@@ -513,10 +747,93 @@ function scoreParagraph(p) {
   if (s <= -1) return { kind: 'prose', unsure: false };
   return { kind: wc < 25 ? 'instruction' : 'prose', unsure: true };
 }
+const BUILTIN_MARKERS = [
+  { id: 'double-parens', group: 'wrap', label: '((text))', src: '\\(\\([\\s\\S]*?\\)\\)' },
+  { id: 'square', group: 'wrap', label: '[text]', src: '\\[[^\\]]*\\]' },
+  { id: 'double-braces', group: 'wrap', label: '{{text}}', src: '\\{\\{[\\s\\S]*?\\}\\}' },
+  { id: 'ooc-tag', group: 'wrap', label: '<ooc>text</...>', src: '<ooc>[\\s\\S]*?<\\/ooc>' },
+  { id: 'ooc', group: 'line', label: 'OOC:', src: 'ooc\\s*:' },
+  { id: 'note', group: 'line', label: 'Note: / Notes:', src: 'notes?\\s*:' },
+  { id: 'an', group: 'line', label: 'A/N:', src: 'a\\/n\\s*:' },
+  { id: 'author-note', group: 'line', label: "Author's note:", src: "author'?s? notes?\\s*:" },
+  { id: 'instruction', group: 'line', label: 'Instruction:', src: 'instructions?\\s*:' },
+  { id: 'system', group: 'line', label: 'System:', src: 'system\\s*:' },
+  { id: 'slashes', group: 'line', label: '//', src: '\\/\\/' }
+];
+const escapeLabel = text => text.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&');
+const lineMarker = src => `^[ \\t]*(?:${src}).*$`;
 function markerRegex() {
-  const custom = state.markers.split(',').map(x => x.trim()).filter(Boolean).map(x => x.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&'));
-  const lines = ["(?:ooc|notes?|a\\/n|author'?s? notes?|instructions?|system)\\s*:", '\\/\\/', ...custom].join('|');
-  return new RegExp(`\\(\\([\\s\\S]*?\\)\\)|\\[[^\\]]*\\]|\\{\\{[\\s\\S]*?\\}\\}|<ooc>[\\s\\S]*?<\\/ooc>|^[ \\t]*(?:${lines}).*$`, 'gim');
+  const on = BUILTIN_MARKERS.filter(m => !state.markerOff[m.id]);
+  const custom = state.customLabels.filter(x => x.on).map(x => escapeLabel(x.text));
+  const lines = [...on.filter(m => m.group === 'line').map(m => m.src), ...custom];
+  const parts = on.filter(m => m.group === 'wrap').map(m => m.src);
+  if (lines.length) parts.push(lineMarker(lines.join('|')));
+  return new RegExp(parts.join('|') || '(?!)', 'gim');
+}
+function countBuiltInMarkers() {
+  const seen = new Set(), users = []; let hidden = 0;
+  state.chats.forEach(c => c.nodes.forEach(n => {
+    if (seen.has(n.id)) return; seen.add(n.id);
+    if (n.role === 'user') users.push(n.text);
+    const raw = n.raw?.content; if (/<details\b/i.test(typeof raw === 'string' ? raw : JSON.stringify(raw ?? ''))) hidden++;
+  }));
+  state.markerCounts = {}; state.markerUsers = users;
+  BUILTIN_MARKERS.forEach(m => {
+    const re = new RegExp(m.group === 'line' ? lineMarker(m.src) : m.src, 'im');
+    state.markerCounts[m.id] = users.reduce((total, text) => total + (re.test(text) ? 1 : 0), 0);
+  });
+  state.hiddenCount = hidden;
+}
+function markerRow(id, label, onChange) {
+  const row = document.createElement('label'); row.className = 'marker-toggle'; row.htmlFor = `marker-${id}`;
+  const box = document.createElement('input'); box.type = 'checkbox'; box.id = `marker-${id}`; box.onchange = () => onChange(box.checked);
+  const code = document.createElement('code'); code.textContent = label;
+  const count = document.createElement('span'); count.id = `marker-count-${id}`;
+  row.append(box, code, count); return row;
+}
+function renderMarkers() {
+  if (!$('marker-square')) {
+    BUILTIN_MARKERS.forEach(m => $(m.group === 'wrap' ? 'markerWrap' : 'markerLine').append(markerRow(m.id, m.label, on => {
+      if (on) delete state.markerOff[m.id]; else state.markerOff[m.id] = true;
+      applyRules();
+    })));
+    $('markerHidden').append(markerRow('details', '<details>…</...>', on => setStripDetails(on)));
+  }
+  BUILTIN_MARKERS.forEach(m => { $(`marker-${m.id}`).checked = !state.markerOff[m.id]; $(`marker-count-${m.id}`).textContent = fmt(state.markerCounts[m.id] || 0); });
+  $('marker-details').checked = state.stripDetails; $('marker-count-details').textContent = fmt(state.hiddenCount);
+  const focused = document.activeElement?.id, box = $('markerCustom'); box.textContent = '';
+  state.customLabels.forEach(item => {
+    const id = `custom-${passageHash(item.text.toLowerCase())}`, wrap = document.createElement('div'); wrap.className = 'custom-row';
+    const row = markerRow(id, item.text, on => { item.on = on; applyRules(); });
+    const re = new RegExp(lineMarker(escapeLabel(item.text)), 'im');
+    row.querySelector('input').checked = item.on;
+    row.querySelector('span').textContent = fmt(state.markerUsers.reduce((total, text) => total + (re.test(text) ? 1 : 0), 0));
+    const remove = document.createElement('button'); remove.type = 'button'; remove.textContent = '×'; remove.title = `Remove ${item.text}`; remove.setAttribute('aria-label', `Remove label ${item.text}`);
+    remove.onclick = () => { state.customLabels = state.customLabels.filter(x => x !== item); applyRules(); $('labelInput').focus(); };
+    wrap.append(row, remove); box.append(wrap);
+  });
+  if (focused?.startsWith('marker-custom-')) $(focused)?.focus();
+}
+function parseLabels(text) {
+  const out = [], seen = new Set();
+  String(text).split(',').map(x => x.trim().slice(0, 80)).filter(Boolean).forEach(x => { const k = x.toLowerCase(); if (!seen.has(k)) { seen.add(k); out.push({ text: x, on: true }); } });
+  return out;
+}
+$('labelForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const known = new Set(state.customLabels.map(x => x.text.toLowerCase()));
+  parseLabels($('labelInput').value).forEach(x => {
+    const old = state.customLabels.find(y => y.text.toLowerCase() === x.text.toLowerCase());
+    if (old) old.on = true; else if (!known.has(x.text.toLowerCase())) state.customLabels.push(x);
+  });
+  $('labelInput').value = ''; applyRules(); $('labelInput').focus();
+});
+function setStripDetails(on) {
+  if (state.stripDetails === on) return;
+  state.stripDetails = on; saveRules();
+  const view = state.view, r = rebuild();
+  if (view !== 'all' && state.chats[+view]) { state.view = view; $('project').value = view; renderSummary(); renderMap(); }
+  finishLoad(r);
 }
 function autoSegments(text, re) {
   const out = []; let last = 0, unsure = false;
@@ -582,6 +899,7 @@ function applyPassages(n, segs) {
 }
 function switchPassage(n, index) {
   const x = n.segs[index]; if (!x || !x.k) return;
+  logDecision([n.id], 'Switched a passage');
   const next = nextKind(n, x), saved = state.passages[n.id] || (state.passages[n.id] = {});
   if (next === x.base) delete saved[x.key]; else saved[x.key] = next;
   if (!Object.keys(saved).length) delete state.passages[n.id];
@@ -650,7 +968,7 @@ function bestRetry(n, words, tokens) {
 function computeRepeats() {
   const byId = new Map();
   state.chats.forEach((c, ci) => c.nodes.forEach(n => {
-    if (n.role !== 'user' && n.role !== 'assistant') return;
+    if ((n.role !== 'user' && n.role !== 'assistant') || state.failed[n.id]) return;
     const e = byId.get(n.id); if (e) e.kept = e.kept || n.kept; else byId.set(n.id, { n, kept: n.kept, ci });
   }));
   const msgs = [...byId.values()].sort((a, b) => (a.n.ts || 0) - (b.n.ts || 0) || a.ci - b.ci || a.n.depth - b.n.depth);
@@ -750,6 +1068,8 @@ function classifyAll() {
   state.chats.forEach(c => {
     c.nodes.forEach(n => {
       n.prose = n.instr = n.output = n.cont = n.rep = n.retryW = 0; let retryProse = 0, retryInstr = 0;
+      n.failed = !!state.failed[n.id];
+      if (n.failed) { n.kind = 'failed'; n.counted = 0; n.aside = 0; n.retryShare = 0; n.unsure = false; n.segs = []; n.reason = 'ignored as a technical failure'; return; }
       if (n.role !== 'user' && n.role !== 'assistant') { n.kind = null; n.counted = n.words; n.aside = 0; n.retryShare = 0; n.unsure = false; n.segs = null; n.reason = ''; return; }
       if (!n.tags) n.tags = parseTags(n.text);
       if (n.hay == null) n.hay = `${n.text}\n${attachedNames(n.raw)}`.toLowerCase();
@@ -776,8 +1096,10 @@ function classifyAll() {
     const above = [0, 0]; for (let d = 2; d < atDepth.length; d++) above[d] = above[d - 1] + (atDepth[d - 1] || 0);
     c.nodes.forEach(n => { n.disc = Math.max(0, above[n.depth] - (n.cum - n.counted)); });
   });
+  computeFlags();
 }
 function buildCatalog() {
+  countBuiltInMarkers();
   const seen = new Set(), tags = new Map(), open = new Set();
   state.chats.forEach(c => c.nodes.forEach(n => {
     if (!n.tags || seen.has(n.id)) return;
@@ -792,7 +1114,8 @@ function buildCatalog() {
   state.unclosedTags = [...open].filter(x => !tags.has(x)).sort();
 }
 function renderRules() {
-  const active = state.phrases.length + Object.keys(state.tagRules).length + state.markers.split(',').filter(x => x.trim()).length;
+  const active = state.phrases.length + Object.keys(state.tagRules).length + state.customLabels.filter(x => x.on).length + Object.keys(state.markerOff).length + (state.stripDetails ? 0 : 1);
+  renderMarkers();
   $('advCount').textContent = active ? `(${active} active)` : '';
 
   const list = $('phraseList'); list.textContent = '';
@@ -816,7 +1139,7 @@ function renderRules() {
     const body = document.createElement('tbody');
     state.catalog.forEach(t => {
       const row = document.createElement('tr'), cur = state.tagRules[t.name] || 'auto';
-      const name = document.createElement('td'); name.className = 'tag-name'; name.textContent = `<${t.name}> </${t.name}>`;
+      const name = document.createElement('td'); name.className = 'tag-name'; name.textContent = `<${t.name}> </...>`; name.title = `<${t.name}> </${t.name}>`;
       const msgs = document.createElement('td'); msgs.className = 'num'; msgs.textContent = fmt(t.msgs.size);
       const words = document.createElement('td'); words.className = 'num'; words.textContent = fmt(t.words);
       const pick = document.createElement('td'), seg = document.createElement('span'); seg.className = 'seg'; seg.setAttribute('role', 'group'); seg.setAttribute('aria-label', `Count text inside ${t.name} as`);
@@ -839,18 +1162,27 @@ function loadRules() {
     const r = JSON.parse(localStorage.getItem('bluepencil.rules') || '{}');
     state.phrases = Array.isArray(r.phrases) ? r.phrases.filter(x => typeof x === 'string' && x) : [];
     state.tagRules = r.tags && typeof r.tags === 'object' ? r.tags : {};
-    state.markers = typeof r.markers === 'string' ? r.markers : '';
+    state.customLabels = Array.isArray(r.customLabels)
+      ? parseLabels(r.customLabels.filter(x => x && typeof x.text === 'string').map(x => x.text.replace(/,/g, ' ')).join(',')).map(x => ({ ...x, on: r.customLabels.find(y => y && typeof y.text === 'string' && y.text.trim().toLowerCase() === x.text.toLowerCase())?.on !== false }))
+      : parseLabels(typeof r.markers === 'string' ? r.markers : '');
+    state.markerOff = r.markerOff && typeof r.markerOff === 'object' && !Array.isArray(r.markerOff) ? Object.fromEntries(Object.keys(r.markerOff).filter(k => BUILTIN_MARKERS.some(m => m.id === k)).map(k => [k, true])) : {};
+    state.stripDetails = r.stripDetails !== false;
     if (Number(r.largeAt) >= 100) state.largeAt = Number(r.largeAt);
     state.countNotes = !!r.countNotes;
     state.largeOk = JSON.parse(localStorage.getItem('bluepencil.largeok') || '{}');
   } catch {}
-  $('markers').value = state.markers; $('largeAt').value = state.largeAt; $('countNotes').checked = state.countNotes;
+  $('largeAt').value = state.largeAt; $('countNotes').checked = state.countNotes;
 }
-function saveRules() { try { localStorage.setItem('bluepencil.rules', JSON.stringify({ phrases: state.phrases, tags: state.tagRules, markers: state.markers, largeAt: state.largeAt, countNotes: state.countNotes })); } catch {} }
+function saveRules() { try { localStorage.setItem('bluepencil.rules', JSON.stringify({ phrases: state.phrases, tags: state.tagRules, customLabels: state.customLabels, largeAt: state.largeAt, countNotes: state.countNotes, markerOff: state.markerOff, stripDetails: state.stripDetails })); } catch {} }
 function applyRules() {
   saveRules();
   const n = state.selected; classifyAll(); renderSummary(); drawNodes(); renderRules(); if (n) select(n);
 }
+$('markerReset').addEventListener('click', () => {
+  state.markerOff = {};
+  if (!state.stripDetails) setStripDetails(true); else applyRules();
+  saveRules(); renderRules();
+});
 $('phraseForm').addEventListener('submit', e => {
   e.preventDefault();
   const v = $('phraseInput').value.trim(); if (!v) return;
@@ -860,6 +1192,8 @@ $('phraseForm').addEventListener('submit', e => {
 function loadOverrides() { try { return JSON.parse(localStorage.getItem('bluepencil.overrides') || '{}'); } catch { return {}; } }
 function loadConfirmed() { try { return JSON.parse(localStorage.getItem('bluepencil.confirmed') || '{}'); } catch { return {}; } }
 function saveConfirmed() { try { localStorage.setItem('bluepencil.confirmed', JSON.stringify(state.confirmed)); } catch {} }
+function loadFailed() { try { const v = JSON.parse(localStorage.getItem('bluepencil.failed') || '{}'); return v && typeof v === 'object' && !Array.isArray(v) ? v : {}; } catch { return {}; } }
+function saveFailed() { try { localStorage.setItem('bluepencil.failed', JSON.stringify(state.failed)); } catch {} }
 function loadPassages() { try { return JSON.parse(localStorage.getItem('bluepencil.passages') || '{}'); } catch { return {}; } }
 function saveOverrides() { try { localStorage.setItem('bluepencil.overrides', JSON.stringify(state.over)); } catch {} }
 
@@ -870,14 +1204,15 @@ function uniqueNodes(chats) {
   return unique;
 }
 function totals(chats) {
-  const r = { keptAI: 0, cutAI: 0, keptProse: 0, cutProse: 0, instr: 0, instrMsgs: 0, prompts: 0, alts: 0, unsure: 0, notes: 0, repeated: 0, retried: 0 };
+  const r = { keptAI: 0, cutAI: 0, keptProse: 0, cutProse: 0, instr: 0, instrMsgs: 0, prompts: 0, alts: 0, unsure: 0, notes: 0, repeated: 0, retried: 0, failedMsgs: 0, failedWords: 0 };
   const unique = uniqueNodes(chats), kids = new Map();
   chats.forEach(c => {
-    r.alts += Math.max(0, c.roots.length - 1);
-    c.nodes.forEach(n => { if (n.parent) { if (!kids.has(n.parent.id)) kids.set(n.parent.id, new Set()); kids.get(n.parent.id).add(n.id); } });
+    r.alts += Math.max(0, c.roots.filter(n => !n.failed).length - 1);
+    c.nodes.forEach(n => { if (n.parent && !n.failed) { if (!kids.has(n.parent.id)) kids.set(n.parent.id, new Set()); kids.get(n.parent.id).add(n.id); } });
   });
   kids.forEach(set => { r.alts += set.size - 1; });
   unique.forEach(({ n, kept }) => {
+    if (n.failed) { r.failedMsgs++; r.failedWords += n.words; return; }
     r.notes += n.cont; r.repeated += n.rep; r.retried += n.retryW;
     if (n.role === 'assistant') { if (kept) r.keptAI += n.output; else r.cutAI += n.output; }
     if (n.role === 'user') {
@@ -892,22 +1227,23 @@ function totals(chats) {
 function workTime(chats, gapMin) {
   const list = [...uniqueNodes(chats).values()].map(x => x.n).filter(n => n.ts).sort((a, b) => a.ts - b.ts);
   const limit = gapMin * 60000, days = new Map(), isNote = n => n.aside >= .8;
-  let ms = 0, genMs = 0, notesMs = 0, sessions = list.length ? 1 : 0;
+  let ms = 0, genMs = 0, notesMs = 0, failedMs = 0, sessions = list.length ? 1 : 0;
   for (let i = 1; i < list.length; i++) {
     const a = list[i - 1], b = list[i], g = b.ts - a.ts;
     if (g > limit) { sessions++; continue; }
+    if (a.failed || b.failed) { failedMs += g; continue; }
     const wait = Math.min(g, a.genMs || 0); let t = g - wait; genMs += wait;
     if (!state.countNotes && (isNote(a) || isNote(b))) { notesMs += t; t = 0; }
     ms += t; if (t) { const k = dayKey(a.ts); days.set(k, (days.get(k) || 0) + t); }
   }
-  return { ms, genMs, notesMs, sessions, days, first: list[0]?.ts, last: list[list.length - 1]?.ts };
+  return { ms, genMs, notesMs, failedMs, sessions, days, first: list[0]?.ts, last: list[list.length - 1]?.ts };
 }
 const dayKey = t => { const d = new Date(t); return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime(); };
 function hoursText(ms) {
   const h = ms / 36e5;
   if (h >= 10) return `${fmt(h)} hours`;
   if (h >= 1) return `${h.toFixed(1)} hours`;
-  return `${Math.max(1, Math.round(h * 60))} minutes`;
+  const minutes = Math.max(1, Math.round(h * 60)); return `${minutes} ${minutes === 1 ? 'minute' : 'minutes'}`;
 }
 
 /* ---------- Summary ---------- */
@@ -915,12 +1251,12 @@ const activeChats = () => state.view === 'all' ? state.chats : [state.chats[+sta
 function renderSummary() {
   const chats = activeChats(), t = state.shared ? state.shared.t : totals(chats), w = state.shared ? state.shared.w : workTime(chats, state.gap), hrs = w.ms / 36e5;
   const all = t.kept + t.cut, share = v => all ? v / all * 100 : 0;
-  const timeBit = w.ms ? ` and worked for about <b>${hoursText(w.ms)}</b>` : '';
-  $('thesis').innerHTML = `To keep <b>${fmt(t.kept)} words</b>, a person wrote <b>${fmt(t.prose)} words of prose</b>, gave <b>${fmt(t.instr)} words of direction</b>, rejected <b>${fmt(t.alts)} attempts</b>${timeBit}.`;
+  $('thesis').innerHTML = `To keep <b>${fmt(t.kept)} words</b>, a person ${w.ms ? `worked about <b>${hoursText(w.ms)}</b> and ` : ''}rejected <b>${fmt(t.alts)} ${t.alts === 1 ? "attempt" : "attempts"}</b>.`;
   const perKept = t.keptAI ? (t.gen / t.keptAI).toFixed(1) : '0';
   const weeks = hrs / WORK_WEEK;
-  $('subthesis').textContent = `The AI produced ${fmt(t.gen)} words, about ${fmt(t.gen / WORDS_PER_PAGE)} book pages. For every AI word kept it wrote ${perKept}. Reading all of it once would take ${hoursText(t.gen / WPM_READ * 60000)}.` + (hrs >= 8 ? ` The working time adds up to ${weeks >= 1 ? weeks.toFixed(1) + ' full-time work weeks' : (hrs / 8).toFixed(1) + ' full workdays'}.` : '');
-  if (t.notes + t.repeated >= 1) $('subthesis').textContent += ` Another ${fmt(t.notes + t.repeated)} words of continuity notes and repeated text are not counted.`;
+  $('subthesis').textContent = `The AI produced ${fmt(t.gen)} words, about ${fmt(t.gen / WORDS_PER_PAGE)} book pages.`;
+  if (t.notes + t.repeated >= 1) $('subthesis').textContent += ` ${fmt(t.notes + t.repeated)} more words of notes and repeated text are not counted.`;
+  if (t.failedMsgs) $('subthesis').textContent += ` ${fmt(t.failedMsgs)} technical ${t.failedMsgs === 1 ? 'failure was' : 'failures were'} ignored.`;
 
   $('ledgerHuman').style.width = share(t.keptProse) + '%';
   $('ledgerKept').style.width = share(t.keptAI) + '%';
@@ -928,7 +1264,7 @@ function renderSummary() {
   $('keyHuman').textContent = `${fmt(t.keptProse)} (${fmt(share(t.keptProse))}%)`;
   $('keyKept').textContent = `${fmt(t.keptAI)} (${fmt(share(t.keptAI))}%)`;
   $('keyCut').textContent = `${fmt(t.cut)} (${fmt(share(t.cut))}%)`;
-  $('keyCutSplit').textContent = t.cutProse >= 1 ? `: ${fmt(t.cutAI)} AI, ${fmt(t.cutProse)} person` : '';
+  $('keyCutSplit').textContent = t.cutProse >= 1 ? `${fmt(t.cutAI)} AI, ${fmt(t.cutProse)} person` : '';
 
   const typed = t.prose + t.instr, pShare = typed ? t.prose / typed * 100 : 0;
   $('humanProse').style.width = (typed ? t.keptProse / typed * 100 : 0) + '%';
@@ -942,22 +1278,25 @@ function renderSummary() {
   $('reviewText').textContent = `${fmt(t.unsure)} ${t.unsure === 1 ? 'message needs' : 'messages need'} a second look.`;
 
   const stats = [
-    [w.ms ? hoursText(w.ms) : 'No data', `worked across ${fmt(w.sessions)} sittings`],
-    [fmt(t.prose), 'words of prose by the person'],
-    [fmt(t.instr), 'words of direction to the AI'],
-    [fmt(t.alts), 'attempts rejected']
+    [fmt(t.prose), 'words of human prose'],
+    [fmt(t.instr), 'words of direction'],
+    [fmt(t.gen), 'AI words generated'],
+    [w.ms ? fmt(w.sessions) : 'No data', w.sessions === 1 ? 'working sitting' : 'working sittings']
   ];
   $('stats').innerHTML = stats.map(([a, b]) => `<div class="stat"><strong>${a}</strong><span>${b}</span></div>`).join('');
   renderChart(w);
   renderAudit(t);
+  renderCoverage();
+  renderViews();
 }
-const isDecided = n => !!state.over[n.id] || !!state.largeOk[n.id] || n.aside >= .8 || n.retryShare >= .8;
+const isDecided = n => !!n.failed || !!state.over[n.id] || !!state.largeOk[n.id] || n.aside >= .8 || n.retryShare >= .8;
 function auditRows() {
   const rows = [];
   uniqueNodes(activeChats()).forEach(({ n }) => {
     if (n.role !== 'user' && n.role !== 'assistant') return;
+    if (n.failed) return;
     const reused = n.role === 'assistant' && state.reuse.has(n.id);
-    if (n.words < state.largeAt && !reused) return;
+    if (n.words < state.largeAt && n.text.length < state.largeAt * 20 && !reused) return;
     rows.push({ n, reused });
   });
   return rows.sort((a, b) => b.n.words - a.n.words);
@@ -969,6 +1308,34 @@ function decide(n, kind) {
 }
 function saveDecisions() { saveOverrides(); try { localStorage.setItem('bluepencil.largeok', JSON.stringify(state.largeOk)); } catch {} }
 function refreshCounts() { const n = state.selected, top = $('pText').scrollTop; classifyAll(); renderSummary(); drawNodes(); if (n) { select(n); $('pText').scrollTop = top; } }
+function setFailed(n, on) {
+  if (on) state.failed[n.id] = true; else delete state.failed[n.id];
+  saveFailed(); computeRepeats(); refreshCounts();
+}
+function renderFailures(t) {
+  const box = $('failList'), left = state.shared ? state.shared.w.failedMs : workTime(activeChats(), state.gap).failedMs; box.textContent = '';
+  $('failSub').textContent = t.failedMsgs
+    ? `${fmt(t.failedMsgs)} ${t.failedMsgs === 1 ? 'message' : 'messages'} and ${fmt(t.failedWords)} words ignored${left >= 60000 ? `, plus ${hoursText(left)} of nearby time` : ''}. These are not counted anywhere.`
+    : state.shared ? 'None were marked.' : 'Use Ignore on a looping or broken message to remove it from every total.';
+  if (state.shared || !t.failedMsgs) return;
+  const list = [...uniqueNodes(activeChats()).values()].map(x => x.n).filter(n => n.failed).sort((a, b) => b.words - a.words);
+  const wrap = document.createElement('div'); wrap.className = 'audit-scroll';
+  const table = document.createElement('table'); table.className = 'audit-table'; table.style.minWidth = '560px';
+  table.innerHTML = '<thead><tr><th scope="col">Message</th><th scope="col">Type</th><th scope="col" class="num">Words</th><th scope="col">Action</th></tr></thead>';
+  const body = document.createElement('tbody');
+  list.slice(0, 200).forEach(n => {
+    const tr = document.createElement('tr'), main = document.createElement('td'), open = document.createElement('button');
+    open.className = 'row-open'; open.textContent = n.text.slice(0, 300).replace(/\s+/g, ' ').slice(0, 90) || 'No visible text'; open.title = 'Open this message';
+    open.onclick = () => { $('map').scrollIntoView({ block: 'center' }); select(n, true); };
+    const sub = document.createElement('span'); sub.className = 'row-sub'; sub.textContent = `${n.chatTitle}, turn ${n.depth}`; main.append(open, sub);
+    const type = document.createElement('td'); type.className = 'nowrap'; type.textContent = n.role === 'user' ? 'Input' : 'Output';
+    const words = document.createElement('td'); words.className = 'num'; words.textContent = fmt(n.words);
+    const act = document.createElement('td'), restore = document.createElement('button'); restore.className = 'btn'; restore.textContent = 'Restore'; restore.setAttribute('aria-label', `Restore message from ${n.chatTitle}, turn ${n.depth}`);
+    restore.onclick = () => { logDecision([n.id], 'Restored a message'); setFailed(n, false); };
+    act.append(restore); tr.append(main, type, words, act); body.append(tr);
+  });
+  table.append(body); wrap.append(table); box.append(wrap);
+}
 function renderAudit(t) {
   const all = t.counted + t.notes + t.repeated, pct = v => all ? v / all * 100 : 0;
   $('auditCounted').style.width = pct(t.counted) + '%'; $('auditNotes').style.width = pct(t.notes) + '%';
@@ -976,17 +1343,18 @@ function renderAudit(t) {
   $('keyCounted').textContent = `${fmt(t.counted)} (${fmt(pct(t.counted))}%)`;
   $('keyNotes').textContent = `${fmt(t.notes)} (${fmt(pct(t.notes))}%)`;
   $('keyRepeated').textContent = `${fmt(t.repeated)} (${fmt(pct(t.repeated))}%)`;
-  if (state.shared) { $('auditCount').textContent = `${fmt(t.notes + t.repeated)} words not counted`; $('auditSub').textContent = 'Continuity notes and repeated text are kept out of the totals above.'; return; }
+  if (state.shared) { $('auditCount').textContent = `${fmt(t.notes + t.repeated)} words not counted${t.failedMsgs ? ` · ${fmt(t.failedMsgs)} technical ${t.failedMsgs === 1 ? 'failure' : 'failures'}` : ''}`; $('auditSub').textContent = 'Continuity notes and repeated text are kept out of the totals above.'; renderFailures(t); return; }
   const rows = auditRows(), undecided = rows.filter(r => !isDecided(r.n)), reusedOpen = rows.filter(r => r.reused && !isDecided(r.n));
   $('auditSub').textContent = rows.length ? `${fmt(rows.length)} long or reused ${rows.length === 1 ? 'message' : 'messages'} flagged. ${undecided.length ? `${fmt(undecided.length)} still ${undecided.length === 1 ? 'needs' : 'need'} a decision.` : 'All are decided.'}` : 'No messages are over the current limit.';
   if (t.retried >= 1) $('auditSub').textContent += ` ${fmt(t.retried)} repeated words are unchanged text in retried prompts.`;
-  $('auditCount').textContent = `${fmt(t.notes + t.repeated)} words not counted${undecided.length ? ` · ${fmt(undecided.length)} to review` : ''}`;
+  $('auditCount').textContent = `${fmt(t.notes + t.repeated)} words not counted${t.failedMsgs ? ` · ${fmt(t.failedMsgs)} technical ${t.failedMsgs === 1 ? 'failure' : 'failures'}` : ''}${undecided.length ? ` · ${fmt(undecided.length)} to review` : ''}`;
   $('auditReview').hidden = !undecided.length;
   $('bulkNotes').hidden = !reusedOpen.length;
   $('bulkNotes').textContent = `Mark ${fmt(reusedOpen.length)} reused AI ${reusedOpen.length === 1 ? 'output' : 'outputs'} as continuity`;
-  $('bulkUndo').hidden = !state.lastBulk;
+  $('bulkUndo').hidden = !state.ledger.length;
   document.querySelectorAll('[data-audit]').forEach(b => b.setAttribute('aria-pressed', b.dataset.audit === state.auditFilter));
 
+  renderFailures(t);
   const shown = rows.filter(r => state.auditFilter === 'all' || (state.auditFilter === 'reused' ? r.reused : r.n.role === state.auditFilter));
   const box = $('auditList'), oldTop = box.querySelector('.audit-scroll')?.scrollTop || 0; box.textContent = '';
   if (!shown.length) { const p = document.createElement('p'); p.className = 'empty-note'; p.textContent = 'Nothing matches this view. Lower the limit or choose another filter.'; box.append(p); return; }
@@ -997,7 +1365,7 @@ function renderAudit(t) {
   shown.slice(0, 200).forEach(({ n, reused }) => {
     const tr = document.createElement('tr');
     const main = document.createElement('td'), open = document.createElement('button');
-    open.className = 'row-open'; open.textContent = n.text.replace(/\s+/g, ' ').slice(0, 90) || 'No visible text'; open.title = 'Open this message';
+    open.className = 'row-open'; open.textContent = n.text.slice(0, 300).replace(/\s+/g, ' ').slice(0, 90) || 'No visible text'; open.title = 'Open this message';
     open.onclick = () => { $('map').scrollIntoView({ block: 'center' }); select(n, true); };
     const sub = document.createElement('span'); sub.className = 'row-sub'; sub.textContent = `${n.chatTitle}, turn ${n.depth}`; main.append(open, sub);
     const type = document.createElement('td'); type.className = 'nowrap'; type.textContent = `${n.role === 'user' ? 'Input' : 'Output'}${reused ? ', reused' : ''}`;
@@ -1008,10 +1376,10 @@ function renderAudit(t) {
     st.textContent = isNote ? 'Continuity' : isCopy ? 'Copy, not counted' : isRetry ? 'Retry, changes counted' : state.over[n.id] || state.largeOk[n.id] ? 'Counted' : 'Needs decision';
     now.append(st);
     const act = document.createElement('td'), seg = document.createElement('span'); seg.className = 'seg'; seg.setAttribute('role', 'group'); seg.setAttribute('aria-label', 'Count this message as');
-    [['keep', 'Story or direction'], ['continuity', 'Continuity']].forEach(([v, text]) => {
+    [['keep', 'Story or direction'], ['continuity', 'Continuity'], ['failed', 'Ignore']].forEach(([v, text]) => {
       const b = document.createElement('button'); b.textContent = text;
-      b.setAttribute('aria-pressed', v === 'continuity' ? state.over[n.id] === 'continuity' : !!state.largeOk[n.id]);
-      b.onclick = () => { decide(n, v); refreshCounts(); };
+      b.setAttribute('aria-pressed', v === 'failed' ? false : v === 'continuity' ? state.over[n.id] === 'continuity' : !!state.largeOk[n.id]);
+      b.onclick = () => { logDecision([n.id], v === 'failed' ? 'Ignored a message' : v === 'continuity' ? 'Marked as continuity' : 'Kept a message counted'); if (v === 'failed') setFailed(n, true); else { decide(n, v); refreshCounts(); } };
       seg.append(b);
     });
     act.append(seg); tr.append(main, type, words, now, act); body.append(tr);
@@ -1039,8 +1407,8 @@ function renderChart(w) {
   chart.classList.toggle('dense', dense); $('chartInner').style.minWidth = dense ? `${rows.length * 16}px` : '';
   chart.innerHTML = rows.map(([k, v]) => { const pct = v ? Math.max(2, v / max * 100) : 0; return `<div class="bar-col" title="${weekly ? 'Week of ' : ''}${dateText(k)}: ${v ? hoursText(v) : 'no work'}"><i style="height:${pct}%"></i>${v ? `<span style="bottom:calc(${pct}% + 3px)">${barLabel(v)}</span>` : ''}</div>`; }).join('');
   chart.setAttribute('aria-label', `Hours worked per ${weekly ? 'week' : 'day'}. The busiest ${weekly ? 'week' : 'day'} reached ${hoursText(max)}.`);
-  const left = [w.genMs >= 60000 ? `${hoursText(w.genMs)} of recorded AI generation` : '', w.notesMs >= 60000 ? `${hoursText(w.notesMs)} around continuity notes` : ''].filter(Boolean).join(' and ');
-  $('timeSub').textContent = `Hours per ${weekly ? 'week' : 'day'} over ${fmt(span)} calendar days.${left ? ` Left out: ${left}.` : ''}`;
+  const left = [w.genMs >= 60000 ? `${hoursText(w.genMs)} of recorded AI generation` : '', w.notesMs >= 60000 ? `${hoursText(w.notesMs)} around continuity notes` : '', w.failedMs >= 60000 ? `${hoursText(w.failedMs)} around technical failures` : ''].filter(Boolean).join(', ');
+  $('timeSub').textContent = `Hours per ${weekly ? 'week' : 'day'} over ${fmt(span)} calendar ${span === 1 ? "day" : "days"}.${left ? ` Left out: ${left}.` : ''}`;
   $('axisA').textContent = dateText(w.first); $('axisB').textContent = dateText(w.last);
 }
 
@@ -1062,15 +1430,16 @@ function layout(chat, offset) {
   return maxCol;
 }
 const curve = (a, b) => { const m = (a.y + b.y) / 2; return `M${a.x} ${a.y}C${a.x} ${m} ${b.x} ${m} ${b.x} ${b.y}`; };
-const mark = n => n.kind === 'continuity' ? `M${n.x - 8} ${n.y - 4}h16v8h-16z`
+const mark = n => n.failed ? `M${n.x - 5} ${n.y - 5}l10 10M${n.x + 5} ${n.y - 5}l-10 10`
+  : n.kind === 'continuity' ? `M${n.x - 8} ${n.y - 4}h16v8h-16z`
   : n.kind === 'instruction' ? `M${n.x} ${n.y - 7}l7 7l-7 7l-7 -7z`
   : n.kind === 'mixed' ? `M${n.x} ${n.y - 7}l7 13h-14z`
   : n.role === 'user' ? `M${n.x - 5} ${n.y - 5}h10v10h-10z`
   : `M${n.x - 6} ${n.y}a6 6 0 1 0 12 0a6 6 0 1 0 -12 0z`;
 function drawNodes() {
-  const g = { nodesKeep: [], nodesProse: [], nodesInstr: [], nodesMixed: [], nodesNote: [], nodesCut: [] };
+  const g = { nodesKeep: [], nodesProse: [], nodesInstr: [], nodesMixed: [], nodesNote: [], nodesFail: [], nodesCut: [] };
   state.nodes.forEach(n => {
-    const k = !n.kept ? 'nodesCut' : n.kind === 'continuity' ? 'nodesNote' : n.kind === 'prose' ? 'nodesProse' : n.kind === 'instruction' ? 'nodesInstr' : n.kind === 'mixed' ? 'nodesMixed' : 'nodesKeep';
+    const k = n.failed ? 'nodesFail' : !n.kept ? 'nodesCut' : n.kind === 'continuity' ? 'nodesNote' : n.kind === 'prose' ? 'nodesProse' : n.kind === 'instruction' ? 'nodesInstr' : n.kind === 'mixed' ? 'nodesMixed' : 'nodesKeep';
     g[k].push(mark(n));
   });
   Object.keys(g).forEach(id => $(id).setAttribute('d', g[id].join('')));
@@ -1096,6 +1465,7 @@ function renderMap() {
   drawNodes();
   $('labels').innerHTML = labels;
   fit();
+  renderViews();
 }
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
@@ -1110,7 +1480,7 @@ function setView(k, x, y) {
   else { state.t = { k, x, y }; $('scene').setAttribute('transform', `translate(${x},${y}) scale(${k})`); }
 }
 function fit() {
-  if (!state.nodes.length) return;
+  if (!state.nodes.length || state.page !== 'messages') return;
   const box = $('map').getBoundingClientRect(), xs = state.nodes.map(n => n.x), ys = state.nodes.map(n => n.y);
   const x0 = xs.reduce((a, b) => Math.min(a, b)), x1 = xs.reduce((a, b) => Math.max(a, b)), y0 = ys.reduce((a, b) => Math.min(a, b)), y1 = ys.reduce((a, b) => Math.max(a, b));
   const top = activeChats().length > 1 ? 130 : 64, side = 40;
@@ -1128,6 +1498,7 @@ function reveal(n) {
   if (sx < 30 || sx > right - 30 || sy < 60 || sy > bottom - 30) setView(t.k, Math.max(30, right / 2) - n.x * t.k, Math.max(70, bottom / 2) - n.y * t.k);
 }
 function select(n, keepInView) {
+  if (state.page !== 'messages') setPage('messages');
   if (state.shared) return selectShared(n, keepInView);
   state.selected = n;
   $('ring').setAttribute('cx', n.x); $('ring').setAttribute('cy', n.y); $('ring').setAttribute('visibility', 'visible');
@@ -1135,18 +1506,18 @@ function select(n, keepInView) {
   $('trail').setAttribute('d', d);
   $('pStatus').textContent = n.kept ? 'Kept' : 'Abandoned'; $('pStatus').classList.toggle('off', !n.kept);
   const userTitle = { prose: "Person's prose", instruction: 'Instruction', mixed: 'Prose + instruction' }[n.kind];
-  $('pTitle').textContent = `${n.kind === 'continuity' ? (n.cont >= n.rep ? 'Continuity note' : 'Repeated text') : n.role === 'user' ? userTitle : n.role === 'assistant' ? 'AI reply' : 'System note'}, turn ${n.depth}`;
+  $('pTitle').textContent = `${n.failed ? 'Technical failure' : n.kind === 'continuity' ? (n.cont >= n.rep ? 'Continuity note' : 'Repeated text') : n.role === 'user' ? userTitle : n.role === 'assistant' ? 'AI reply' : 'System note'}, turn ${n.depth}`;
   $('pWords').textContent = fmt(n.words); $('pCum').textContent = fmt(n.cum); $('pDisc').textContent = fmt(n.disc);
   $('pMeta').textContent = [n.ts ? new Date(n.ts).toLocaleString() : 'No timestamp', n.model].filter(Boolean).join(' · ');
   renderMessage(n); $('pText').scrollTop = 0;
   const sortable = n.role === 'user' || n.role === 'assistant';
   $('pKindBar').hidden = !sortable;
   if (sortable) {
-    const o = state.over[n.id] || 'auto', reuse = state.reuse.get(n.id);
+    const o = n.failed ? 'failed' : state.over[n.id] || 'auto', reuse = state.reuse.get(n.id);
     const parts = n.role === 'user' ? [[n.prose, 'prose'], [n.instr, 'instruction']] : [[n.output, 'story']];
     parts.push([n.cont, 'continuity'], [n.rep, 'repeated']);
     const copied = n.segs.find(x => x.k === 'repeat')?.from;
-    const notes = [parts.filter(([v]) => v >= 1).map(([v, l]) => `${fmt(v)} ${l}`).join(', ') || '0 words', n.unsure ? 'unsure' : '', copied ? `copied from ${copied}` : '', reuse ? `pasted into ${[...reuse.by].join(', ')}` : '', n.reason].filter(Boolean);
+    const notes = [parts.filter(([v]) => v >= 1).map(([v, l]) => `${fmt(v)} ${l}`).join(', ') || (n.failed ? 'Not counted' : '0 words'), n.unsure ? 'unsure' : '', copied ? `copied from ${copied}` : '', reuse ? `pasted into ${[...reuse.by].join(', ')}` : '', n.reason].filter(Boolean);
     $('pKindNote').textContent = notes.join(' · ');
     document.querySelectorAll('#pKindBar [data-kind]').forEach(b => {
       b.hidden = n.role === 'assistant' ? ['prose', 'instruction'].includes(b.dataset.kind) : b.dataset.kind === 'output';
@@ -1157,10 +1528,16 @@ function select(n, keepInView) {
   renderReviewBar();
   $('panel').hidden = false;
   if (keepInView) reveal(n);
+  syncViews(n);
 }
 function renderMessage(n) {
   const box = $('pText'); box.textContent = '';
   if (!n.text) { box.textContent = 'This message has no visible text.'; return; }
+  if (n.failed) {
+    box.textContent = n.text.length > 2000 ? `${n.text.slice(0, 2000)}…` : n.text;
+    if (n.text.length > 2000) { const note = document.createElement('span'); note.className = 'msg-note'; note.textContent = `Preview shortened from ${fmt(n.text.length)} characters.`; box.append(note); }
+    return;
+  }
   if (!n.segs) { box.textContent = n.text; return; }
   n.segs.forEach((s, i) => {
     const el = document.createElement('span'); el.textContent = s.t;
@@ -1178,31 +1555,51 @@ function renderMessage(n) {
 }
 document.querySelectorAll('#pKindBar [data-kind]').forEach(b => b.addEventListener('click', () => {
   const n = state.selected; if (!n) return;
+  logDecision([n.id], { failed: n.failed ? 'Restored a message' : 'Ignored a message', auto: 'Reset a message', output: 'Set a message to story', prose: 'Set a message to prose', instruction: 'Set a message to instruction', continuity: 'Set a message to continuity' }[b.dataset.kind]);
+  if (b.dataset.kind === 'failed') { setFailed(n, !n.failed); return; }
+  if (n.failed) { delete state.failed[n.id]; saveFailed(); computeRepeats(); }
   if (b.dataset.kind === 'auto') { delete state.over[n.id]; delete state.confirmed[n.id]; delete state.largeOk[n.id]; saveConfirmed(); } else { state.over[n.id] = b.dataset.kind; delete state.largeOk[n.id]; }
   saveDecisions(); classifyAll(); renderSummary(); drawNodes(); select(n);
 }));
+const PAGE_IDS = { summary: 'pageSummary', messages: 'pageMessages', cleanup: 'pageCleanup' };
+function setPage(page) {
+  if (!PAGE_IDS[page] || (page === 'cleanup' && state.shared)) page = 'summary';
+  const changed = page !== state.page;
+  if (changed && state.page === 'messages') closePanel();
+  state.page = page;
+  Object.entries(PAGE_IDS).forEach(([key, id]) => { $(id).hidden = key !== page; });
+  document.querySelectorAll('[data-page]').forEach(b => b.setAttribute('aria-selected', b.dataset.page === page));
+  if (changed) scrollTo(0, 0);
+  if (page === 'summary' && state.lastWork) renderChart(state.lastWork);
+  if (page === 'messages') { fit(); renderViews(); }
+}
+document.querySelectorAll('[data-page]').forEach(b => b.addEventListener('click', () => setPage(b.dataset.page)));
+$('attentionBtn').addEventListener('click', () => startReview('flagged'));
+$('timeAdjust').addEventListener('click', () => { setPage('cleanup'); $('h-work').scrollIntoView({ block: 'center' }); });
+function matchesFilter(n, filter) {
+  if (filter === 'all') return true;
+  if (filter === 'failed') return !!n.failed;
+  if (filter === 'flagged') return !!n.flags?.length;
+  return !!n.flags?.some(f => f.type === filter);
+}
 function reviewQueue() {
-  if (state.queueMode === 'large') {
-    const open = new Set(auditRows().filter(r => !isDecided(r.n)).map(r => r.n.id)), seen = new Set();
-    return state.nodes.filter(n => { if (!open.has(n.id) || seen.has(n.id)) return false; seen.add(n.id); return true; });
-  }
-  const seen = new Set();
-  return state.nodes.filter(n => {
-    if (n.role !== 'user' || !n.unsure || seen.has(n.id)) return false;
-    seen.add(n.id); return true;
-  });
+  const filter = ['all', 'failed'].includes(state.flagFilter) ? 'flagged' : state.flagFilter, seen = new Set();
+  return state.nodes.filter(n => { if (!matchesFilter(n, filter) || seen.has(n.id)) return false; seen.add(n.id); return true; });
 }
 function renderReviewBar() {
-  const q = reviewQueue(), bar = $('reviewBar'), large = state.queueMode === 'large';
-  bar.hidden = !q.length && !state.reviewing; bar.classList.toggle('large', large);
+  const q = reviewQueue(), bar = $('reviewBar'), n = state.selected;
+  const inQueue = !!n && q.some(x => x.id === n.id), flags = n?.flags || [], messageLevel = flags.some(f => f.type !== 'unsure');
+  bar.hidden = state.shared || (!q.length && !state.reviewing);
+  bar.classList.toggle('large', messageLevel);
   $('reviewPrev').hidden = $('reviewNext').hidden = !q.length;
-  const at = state.selected ? q.findIndex(x => x.id === state.selected.id) : -1;
-  $('reviewOk').hidden = at < 0; $('reviewNote').hidden = !large || at < 0;
-  $('reviewOk').textContent = large ? 'Count it' : 'Looks right';
-  $('reviewPos').textContent = !q.length ? (large ? 'All large messages decided' : 'All flagged messages reviewed') : at >= 0 ? `${large ? 'Large' : 'Needs review'}: ${at + 1} of ${q.length}` : `${q.length} left to review`;
+  $('reviewOk').hidden = !inQueue; $('reviewNote').hidden = $('reviewFail').hidden = !inQueue || !messageLevel;
+  $('reviewOk').textContent = messageLevel ? 'Count it' : 'Looks right';
+  const at = inQueue ? q.findIndex(x => x.id === n.id) : -1;
+  $('reviewPos').textContent = !q.length ? 'Nothing left to review here' : at >= 0 ? `${flags[0].label}: ${at + 1} of ${q.length}` : `${q.length} left to review`;
+  $('reviewReason').textContent = inQueue ? flags[0].reason : ''; $('reviewReason').hidden = !inQueue;
 }
 function reviewStep(dir) {
-  const q = reviewQueue(); if (!q.length) return;
+  const q = reviewQueue(); if (!q.length) { renderReviewBar(); return; }
   state.reviewing = true;
   const order = new Map(state.nodes.map((n, i) => [n, i])), cur = state.selected ? order.get(state.selected) : -1;
   const next = dir > 0 ? q.find(x => order.get(x) > cur) || q[0] : [...q].reverse().find(x => order.get(x) < cur) || q[q.length - 1];
@@ -1211,19 +1608,282 @@ function reviewStep(dir) {
   if (flagged) box.scrollTop = Math.max(0, flagged.getBoundingClientRect().top - box.getBoundingClientRect().top + box.scrollTop - 8);
 }
 function afterDecision(n) { classifyAll(); renderSummary(); drawNodes(); if (reviewQueue().length) reviewStep(1); else select(n); }
-$('reviewBtn').addEventListener('click', () => { state.queueMode = 'unsure'; $('map').scrollIntoView({ block: 'center' }); reviewStep(1); });
-$('auditReview').addEventListener('click', () => { state.queueMode = 'large'; $('map').scrollIntoView({ block: 'center' }); reviewStep(1); });
+function startReview(filter) {
+  if (filter) state.flagFilter = filter;
+  if (state.mapMode === 'tree') state.mapMode = 'strip';
+  setPage('messages'); renderViews(); reviewStep(1);
+}
+$('reviewBtn').addEventListener('click', () => startReview('unsure'));
+$('auditReview').addEventListener('click', () => startReview('flagged'));
+$('startReview').addEventListener('click', () => startReview());
 $('reviewNext').addEventListener('click', () => reviewStep(1));
 $('reviewPrev').addEventListener('click', () => reviewStep(-1));
-$('reviewNote').addEventListener('click', () => { const n = state.selected; if (!n) return; state.reviewing = true; decide(n, 'continuity'); afterDecision(n); });
+$('reviewNote').addEventListener('click', () => { const n = state.selected; if (!n) return; logDecision([n.id], 'Marked as continuity'); state.reviewing = true; decide(n, 'continuity'); afterDecision(n); });
+$('reviewFail').addEventListener('click', () => { const n = state.selected; if (!n) return; logDecision([n.id], 'Ignored a message'); state.reviewing = true; state.failed[n.id] = true; saveFailed(); computeRepeats(); afterDecision(n); });
 $('reviewOk').addEventListener('click', () => {
   const n = state.selected; if (!n || !n.segs) return;
   state.reviewing = true;
-  if (state.queueMode === 'large') { decide(n, 'keep'); afterDecision(n); return; }
+  if (n.flags?.some(f => f.type !== 'unsure')) { logDecision([n.id], 'Kept a message counted'); decide(n, 'keep'); afterDecision(n); return; }
+  logDecision([n.id], 'Confirmed sorting');
   const mark = state.confirmed[n.id] || (state.confirmed[n.id] = {});
   n.segs.forEach(x => { if (x.u && !x.fixed && x.key) mark[x.key] = true; });
   saveConfirmed(); afterDecision(n);
 });
+
+/* ---------- Automatic flags: suggestions with a stated reason ---------- */
+const LOOP_SCAN_CHARS = 240000, LOOP_SCAN_WORDS = 6000;
+function charLoop(text) {
+  const s = text.slice(-4000), f = new Int32Array(s.length);
+  for (let i = 1, k = 0; i < s.length; i++) { while (k && s[i] !== s[k]) k = f[k - 1]; if (s[i] === s[k]) k++; f[i] = k; }
+  const period = s.length - f[s.length - 1];
+  return s.length >= 400 && period <= 200 && s.length / period >= 20 ? period : 0;
+}
+function detectLoop(text) {
+  if (!text || text.length < 200) return null;
+  const tail = text.length > LOOP_SCAN_CHARS ? text.slice(-LOOP_SCAN_CHARS) : text, words = tail.toLowerCase().match(/\S+/g) || [], n = words.length;
+  if (words.some(w => w.length > 500) || n < 60) {
+    const period = charLoop(tail);
+    if (period) return { reason: `Ends by repeating the same ${fmt(period)}-character pattern` };
+  }
+  for (const skip of [0, 1]) for (let p = 1; p <= 200 && p * 4 <= n; p++) {
+    let run = 0;
+    for (let i = n - 1 - skip; i - p >= 0 && words[i] === words[i - p] && run < LOOP_SCAN_WORDS; i--) run++;
+    const covered = run + p, cycles = covered / p, need = p <= 2 ? 25 : p <= 10 ? 10 : 6;
+    if (cycles >= need && covered >= 200)
+      return { reason: `Ends by repeating the same ${fmt(p)}-word phrase ${run >= LOOP_SCAN_WORDS ? 'at least ' : ''}${fmt(Math.floor(cycles))} times` };
+  }
+  return null;
+}
+function computeFlags() {
+  state.chats.forEach(c => c.nodes.forEach(n => {
+    n.flags = [];
+    if (state.shared || n.failed || (n.role !== 'user' && n.role !== 'assistant')) return;
+    if (n.loopInfo === undefined) n.loopInfo = detectLoop(n.text);
+    const settled = !!state.over[n.id] || !!state.largeOk[n.id], copied = n.aside >= .8 || n.retryShare >= .8;
+    if (!settled && n.loopInfo) n.flags.push({ type: 'loop', label: 'Likely loop', reason: n.loopInfo.reason });
+    if (!settled && !copied) {
+      const reuse = n.role === 'assistant' ? state.reuse.get(n.id) : null;
+      if (reuse) n.flags.push({ type: 'reused', label: 'Reused output', reason: `Pasted into ${[...reuse.by].slice(0, 3).join(', ')}${reuse.by.size > 3 ? ` and ${reuse.by.size - 3} more` : ''}. It may be a handoff.` });
+      if (n.words >= state.largeAt) n.flags.push({ type: 'long', label: 'Long message', reason: `${fmt(n.words)} words, over your ${fmt(state.largeAt)}-word limit` });
+      else if (n.text.length >= state.largeAt * 20) n.flags.push({ type: 'long', label: 'Long message', reason: `${fmt(n.text.length)} characters in only ${fmt(n.words)} words` });
+    }
+    if (n.unsure) n.flags.push({ type: 'unsure', label: 'Unsure sorting', reason: 'Some text could be either prose or instruction.' });
+  }));
+}
+
+/* ---------- Decision history ---------- */
+function loadLedger() { try { const v = JSON.parse(localStorage.getItem('bluepencil.ledger') || '[]'); return Array.isArray(v) ? v.slice(-100) : []; } catch { return []; } }
+function saveLedger() { try { localStorage.setItem('bluepencil.ledger', JSON.stringify(state.ledger.slice(-100))); } catch {} }
+function logDecision(ids, label, source = 'You') {
+  if (state.shared) return;
+  const before = {};
+  ids.forEach(id => { before[id] = { failed: state.failed[id] || null, over: state.over[id] || null, largeOk: state.largeOk[id] || null, confirmed: state.confirmed[id] ? { ...state.confirmed[id] } : null, passages: state.passages[id] ? { ...state.passages[id] } : null }; });
+  state.ledger.push({ at: Date.now(), label: ids.length > 1 ? `${label} (${fmt(ids.length)})` : label, source, before });
+  if (state.ledger.length > 100) state.ledger.shift();
+  saveLedger();
+}
+function undoDecision() {
+  const entry = state.ledger.pop(); if (!entry) return;
+  Object.entries(entry.before).forEach(([id, b]) => {
+    [['failed', b.failed], ['over', b.over], ['largeOk', b.largeOk], ['confirmed', b.confirmed], ['passages', b.passages]].forEach(([key, value]) => { if (value == null) delete state[key][id]; else state[key][id] = value; });
+  });
+  saveLedger(); saveFailed(); saveDecisions(); saveConfirmed();
+  try { localStorage.setItem('bluepencil.passages', JSON.stringify(state.passages)); } catch {}
+  computeRepeats(); refreshCounts();
+}
+$('undoLast').addEventListener('click', undoDecision);
+
+/* ---------- Batch preview ---------- */
+let batchType = null;
+function batchCandidates(type) { const seen = new Set(); return state.nodes.filter(n => { if (seen.has(n.id) || !n.flags?.some(f => f.type === type)) return false; seen.add(n.id); return true; }); }
+function openBatch(type) {
+  batchType = type;
+  const list = batchCandidates(type), box = $('batchList'), loop = type === 'loop'; box.textContent = '';
+  $('batchTitle').textContent = loop ? 'Ignore likely loops' : 'Mark reused outputs as continuity';
+  $('batchSub').textContent = loop ? 'Uncheck anything that is real writing, such as a poem or refrain.' : 'Uncheck anything that is real story text, such as a chapter you pasted for context.';
+  list.forEach(n => {
+    const li = document.createElement('li'), label = document.createElement('label'), box2 = document.createElement('input'), text = document.createElement('span'), sub = document.createElement('small');
+    box2.type = 'checkbox'; box2.checked = true; box2.value = n.id; box2.onchange = updateBatchButton;
+    text.textContent = `${n.chatTitle}, turn ${n.depth} · ${fmt(n.words)} words`; sub.textContent = n.flags.find(f => f.type === type).reason;
+    text.append(sub); label.append(box2, text); li.append(label); box.append(li);
+  });
+  updateBatchButton(); $('batchDialog').showModal();
+}
+function updateBatchButton() {
+  const count = $('batchList').querySelectorAll('input:checked').length;
+  $('batchApply').disabled = !count;
+  $('batchApply').textContent = batchType === 'loop' ? `Ignore ${fmt(count)}` : `Mark ${fmt(count)} as continuity`;
+}
+$('batchApply').addEventListener('click', () => {
+  const ids = [...$('batchList').querySelectorAll('input:checked')].map(x => x.value); if (!ids.length) return;
+  logDecision(ids, batchType === 'loop' ? 'Ignored likely loops' : 'Marked reused outputs as continuity', 'Accepted suggestion');
+  ids.forEach(id => { if (batchType === 'loop') state.failed[id] = true; else { state.over[id] = 'continuity'; delete state.largeOk[id]; } });
+  saveFailed(); saveDecisions(); $('batchDialog').close(); computeRepeats(); refreshCounts();
+});
+$('batchClose').addEventListener('click', () => $('batchDialog').close());
+$('batchLoops').addEventListener('click', () => openBatch('loop'));
+$('bulkNotes').addEventListener('click', () => openBatch('reused'));
+$('bulkUndo').addEventListener('click', undoDecision);
+
+/* ---------- Coverage ---------- */
+function renderCoverage() {
+  if (state.shared) return;
+  const chats = activeChats(), nodes = [...uniqueNodes(chats).values()].map(x => x.n), ai = nodes.filter(n => n.role === 'assistant');
+  const pct = (a, b) => b ? `${fmt(a / b * 100)}%` : '0%', timed = nodes.filter(n => n.ts).length, gen = ai.filter(n => n.genMs).length;
+  $('coverageList').innerHTML = [`Timestamps on ${pct(timed, nodes.length)} of messages`, `AI generation time on ${pct(gen, ai.length)} of replies`, `Selected branch saved in ${fmt(chats.filter(c => c.hasCurrent).length)} of ${fmt(chats.length)} chats`].map(x => `<li>${esc(x)}</li>`).join('');
+}
+
+/* ---------- Views: chapters, list, and full map ---------- */
+const VIEW_HELP = { strip: 'One row per chat. Bars show abandoned attempts.', list: 'Every message in order. Arrow keys move between rows.', tree: 'The straight line in each chat is what survived.' };
+const typeName = n => n.failed ? 'Technical failure' : n.kind === 'continuity' ? 'Continuity' : n.kind === 'prose' ? "Person's prose" : n.kind === 'instruction' ? 'Instruction' : n.kind === 'mixed' ? 'Prose + instruction' : n.role === 'assistant' ? 'AI reply' : 'System note';
+function chatSpine(c) {
+  if (c.spine) { c.nodes.forEach((n, i) => { n.index = i; }); return c.spine; }
+  const spine = c.nodes.filter(n => n.kept), first = spine[0] || c.nodes[0];
+  (spine.length ? spine : [first]).forEach(n => { n.hang = []; });
+  c.nodes.forEach((n, i) => {
+    n.index = i;
+    if (n.kept) return;
+    n.anchor = n.parent ? (n.parent.kept ? n.parent : n.parent.anchor || first) : first;
+    (n.anchor.hang || (n.anchor.hang = [])).push(n);
+  });
+  c.spine = spine.length ? spine : [first];
+  return c.spine;
+}
+function renderViews() {
+  const map = $('map'); if (!map) return;
+  map.dataset.mode = state.mapMode;
+  document.querySelectorAll('[data-view]').forEach(b => b.setAttribute('aria-selected', b.dataset.view === state.mapMode));
+  $('mapSub').textContent = VIEW_HELP[state.mapMode];
+  renderFlagBar();
+  if (state.page !== 'messages') return;
+  if (state.mapMode === 'strip') renderStrip();
+  if (state.mapMode === 'list') renderList();
+}
+document.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click', () => {
+  state.mapMode = b.dataset.view; renderViews();
+  if (state.mapMode === 'tree') fit();
+  if (state.selected) syncViews(state.selected);
+}));
+function renderFlagBar() {
+  if (state.shared) return;
+  const seen = new Set(), nodes = activeChats().flatMap(c => c.nodes).filter(n => { if (seen.has(n.id)) return false; seen.add(n.id); return true; });
+  const count = f => nodes.filter(n => matchesFilter(n, f)).length;
+  const chips = [['all', 'All'], ['flagged', 'To review'], ['loop', 'Loops'], ['reused', 'Reused'], ['long', 'Long'], ['unsure', 'Unsure'], ['failed', 'Failures']];
+  if (state.flagFilter !== 'all' && !count(state.flagFilter)) state.flagFilter = 'all';
+  const box = $('flagChips'); box.textContent = '';
+  chips.forEach(([id, label]) => {
+    const c = count(id); if (!c && id !== 'all') return; const b = document.createElement('button'); b.textContent = `${label} ${fmt(c)}`; b.setAttribute('aria-pressed', state.flagFilter === id);
+    b.onclick = () => { state.flagFilter = id; renderViews(); if (state.selected) renderReviewBar(); };
+    box.append(b);
+  });
+  const q = reviewQueue().length, loops = batchCandidates('loop').length;
+  $('startReview').hidden = !q; $('startReview').textContent = `Review ${fmt(q)}`;
+  $('batchLoops').hidden = !loops; $('batchLoops').textContent = `Preview ${fmt(loops)} likely ${loops === 1 ? 'loop' : 'loops'}`;
+  $('undoLast').hidden = !state.ledger.length;
+  const flagged = count('flagged'); $('attention').hidden = !flagged; $('attentionText').textContent = `${fmt(flagged)} ${flagged === 1 ? 'message needs' : 'messages need'} a quick review before these numbers are final.`;
+  $('historyBox').hidden = !state.ledger.length; $('historyLabel').textContent = `History ${fmt(state.ledger.length)}`;
+  $('historyList').innerHTML = [...state.ledger].reverse().slice(0, 30).map(e => `<li>${esc(e.label)}<small>${esc(e.source)} · ${esc(new Date(e.at).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }))}</small></li>`).join('');
+}
+const cssVar = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+function drawStripRow(canvas, c, maxLen, trackWidth) {
+  const spine = chatSpine(c), len = spine.length, width = Math.max(10, Math.round(trackWidth * len / maxLen)), height = 54, dpr = window.devicePixelRatio || 1;
+  canvas.style.width = `${width}px`; canvas.width = Math.round(width * dpr); canvas.height = height * dpr; canvas.dataset.width = width;
+  const x = canvas.getContext('2d'); x.scale(dpr, dpr);
+  const bins = Math.max(1, Math.min(len, Math.floor(width / 3))), w = width / bins, cells = Array.from({ length: bins }, () => ({ prose: 0, mixed: 0, instruction: 0, continuity: 0, failed: 0, ai: 0, hang: 0, fail: false, flag: false }));
+  spine.forEach((n, i) => {
+    const b = cells[Math.min(bins - 1, Math.floor(i / len * bins))];
+    b[n.failed ? 'failed' : ['prose', 'mixed', 'instruction', 'continuity'].includes(n.kind) ? n.kind : 'ai']++;
+    b.hang += n.hang?.length || 0; b.fail = b.fail || !!n.failed || !!n.hang?.some(h => h.failed); b.flag = b.flag || !!n.flags?.length || !!n.hang?.some(h => h.flags?.length);
+  });
+  const colors = { prose: cssVar('--human'), mixed: cssVar('--human'), instruction: cssVar('--direct'), continuity: cssVar('--note'), failed: cssVar('--cut-ink'), ai: cssVar('--keep') }, cut = cssVar('--muted'), direct = cssVar('--direct'), fail = cssVar('--cut-ink');
+  const maxHang = Math.max(1, ...cells.map(b => b.hang)), gap = w >= 3 ? 1 : 0;
+  cells.forEach((b, i) => {
+    const left = i * w, bw = Math.max(1, w - gap), total = b.prose + b.mixed + b.instruction + b.continuity + b.failed + b.ai; let y = 20;
+    ['prose', 'mixed', 'instruction', 'continuity', 'failed', 'ai'].forEach(k => { if (!b[k]) return; const h = 20 * b[k] / total; x.fillStyle = colors[k]; x.fillRect(left, y, bw, h); y += h; });
+    if (b.hang) { const h = Math.max(2, Math.sqrt(b.hang / maxHang) * 16); x.fillStyle = cut; x.globalAlpha = .7; x.fillRect(left, 18 - h, bw, h); x.globalAlpha = 1; }
+    if (b.fail || b.flag) {
+      const cx = left + bw / 2; x.fillStyle = b.fail ? fail : direct; x.strokeStyle = fail; x.lineWidth = 1.6;
+      if (b.fail) { x.beginPath(); x.moveTo(cx - 3, 44); x.lineTo(cx + 3, 51); x.moveTo(cx + 3, 44); x.lineTo(cx - 3, 51); x.stroke(); }
+      else { x.beginPath(); x.moveTo(cx, 44); x.lineTo(cx + 3.5, 51); x.lineTo(cx - 3.5, 51); x.closePath(); x.fill(); }
+    }
+  });
+}
+function cellHtml(n) {
+  const k = n.failed ? 'failed' : ['prose', 'mixed', 'instruction', 'continuity'].includes(n.kind) ? n.kind : 'ai';
+  return `<button class="cell k-${k}${n.kept ? '' : ' cut'}${n.flags?.length ? ' flagged' : ''}${state.selected === n ? ' sel' : ''}" data-n="${n.index}" tabindex="-1" title="${esc(`Turn ${n.depth}: ${typeName(n)}${n.kept ? '' : ', abandoned'}${n.flags?.length ? `. ${n.flags[0].label}` : ''}`)}" aria-label="${esc(`Turn ${n.depth}, ${typeName(n)}`)}"></button>`;
+}
+function laneHtml(c) {
+  return chatSpine(c).map(n => {
+    const open = state.openStubs.has(`${c.first}:${n.index}`), hang = n.hang?.length || 0;
+    return cellHtml(n) + (hang ? `<button class="stub" data-stub="${n.index}" aria-expanded="${open}" title="${fmt(hang)} abandoned">+${fmt(hang)}</button>` : '') + (open ? `<div class="branch-cells">${n.hang.map(cellHtml).join('')}</div>` : '');
+  }).join('');
+}
+function renderStrip() {
+  const box = $('stripView'), top = box.scrollTop, chats = activeChats().slice().sort((a, b) => (a.first || 0) - (b.first || 0));
+  box.textContent = '';
+  if (!chats.length) return;
+  const maxLen = Math.max(...chats.map(c => chatSpine(c).length), 1), filter = state.flagFilter, rows = [];
+  chats.forEach(c => {
+    const spine = chatSpine(c), row = document.createElement('div'), dim = filter !== 'all' && !c.nodes.some(n => matchesFilter(n, filter));
+    row.className = `strip-row${dim ? ' dim' : ''}`;
+    const main = document.createElement('div'); main.className = 'strip-main';
+    const head = document.createElement('button'), title = document.createElement('b'), meta = document.createElement('span'), abandoned = c.nodes.length - spine.length, flagged = c.nodes.filter(n => n.flags?.length).length, failed = c.nodes.filter(n => n.failed).length;
+    head.className = 'strip-head'; head.setAttribute('aria-expanded', state.openChat === c);
+    title.textContent = c.title; title.title = c.title; meta.textContent = [`${fmt(spine.length)} kept`, `${fmt(abandoned)} cut`, flagged ? `${fmt(flagged)} flagged` : '', failed ? `${fmt(failed)} failed` : ''].filter(Boolean).join(' · ');
+    head.append(title, meta); head.onclick = () => { state.openChat = state.openChat === c ? null : c; renderStrip(); };
+    const track = document.createElement('div'); track.className = 'strip-track';
+    const canvas = document.createElement('canvas'); canvas.setAttribute('role', 'img'); canvas.setAttribute('aria-label', `${c.title}: ${meta.textContent}`);
+    const pick = e => { const r = canvas.getBoundingClientRect(), i = Math.max(0, Math.min(spine.length - 1, Math.floor((e.clientX - r.left) / r.width * spine.length))), reach = Math.max(1, Math.ceil(spine.length / Math.max(1, r.width / 3))); const near = spine.slice(Math.max(0, i - reach + 1), i + reach); return near.find(n => n.failed || n.flags?.length) || near.flatMap(n => n.hang || []).find(n => n.failed || n.flags?.length) || spine[i]; };
+    canvas.onclick = e => { state.openChat = c; select(pick(e)); };
+    canvas.onmousemove = e => { const n = pick(e); canvas.title = `Turn ${n.depth}: ${typeName(n)}${n.hang?.length ? `, ${n.hang.length} abandoned` : ''}${n.flags?.length ? `. ${n.flags[0].label}` : ''}`; };
+    track.append(canvas); main.append(head, track); row.append(main);
+    if (state.openChat === c) {
+      const lane = document.createElement('div'); lane.className = 'lane'; lane.innerHTML = laneHtml(c);
+      lane.onclick = e => {
+        const stub = e.target.closest('[data-stub]'), cell = e.target.closest('[data-n]');
+        if (stub) { const key = `${c.first}:${stub.dataset.stub}`; if (state.openStubs.has(key)) state.openStubs.delete(key); else state.openStubs.add(key); renderStrip(); }
+        else if (cell) select(c.nodes[+cell.dataset.n]);
+      };
+      row.append(lane);
+    }
+    box.append(row); rows.push([canvas, c, track]);
+  });
+  const trackWidth = rows[0][2].clientWidth || 300;
+  rows.forEach(([canvas, c]) => drawStripRow(canvas, c, maxLen, trackWidth));
+  box.scrollTop = top;
+}
+function renderList() {
+  const box = $('listView'), space = $('listSpace'), seen = new Set(), rowH = 44;
+  state.listRows = state.nodes.filter(n => { if (seen.has(n.id) || !matchesFilter(n, state.flagFilter)) return false; seen.add(n.id); return true; });
+  const rows = state.listRows; space.style.height = `${rows.length * rowH}px`; space.textContent = '';
+  if (!rows.length) { space.style.height = 'auto'; space.innerHTML = '<div class="list-empty">No messages match this filter.</div>'; return; }
+  const from = Math.max(0, Math.floor(box.scrollTop / rowH) - 8), to = Math.min(rows.length, from + Math.ceil(box.clientHeight / rowH) + 16);
+  for (let i = from; i < to; i++) {
+    const n = rows[i], b = document.createElement('button'); b.className = `list-row${state.selected?.id === n.id ? ' sel' : ''}`; b.style.top = `${i * rowH}px`; b.tabIndex = -1;
+    const cols = [`${n.chatTitle}, turn ${n.depth}`, typeName(n) + (n.kept ? '' : ' (abandoned)'), state.shared ? SHARE_SIZES[n.size] : fmt(n.words ?? 0), n.flags?.[0]?.label || (n.failed ? 'Ignored' : ''), state.shared ? 'Text not shared' : (n.text || '').slice(0, 200).replace(/\s+/g, ' ')];
+    cols.forEach((text, c) => { const el = document.createElement('span'); el.textContent = text; if (c === 2) el.className = 'num'; if (c === 3) el.className = 'flagtxt'; b.append(el); });
+    b.onclick = () => select(n); space.append(b);
+  }
+}
+$('listView').addEventListener('scroll', () => { if (state.mapMode === 'list') requestAnimationFrame(renderList); }, { passive: true });
+function syncViews(n) {
+  const map = $('map'); if (!map) return;
+  if (state.page !== 'messages') { map.classList.remove('with-panel'); return; }
+  const had = map.classList.contains('with-panel'); map.classList.toggle('with-panel', !!n);
+  if (state.mapMode === 'strip') {
+    if (n && state.openChat !== n.chat) state.openChat = n.chat;
+    if (n && !n.kept) state.openStubs.add(`${n.chat.first}:${(n.anchor || chatSpine(n.chat)[0]).index}`);
+    if (n) chatSpine(n.chat);
+    if (n || had) renderStrip();
+    const cell = n && $('stripView').querySelector(`.lane [data-n="${n.index}"]`);
+    if (cell) { const box = $('stripView'), a = cell.getBoundingClientRect(), b = box.getBoundingClientRect(); if (a.top < b.top + 8 || a.bottom > b.bottom - 8) box.scrollTop += a.top - b.top - box.clientHeight / 2; }
+  }
+  if (state.mapMode === 'list') {
+    if (n) { const at = state.listRows.findIndex(x => x.id === n.id), box = $('listView'); if (at >= 0) { const y = at * 44; if (y < box.scrollTop + 32 || y + 44 > box.scrollTop + box.clientHeight) box.scrollTop = Math.max(0, y - box.clientHeight / 2); } }
+    renderList();
+  }
+}
+try { matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => renderViews()); } catch {}
 document.querySelectorAll('[data-audit]').forEach(b => b.addEventListener('click', () => { state.auditFilter = b.dataset.audit; renderAudit(totals(activeChats())); }));
 $('bulkNotes').addEventListener('click', () => {
   const list = auditRows().filter(r => r.reused && !isDecided(r.n)).map(r => r.n);
@@ -1235,12 +1895,13 @@ $('bulkUndo').addEventListener('click', () => {
 });
 let largeTimer; $('largeAt').addEventListener('input', e => { clearTimeout(largeTimer); largeTimer = setTimeout(() => {
   const v = Number(e.target.value); if (!(v >= 100)) return;
-  state.largeAt = v; saveRules(); renderAudit(totals(activeChats())); if (state.selected) renderReviewBar();
+  state.largeAt = v; saveRules(); computeFlags(); renderAudit(totals(activeChats())); renderViews(); if (state.selected) renderReviewBar();
 }, 200); });
 $('countNotes').addEventListener('change', e => { state.countNotes = e.target.checked; saveRules(); renderSummary(); });
 function closePanel() {
   state.selected = null; $('panel').hidden = true;
   $('ring').setAttribute('visibility', 'hidden'); $('trail').removeAttribute('d');
+  syncViews(null);
 }
 $('canvas').addEventListener('click', e => {
   const b = $('canvas').getBoundingClientRect(), t = state.t;
@@ -1252,6 +1913,11 @@ $('canvas').addEventListener('click', e => {
 function siblings(n) { return n.parent ? n.parent.children : activeChats().flatMap(c => c.roots); }
 function move(key) {
   const n = state.selected;
+  if (state.mapMode === 'list' && (key === 'ArrowUp' || key === 'ArrowDown')) {
+    const rows = state.listRows, at = n ? rows.findIndex(x => x.id === n.id) : -1, next = rows[Math.max(0, Math.min(rows.length - 1, at + (key === 'ArrowDown' ? 1 : -1)))];
+    if (next) select(next, true);
+    return;
+  }
   if (!n) { const f = state.nodes.find(x => x.kept) || state.nodes[0]; if (f) select(f, true); return; }
   let to = null;
   if (key === 'ArrowUp') to = n.parent;
@@ -1271,7 +1937,7 @@ $('pNext').onclick = () => state.selected?.children[0] && select(state.selected.
 $('zoomIn').onclick = () => zoomBy(1.4); $('zoomOut').onclick = () => zoomBy(1 / 1.4); $('fit').onclick = fit;
 
 /* ---------- Loading ---------- */
-function setNotice(html, isError) { $('noticeText').innerHTML = html; $('notice').classList.toggle('error', !!isError); }
+function setNotice(html, isError) { $('notice').hidden = false; $('noticeText').innerHTML = html; $('notice').classList.toggle('error', !!isError); }
 function chatKey(raw, i) {
   const body = raw && (raw.chat || raw), msgs = body && body.history && body.history.messages;
   const ids = Array.isArray(msgs) ? msgs.map(m => m && m.id) : Object.keys(msgs || {});
@@ -1299,29 +1965,31 @@ function rebuild() {
   return { chats: chats.length, dupes };
 }
 function renderSources() {
-  const box = $('sources'), wasOpen = !!box.querySelector('details')?.open;
-  box.hidden = !state.files.length; box.textContent = '';
-  if (!state.files.length) return;
-  const fold = document.createElement('details'); fold.open = wasOpen;
-  const head = document.createElement('summary'); head.textContent = `${state.files.length} ${state.files.length === 1 ? 'file' : 'files'} loaded`;
-  const items = document.createElement('div'); items.className = 'source-list';
+  const pop = $('filesPop'), box = $('sources'), count = state.files.length;
+  pop.hidden = !count; if (!count) pop.open = false;
+  box.textContent = '';
+  if (!count) return;
+  $('filesLabel').textContent = `${fmt(count)} ${count === 1 ? 'file' : 'files'}`;
   state.files.forEach((f, i) => {
     const chip = document.createElement('span'); chip.className = 'chip';
     const label = document.createElement('span'); label.textContent = `${f.name} (${f.raws.length})`; label.title = f.name;
-    const x = document.createElement('button'); x.textContent = '×'; x.setAttribute('aria-label', `Remove ${f.name}`);
+    const x = document.createElement('button'); x.type = 'button'; x.textContent = '×'; x.setAttribute('aria-label', `Remove ${f.name}`);
     x.onclick = () => { state.files.splice(i, 1); finishLoad(rebuild()); };
-    chip.append(label, x); items.append(chip);
+    chip.append(label, x); box.append(chip);
   });
-  const clear = document.createElement('button'); clear.className = 'link-btn'; clear.textContent = 'Remove all';
+  const clear = document.createElement('button'); clear.type = 'button'; clear.className = 'link-btn'; clear.textContent = 'Remove all';
   clear.onclick = () => { state.files = []; finishLoad(rebuild()); };
-  items.append(clear); fold.append(head, items); box.append(fold);
+  box.append(clear);
 }
+document.addEventListener('click', e => { const pop = $('filesPop'); if (pop.open && !e.composedPath().includes(pop)) pop.open = false; });
+document.addEventListener('keydown', e => { const pop = $('filesPop'); if (e.key === 'Escape' && pop.open) { pop.open = false; pop.querySelector('summary').focus(); } });
 function finishLoad(r, errors = []) {
   $('shareBtn').disabled = state.sample; $('shareBtn').title = state.sample ? 'Add your chat logs to share real results' : 'Share a summary without message text';
   if (state.sample && !errors.length) { setNotice('<b>Sample project.</b> These figures are made up to show the layout. Add your Open WebUI chat logs to see your real numbers.'); return; }
   const base = state.sample ? '' : `Combined <b>${state.files.length} ${state.files.length === 1 ? 'file' : 'files'}</b> into <b>${r.chats} ${r.chats === 1 ? 'conversation' : 'conversations'}</b>${r.dupes ? `, skipping ${r.dupes} duplicate ${r.dupes === 1 ? 'copy' : 'copies'}` : ''}. Files stay in this browser.`;
   const err = errors.length ? ` Could not use ${errors.map(esc).join(', ')}. Check that each is an Open WebUI JSON export.` : '';
-  setNotice(base + err, !!errors.length);
+  $('filesNote').innerHTML = base;
+  if (errors.length) setNotice(base + err, true); else $('notice').hidden = true;
 }
 async function addFiles(list) {
   const files = [...list].filter(Boolean); if (!files.length) return;
@@ -1339,15 +2007,12 @@ async function addFiles(list) {
   finishLoad(rebuild(), errors);
 }
 $('file').addEventListener('change', e => { addFiles(e.target.files).finally(() => { e.target.value = ''; }); });
-let markerTimer; $('markers').addEventListener('input', e => { clearTimeout(markerTimer); markerTimer = setTimeout(() => {
-  state.markers = e.target.value; applyRules();
-}, 200); });
 $('project').addEventListener('change', e => { state.view = e.target.value; renderSummary(); renderMap(); });
 $('gap').addEventListener('input', e => { state.gap = +e.target.value; renderSummary(); });
 addEventListener('dragover', e => { e.preventDefault(); document.body.classList.add('dragging'); });
 addEventListener('dragleave', e => { if (!e.relatedTarget) document.body.classList.remove('dragging'); });
 addEventListener('drop', e => { e.preventDefault(); document.body.classList.remove('dragging'); if (!state.shared) addFiles(e.dataTransfer.files); });
-let resizeTimer; addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(() => { fit(); if (state.lastWork) renderChart(state.lastWork); }, 150); });
+let resizeTimer; addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(() => { fit(); if (state.lastWork) renderChart(state.lastWork); renderViews(); }, 150); });
 
 /* ---------- Clearly labelled example data, in the same shape as a real export ---------- */
 const SAMPLE_DIRECTION = ['Continue the scene, but slow the pacing and stay in her point of view.', 'Rewrite this with less exposition and more tension in the dialogue.', 'Make the ending quieter. Do not resolve the argument yet.', 'Try again. The tone is too sentimental for this chapter.'];
@@ -1374,6 +2039,7 @@ function sampleExport() {
       const first = ch > 1 && turn === 0 && lastNote;
       const u = first ? add(prev, 'user', lastNote.words + 8, `${lastNote.text}\n\nPick up from these notes and continue with the next chapter.`) : add(prev, 'user', null, say());
       const tries = 1 + Math.floor(r(0, 3.6)); let chosen;
+      if (ch === 5 && turn === 2) add(u, 'assistant', 1800, Array(420).fill('and the door opened').join(' '));
       for (let a = 0; a < tries; a++) {
         chosen = add(u, 'assistant', r(720, 1280)); t += r(3, 11) * 60;
         if (a < tries - 1 && r(0, 1) < .4) { const fu = add(chosen, 'user', null, say()); t += r(2, 5) * 60; add(fu, 'assistant', r(500, 1100)); t += r(3, 8) * 60; }
@@ -1390,10 +2056,10 @@ function sampleExport() {
   return out;
 }
 /* ---------- Sharing: totals and tree shape only, stored after the # so it is never sent to the host ---------- */
-const SHARE_VERSION = 1, SHARE_SOFT_LIMIT = 8000, SHARE_MAX_LINK = 2000000, SHARE_MAX_BYTES = 8000000, SHARE_MAX_NODES = 200000;
+const SHARE_VERSION = 2, SHARE_SOFT_LIMIT = 8000, SHARE_MAX_LINK = 2000000, SHARE_MAX_BYTES = 8000000, SHARE_MAX_NODES = 200000;
 const SHARE_HOME = 'https://mclellan.github.io/winnow/';
-const SHARE_SIZES = ['Under 100', '100–499', '500–1,999', '2,000+'], SHARE_KINDS = [null, 'prose', 'instruction', 'mixed', 'continuity', 'system'];
-const SHARE_TOTALS = ['keptProse', 'keptAI', 'cutProse', 'cutAI', 'instr', 'instrMsgs', 'prompts', 'alts', 'notes', 'repeated', 'retried', 'minutes', 'genMinutes', 'noteMinutes', 'sessions'];
+const SHARE_SIZES = ['Under 100', '100–499', '500–1,999', '2,000+'], SHARE_KINDS = [null, 'prose', 'instruction', 'mixed', 'continuity', 'system', 'failed'];
+const SHARE_TOTALS = ['keptProse', 'keptAI', 'cutProse', 'cutAI', 'instr', 'instrMsgs', 'prompts', 'alts', 'notes', 'repeated', 'retried', 'minutes', 'genMinutes', 'noteMinutes', 'sessions'], SHARE_TOTALS_V2 = ['failedMsgs', 'failedWords', 'failedMinutes'];
 function writeVar(out, value) {
   let v = Math.max(0, Math.round(value) || 0);
   while (v >= 128) { out.push(v % 128 + 128); v = Math.floor(v / 128); }
@@ -1448,9 +2114,9 @@ function nodeByte(n, pops, out) {
 }
 async function buildShareLink(includeTree) {
   const chats = activeChats().slice().sort((a, b) => (a.first || 0) - (b.first || 0)), t = totals(chats), w = workTime(chats, state.gap);
-  const values = { ...t, minutes: w.ms / 6e4, genMinutes: w.genMs / 6e4, noteMinutes: w.notesMs / 6e4, sessions: w.sessions };
+  const values = { ...t, minutes: w.ms / 6e4, genMinutes: w.genMs / 6e4, noteMinutes: w.notesMs / 6e4, sessions: w.sessions, failedMinutes: w.failedMs / 6e4 };
   const out = [SHARE_VERSION, includeTree ? 1 : 0];
-  SHARE_TOTALS.forEach(k => writeVar(out, values[k]));
+  [...SHARE_TOTALS, ...SHARE_TOTALS_V2].forEach(k => writeVar(out, values[k]));
   const weeks = weeklyMinutes(w); writeVar(out, weeks.length); weeks.forEach(v => writeVar(out, v));
   if (includeTree) {
     writeVar(out, chats.length);
@@ -1474,9 +2140,9 @@ async function readShare(text) {
   const wrapped = fromBase64Url(text); if (wrapped.length < 2 || wrapped[0] > 1) throw new Error('format');
   const bytes = wrapped[0] ? await inflateBytes(wrapped.subarray(1)) : wrapped.subarray(1);
   if (bytes.length > SHARE_MAX_BYTES) throw new Error('large');
-  const r = byteReader(bytes); if (r.byte() !== SHARE_VERSION) throw new Error('version');
+  const r = byteReader(bytes), version = r.byte(); if (version !== 1 && version !== SHARE_VERSION) throw new Error('version');
   const flags = r.byte(); if (flags > 1) throw new Error('flags');
-  const v = {}; SHARE_TOTALS.forEach(k => { v[k] = r.number(); });
+  const v = { failedMsgs: 0, failedWords: 0, failedMinutes: 0 }; (version === 1 ? SHARE_TOTALS : [...SHARE_TOTALS, ...SHARE_TOTALS_V2]).forEach(k => { v[k] = r.number(); });
   const weekCount = r.number(); if (weekCount > 5000) throw new Error('weeks');
   const weeks = []; for (let i = 0; i < weekCount; i++) weeks.push(r.number());
   const chats = []; let totalNodes = 0;
@@ -1490,18 +2156,18 @@ async function readShare(text) {
         if (kindId >= SHARE_KINDS.length || pops > path.length) throw new Error('node');
         path.length -= pops;
         const parent = path[path.length - 1] || null, kind = SHARE_KINDS[kindId];
-        const n = { id: `${c}-${i}`, parent, children: [], depth: path.length + 1, kept: !!(b & 8), kind: kind === 'system' ? null : kind, role: kindId === 0 ? 'assistant' : kindId === 5 ? 'system' : 'user', size: (b >> 4) & 3, h: 0, ts: i };
+        const n = { id: `${c}-${i}`, parent, children: [], depth: path.length + 1, kept: !!(b & 8), kind: kind === 'system' ? null : kind, failed: kind === 'failed', role: kindId === 0 ? 'assistant' : kindId === 5 ? 'system' : 'user', size: (b >> 4) & 3, h: 0, ts: i };
         if (parent) parent.children.push(n); else roots.push(n);
         path.push(n); nodes.push(n);
       }
       for (let i = nodes.length - 1; i >= 0; i--) { const n = nodes[i]; if (n.parent) n.parent.h = Math.max(n.parent.h, n.h + 1); }
-      chats.push({ title: `Chat ${c + 1}`, roots, nodes, first: c + 1 });
+      const chat = { title: `Chat ${c + 1}`, roots, nodes, first: c + 1 }; nodes.forEach(n => { n.chat = chat; n.chatTitle = chat.title; }); chats.push(chat);
     }
   }
   if (!r.done()) throw new Error('trailing');
-  const t = { keptProse: v.keptProse, keptAI: v.keptAI, cutProse: v.cutProse, cutAI: v.cutAI, instr: v.instr, instrMsgs: v.instrMsgs, prompts: v.prompts, alts: v.alts, notes: v.notes, repeated: v.repeated, retried: v.retried, unsure: 0 };
+  const t = { keptProse: v.keptProse, keptAI: v.keptAI, cutProse: v.cutProse, cutAI: v.cutAI, instr: v.instr, instrMsgs: v.instrMsgs, prompts: v.prompts, alts: v.alts, notes: v.notes, repeated: v.repeated, retried: v.retried, failedMsgs: v.failedMsgs, failedWords: v.failedWords, unsure: 0 };
   t.gen = t.keptAI + t.cutAI; t.kept = t.keptAI + t.keptProse; t.cut = t.cutAI + t.cutProse; t.prose = t.keptProse + t.cutProse; t.counted = t.gen + t.prose + t.instr;
-  return { t, w: { ms: v.minutes * 6e4, genMs: v.genMinutes * 6e4, notesMs: v.noteMinutes * 6e4, sessions: v.sessions }, weeks, chats, hasTree: !!flags };
+  return { t, w: { ms: v.minutes * 6e4, genMs: v.genMinutes * 6e4, notesMs: v.noteMinutes * 6e4, failedMs: v.failedMinutes * 6e4, sessions: v.sessions }, weeks, chats, hasTree: !!flags };
 }
 function enterShared(data) {
   Object.assign(state, { shared: data, sample: false, chats: data.chats, view: 'all', files: [] });
@@ -1525,7 +2191,7 @@ function selectShared(n, keepInView) {
   let d = ''; for (let a = n; a.parent; a = a.parent) d += curve(a.parent, a);
   $('trail').setAttribute('d', d);
   $('pStatus').textContent = n.kept ? 'Kept' : 'Abandoned'; $('pStatus').classList.toggle('off', !n.kept);
-  const name = n.kind === 'continuity' ? 'Continuity or repeated text' : n.kind === 'prose' ? "Person's prose" : n.kind === 'instruction' ? 'Instruction' : n.kind === 'mixed' ? 'Prose + instruction' : n.role === 'assistant' ? 'AI reply' : 'System note';
+  const name = n.failed ? 'Technical failure' : n.kind === 'continuity' ? 'Continuity or repeated text' : n.kind === 'prose' ? "Person's prose" : n.kind === 'instruction' ? 'Instruction' : n.kind === 'mixed' ? 'Prose + instruction' : n.role === 'assistant' ? 'AI reply' : 'System note';
   $('pTitle').textContent = `${name}, turn ${n.depth}`;
   $('pWords').textContent = SHARE_SIZES[n.size];
   $('pMeta').textContent = 'Rough length only';
@@ -1533,6 +2199,7 @@ function selectShared(n, keepInView) {
   $('pPrev').disabled = !n.parent; $('pNext').disabled = !n.children.length;
   $('panel').hidden = false;
   if (keepInView) reveal(n);
+  syncViews(n);
 }
 
 /* ---------- Share dialog ---------- */
@@ -1569,52 +2236,66 @@ $('ownLogs').addEventListener('click', () => { location.href = location.pathname
 /* ---------- Image card ---------- */
 async function drawShareCard() {
   const W = 1200, H = 630, c = document.createElement('canvas'); c.width = W; c.height = H;
-  const x = c.getContext('2d'), ink = '#e9edf5', muted = '#a0abbd', keep = '#86a8ff', human = '#4fd1c0', cutFill = '#4a556a', line = '#2d3748', direct = '#f2b35c', note = '#b9a2ff';
+  const x = c.getContext('2d'), ink = '#e9edf5', muted = '#a0abbd', keep = '#86a8ff', human = '#4fd1c0', cutFill = '#4a556a', line = '#2d3748', direct = '#f2b35c', note = '#b9a2ff', fail = '#f492af';
   const serif = '"Literata", Georgia, serif', sans = '"Inter", system-ui, sans-serif';
-  try { await Promise.all([document.fonts.load(`650 58px Literata`), document.fonts.load('500 20px Inter')]); } catch {}
-  const t = state.shared ? state.shared.t : totals(activeChats()), w = state.shared ? state.shared.w : workTime(activeChats(), state.gap);
-  const nodes = state.nodes, hasMap = nodes.length > 0, left = 56, textW = hasMap ? 650 : W - 112;
-  x.fillStyle = '#10141d'; x.fillRect(0, 0, W, H);
-  x.textBaseline = 'alphabetic';
-  x.fillStyle = ink; x.font = `650 30px ${serif}`; x.fillText('Winnow', left, 72);
-  x.fillStyle = keep; x.font = `600 18px ${sans}`; x.fillText('What the human wrote, kept, and cut.', left, 101);
-  x.fillStyle = muted; x.font = `500 21px ${sans}`; x.fillText('To keep', left, 166);
-  let size = 62; const big = `${fmt(t.kept)} words`;
-  do { x.font = `650 ${size}px ${serif}`; size -= 2; } while (x.measureText(big).width > textW && size > 30);
-  x.fillStyle = ink; x.fillText(big, left, 232);
-  const stats = [[w.ms ? hoursText(w.ms) : 'No data', 'worked'], [fmt(t.prose), 'words of human prose'], [fmt(t.instr), 'words of direction'], [fmt(t.alts), 'attempts rejected']];
-  const cell = textW / 2;
+  try { await Promise.all([document.fonts.load('650 46px Literata'), document.fonts.load('500 46px Literata'), document.fonts.load('500 20px Inter'), document.fonts.load('600 18px Inter')]); } catch {}
+  const chats = activeChats().slice().sort((a, b) => (a.first || 0) - (b.first || 0)), t = state.shared ? state.shared.t : totals(chats), w = state.shared ? state.shared.w : workTime(chats, state.gap);
+  const hasMap = chats.some(ch => ch.nodes.length), left = 56, textW = hasMap ? 640 : W - 112;
+  x.fillStyle = '#10141d'; x.fillRect(0, 0, W, H); x.textBaseline = 'alphabetic';
+  x.fillStyle = ink; x.font = `650 28px ${serif}`; x.fillText('Winnow', left, 70);
+  x.fillStyle = keep; x.font = `600 17px ${sans}`; x.fillText('What the human wrote, kept, and cut.', left, 98);
+
+  const parts = [['To keep '], [`${fmt(t.kept)} words`, 1], [`, a person ${w.ms ? 'worked about ' : ''}`], ...(w.ms ? [[hoursText(w.ms), 1], [' and ']] : []), ['rejected '], [`${fmt(t.alts)} ${t.alts === 1 ? 'attempt' : 'attempts'}`, 1], ['.']];
+  const tokens = parts.flatMap(([text, hi]) => hi ? [{ text, hi: true }] : (text.match(/\s+|[^\s]+/g) || []).map(part => ({ text: part, hi: false })));
+  const fontFor = (size, hi) => `${hi ? 650 : 500} ${size}px ${serif}`;
+  const layoutText = size => {
+    const lines = [[]]; let at = 0;
+    tokens.forEach(tok => {
+      x.font = fontFor(size, tok.hi); const width = x.measureText(tok.text).width;
+      if (!tok.text.trim() && !lines[lines.length - 1].length) return;
+      if (at + width > textW && lines[lines.length - 1].length && tok.text.trim()) { lines.push([]); at = 0; }
+      lines[lines.length - 1].push({ ...tok, width }); at += width;
+    });
+    return lines;
+  };
+  let size = 46, lines = layoutText(size);
+  while ((lines.length > 3) && size > 28) { size -= 2; lines = layoutText(size); }
+  const lineH = Math.round(size * 1.18), startY = 152 + size * .55;
+  lines.forEach((row, i) => { let px = left; row.forEach(tok => { x.font = fontFor(size, tok.hi); x.fillStyle = tok.hi ? keep : ink; x.fillText(tok.text, px, startY + i * lineH); px += tok.width; }); });
+
+  const stats = [[fmt(t.prose), 'human prose'], [fmt(t.instr), 'direction'], [fmt(t.gen), 'AI generated'], [w.ms ? fmt(w.sessions) : '–', w.sessions === 1 ? 'sitting' : 'sittings']], cell = textW / 4;
   stats.forEach(([a, b], i) => {
-    const sx = left + (i % 2) * cell, sy = 292 + Math.floor(i / 2) * 76;
-    x.fillStyle = ink; x.font = `650 31px ${serif}`; x.fillText(a, sx, sy);
-    x.fillStyle = muted; x.font = `400 17px ${sans}`; x.fillText(b, sx, sy + 25);
+    const sx = left + i * cell; let vs = 28; x.font = `650 ${vs}px ${serif}`;
+    while (x.measureText(a).width > cell - 12 && vs > 15) { vs--; x.font = `650 ${vs}px ${serif}`; }
+    x.fillStyle = ink; x.fillText(a, sx, 374); x.fillStyle = muted; x.font = `400 15px ${sans}`; x.fillText(b, sx, 398);
   });
-  const all = t.kept + t.cut || 1, barY = 450, barH = 28, wh = t.keptProse / all * textW, wa = t.keptAI / all * textW;
+  const all = t.kept + t.cut || 1, barY = 430, barH = 24, wh = t.keptProse / all * textW, wa = t.keptAI / all * textW;
   x.fillStyle = cutFill; x.fillRect(left, barY, textW, barH);
   x.fillStyle = human; x.fillRect(left, barY, wh, barH);
   x.fillStyle = keep; x.fillRect(left + wh, barY, wa, barH);
-  x.font = `500 16px ${sans}`; let kx = left;
+  x.font = `500 15px ${sans}`; let kx = left;
   [[human, `Human kept ${fmt(t.keptProse / all * 100)}%`], [keep, `AI kept ${fmt(t.keptAI / all * 100)}%`], [cutFill, `Abandoned ${fmt(t.cut / all * 100)}%`]].forEach(([col, label]) => {
-    x.fillStyle = col; x.fillRect(kx, barY + 42, 12, 12);
-    x.fillStyle = ink; x.fillText(label, kx + 18, barY + 54); kx += x.measureText(label).width + 44;
+    x.fillStyle = col; x.fillRect(kx, barY + 38, 11, 11);
+    x.fillStyle = ink; x.fillText(label, kx + 17, barY + 49); kx += x.measureText(label).width + 40;
   });
-  x.strokeStyle = line; x.lineWidth = 1; x.beginPath(); x.moveTo(left, 548); x.lineTo(W - 56, 548); x.stroke();
-  x.fillStyle = muted; x.font = `400 16px ${sans}`; x.fillText("Self-reported from the author's chat logs. Not independently verified.", left, 585);
-  x.textAlign = 'right'; x.fillText('mclellan.github.io/winnow', W - 56, 585); x.textAlign = 'left';
+
   if (hasMap) {
-    const bx = 756, by = 56, bw = 388, bh = 466; let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
-    nodes.forEach(n => { x0 = Math.min(x0, n.x); x1 = Math.max(x1, n.x); y0 = Math.min(y0, n.y); y1 = Math.max(y1, n.y); });
-    const k = Math.min(bw / Math.max(1, x1 - x0), bh / Math.max(1, y1 - y0), 1.4), ox = bx + (bw - (x1 - x0) * k) / 2 - x0 * k, oy = by + (bh - (y1 - y0) * k) / 2 - y0 * k;
-    const px = n => n.x * k + ox, py = n => n.y * k + oy;
-    const links = kept => { x.beginPath(); nodes.forEach(n => { if (!n.parent || n.kept !== kept) return; x.moveTo(px(n.parent), py(n.parent)); x.lineTo(px(n), py(n)); }); x.stroke(); };
-    x.strokeStyle = cutFill; x.lineWidth = Math.max(.5, Math.min(1.2, k)); links(false);
-    x.strokeStyle = keep; x.lineWidth = Math.max(.9, Math.min(2.2, k * 2)); links(true);
-    const r = Math.max(.9, Math.min(4, 5 * k));
-    nodes.forEach(n => {
-      x.fillStyle = !n.kept ? muted : n.kind === 'prose' || n.kind === 'mixed' ? human : n.kind === 'instruction' ? direct : n.kind === 'continuity' ? note : keep;
-      x.beginPath(); x.arc(px(n), py(n), n.kept ? r : r * .7, 0, 7); x.fill();
+    const bx = 760, by = 58, bw = 384, bh = 438, rows = chats.filter(ch => ch.nodes.length), spines = rows.map(chatSpine), maxLen = Math.max(...spines.map(sp => sp.length), 1), rowH = Math.min(30, bh / rows.length), bandH = Math.max(1.5, rowH * .46), tickH = Math.max(1, rowH * .3);
+    x.fillStyle = muted; x.font = `500 15px ${sans}`; x.fillText(`${fmt(rows.length)} ${rows.length === 1 ? 'chat' : 'chats'}, in order`, bx, by - 8);
+    const colorFor = n => n.failed ? fail : n.kind === 'prose' || n.kind === 'mixed' ? human : n.kind === 'instruction' ? direct : n.kind === 'continuity' ? note : keep;
+    const maxHang = Math.max(1, ...spines.flat().map(n => n.hang?.length || 0));
+    spines.forEach((spine, r) => {
+      const rowW = Math.max(4, bw * spine.length / maxLen), step = rowW / spine.length, y = by + 8 + r * rowH, bandY = y + tickH + Math.max(.5, rowH * .04);
+      spine.forEach((n, i) => {
+        const px = bx + i * step, pw = Math.max(.7, step - (step >= 3 ? 1 : 0));
+        x.fillStyle = colorFor(n); x.fillRect(px, bandY, pw, bandH);
+        if (n.hang?.length) { const h = Math.max(.8, Math.sqrt(n.hang.length / maxHang) * tickH); x.globalAlpha = .75; x.fillStyle = n.hang.some(a => a.failed) ? fail : muted; x.fillRect(px, bandY - h - .4, pw, h); x.globalAlpha = 1; }
+      });
     });
   }
+  x.strokeStyle = line; x.lineWidth = 1; x.beginPath(); x.moveTo(left, 536); x.lineTo(W - 56, 536); x.stroke();
+  x.fillStyle = muted; x.font = `400 15px ${sans}`; x.fillText("Self-reported from the author's chat logs. Not independently verified.", left, 576);
+  x.textAlign = 'right'; x.fillText('mclellan.github.io/winnow', W - 56, 576); x.textAlign = 'left';
   return c;
 }
 async function downloadShareCard() {
@@ -1627,11 +2308,12 @@ $('sharedImage').addEventListener('click', downloadShareCard);
 addEventListener('hashchange', () => { if (location.hash.startsWith('#s=') || state.shared) location.reload(); });
 
 async function boot() {
+  setPage('summary');
   if (location.hash.startsWith('#s=')) {
     try { enterShared(await readShare(location.hash.slice(3))); return; }
-    catch { state.over = loadOverrides(); state.passages = loadPassages(); state.confirmed = loadConfirmed(); loadRules(); rebuild(); $('shareBtn').disabled = true; setNotice('This share link is damaged or incomplete. Ask the author to copy it again. The sample project is shown below.', true); return; }
+    catch { state.over = loadOverrides(); state.failed = loadFailed(); state.ledger = loadLedger(); state.passages = loadPassages(); state.confirmed = loadConfirmed(); loadRules(); rebuild(); $('shareBtn').disabled = true; setNotice('This share link is damaged or incomplete. Ask the author to copy it again. The sample project is shown below.', true); return; }
   }
-  state.over = loadOverrides(); state.passages = loadPassages(); state.confirmed = loadConfirmed(); loadRules();
+  state.over = loadOverrides(); state.failed = loadFailed(); state.ledger = loadLedger(); state.passages = loadPassages(); state.confirmed = loadConfirmed(); loadRules();
   finishLoad(rebuild());
 }
 boot();
