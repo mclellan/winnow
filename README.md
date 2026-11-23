@@ -65,6 +65,7 @@ You can correct the sorting at several levels:
 ## How the numbers work
 
 - **Kept** is AI story text and human prose on the branch selected at export.
+- **Final prose: human / AI** compares the person's story prose with AI story text on the selected chat branch. It leaves out instructions, continuity notes, repeated text, abandoned branches, and technical failures. It does not measure the published manuscript.
 - **Abandoned** is AI story text and human prose on every other branch.
 - **Repeated text** is a run of 40 or more identical words from one earlier message. Capitalization and punctuation are ignored.
 - **Retried prompts** count only changed words when at least 60% of their words match an earlier version in phrases of five or more words. The kept version receives credit for shared words.

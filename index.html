@@ -499,6 +499,7 @@ body.dragging .map, body.dragging .hero { outline: 2px dashed var(--keep); outli
       <li><b>Story prose and instructions</b> are sorted automatically. By default, text in ((double parentheses)), [square brackets], {{double braces}}, or after labels such as OOC: counts as instruction. Each marker can be turned off under Advanced sorting. Unmarked paragraphs are judged by their wording, and uncertain ones are flagged for review. Open a message to correct all of its guessed text, click one passage to switch it, or highlight part of a passage to split it. Corrections are remembered in this browser.</li>
       <li><b>Advanced sorting</b> follows these rules. Highlighted splits always win, followed by a switched passage. Choosing Prose, Instruction, or Story for a message sets its guessed text and lifts any word exclusion on it, while HTML tag choices and explicit markers stay in place. Choosing Continuity applies to the whole message. Otherwise, excluded words apply first, then tags and markers, then the automatic sorting. Tag markup itself is not counted as prose or instruction.</li>
       <li><b>Multiple chat logs</b> are combined. A chat found in two files is counted once using its fullest copy, and messages shared by copied chats are counted once.</li>
+      <li><b>Final prose: human / AI</b> compares the person's story prose with AI story text on the selected chat branch. Instructions, continuity notes, repeated text, abandoned branches, and technical failures are left out. It measures the kept chat path, not the published manuscript, and cannot see edits made outside the chat.</li>
       <li><b>Abandoned</b> counts every other AI word and story-prose word: regenerated replies and branches the person left. Instructions are never counted as manuscript.</li>
       <li><b>Continuity notes</b> are summaries, handoffs, and background records. They are kept out of the manuscript, AI output, the person's prose, and direction totals.</li>
       <li><b>Automatic suggestions</b> never change the totals by themselves, except exact repeats and retried text. A likely loop must end with at least 200 words of one phrase repeating. Every decision is recorded in History and can be undone.</li>
@@ -1349,6 +1350,15 @@ function hoursText(ms) {
 
 /* ---------- Summary ---------- */
 const activeChats = () => state.view === 'all' ? state.chats : [state.chats[+state.view]].filter(Boolean);
+function finalProseShare(t) {
+  const total = t.keptProse + t.keptAI;
+  if (!total) return 'No data';
+  const human = t.keptProse / total * 100;
+  if (human > 0 && human < 1) return '<1% / >99%';
+  if (human > 99 && human < 100) return '>99% / <1%';
+  const rounded = Math.round(human);
+  return `${rounded}% / ${100 - rounded}%`;
+}
 function renderSummary() {
   const chats = activeChats(), t = state.shared ? state.shared.t : totals(chats), w = state.shared ? state.shared.w : workTime(chats, state.gap), hrs = w.ms / 36e5;
   const all = t.kept + t.cut, share = v => all ? v / all * 100 : 0;
@@ -1379,10 +1389,10 @@ function renderSummary() {
   $('reviewText').textContent = `${fmt(t.unsure)} ${t.unsure === 1 ? 'message needs' : 'messages need'} a second look.`;
 
   const stats = [
+    [esc(finalProseShare(t)), 'final prose: human / AI'],
     [fmt(t.prose), 'words of human prose'],
     [fmt(t.instr), 'words of direction'],
-    [fmt(t.gen), 'AI words generated'],
-    [w.ms ? fmt(w.sessions) : 'No data', w.sessions === 1 ? 'working sitting' : 'working sittings']
+    [fmt(t.gen), 'AI words generated']
   ];
   $('stats').innerHTML = stats.map(([a, b]) => `<div class="stat"><strong>${a}</strong><span>${b}</span></div>`).join('');
   renderChart(w);
@@ -1509,7 +1519,7 @@ function renderChart(w) {
   chart.innerHTML = rows.map(([k, v]) => { const pct = v ? Math.max(2, v / max * 100) : 0; return `<div class="bar-col" title="${weekly ? 'Week of ' : ''}${dateText(k)}: ${v ? hoursText(v) : 'no work'}"><i style="height:${pct}%"></i>${v ? `<span style="bottom:calc(${pct}% + 3px)">${barLabel(v)}</span>` : ''}</div>`; }).join('');
   chart.setAttribute('aria-label', `Hours worked per ${weekly ? 'week' : 'day'}. The busiest ${weekly ? 'week' : 'day'} reached ${hoursText(max)}.`);
   const left = [w.genMs >= 60000 ? `${hoursText(w.genMs)} of recorded AI generation` : '', w.notesMs >= 60000 ? `${hoursText(w.notesMs)} around continuity notes` : '', w.failedMs >= 60000 ? `${hoursText(w.failedMs)} around technical failures` : ''].filter(Boolean).join(', ');
-  $('timeSub').textContent = `Hours per ${weekly ? 'week' : 'day'} over ${fmt(span)} calendar ${span === 1 ? "day" : "days"}.${left ? ` Left out: ${left}.` : ''}`;
+  $('timeSub').textContent = `Hours per ${weekly ? 'week' : 'day'} over ${fmt(span)} calendar ${span === 1 ? "day" : "days"}, across ${fmt(w.sessions)} ${w.sessions === 1 ? 'sitting' : 'sittings'}.${left ? ` Left out: ${left}.` : ''}`;
   $('axisA').textContent = dateText(w.first); $('axisB').textContent = dateText(w.last);
 }
 
@@ -2282,7 +2292,8 @@ function renderSharedChart() {
   chart.classList.toggle('dense', dense); $('chartInner').style.minWidth = dense ? `${weeks.length * 16}px` : '';
   chart.innerHTML = weeks.map((v, i) => { const pct = v ? Math.max(2, v / max * 100) : 0; return `<div class="bar-col" title="Week ${i + 1}: ${v ? hoursText(v * 6e4) : 'no work'}"><i style="height:${pct}%"></i>${v ? `<span style="bottom:calc(${pct}% + 3px)">${barLabel(v * 6e4)}</span>` : ''}</div>`; }).join('');
   chart.setAttribute('aria-label', `Hours worked per week over ${weeks.length} weeks. The busiest week reached ${hoursText(max * 6e4)}.`);
-  $('timeSub').textContent = `Hours per week over ${fmt(weeks.length)} ${weeks.length === 1 ? 'week' : 'weeks'}.`;
+  const sittings = state.shared.w.sessions;
+  $('timeSub').textContent = `Hours per week over ${fmt(weeks.length)} ${weeks.length === 1 ? 'week' : 'weeks'}, across ${fmt(sittings)} ${sittings === 1 ? 'sitting' : 'sittings'}.`;
   $('axisA').textContent = 'Week 1'; $('axisB').textContent = `Week ${weeks.length}`;
 }
 function selectShared(n, keepInView) {
@@ -2363,7 +2374,7 @@ async function drawShareCard() {
   const lineH = Math.round(size * 1.18), startY = 152 + size * .55;
   lines.forEach((row, i) => { let px = left; row.forEach(tok => { x.font = fontFor(size, tok.hi); x.fillStyle = tok.hi ? keep : ink; x.fillText(tok.text, px, startY + i * lineH); px += tok.width; }); });
 
-  const stats = [[fmt(t.prose), 'human prose'], [fmt(t.instr), 'direction'], [fmt(t.gen), 'AI generated'], [w.ms ? fmt(w.sessions) : '–', w.sessions === 1 ? 'sitting' : 'sittings']], cell = textW / 4;
+  const stats = [[finalProseShare(t), 'final human / AI'], [fmt(t.prose), 'human prose'], [fmt(t.instr), 'direction'], [fmt(t.gen), 'AI generated']], cell = textW / 4;
   stats.forEach(([a, b], i) => {
     const sx = left + i * cell; let vs = 28; x.font = `650 ${vs}px ${serif}`;
     while (x.measureText(a).width > cell - 12 && vs > 15) { vs--; x.font = `650 ${vs}px ${serif}`; }
