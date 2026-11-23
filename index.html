@@ -507,7 +507,7 @@ body.dragging .map, body.dragging .hero { outline: 2px dashed var(--keep); outli
       <li><b>Hours worked</b> adds the time between consecutive messages, using the export's timestamps. Any pause longer than the break setting counts as time away. AI generation time is subtracted when the export records it; otherwise the total includes waiting for the AI. Time around messages that are mostly continuity notes or repeated text is left out unless you choose to count it. Work done outside the chat is not included.</li>
       <li><b>Reading time</b> assumes 238 words per minute, a typical adult silent reading speed. It shows how long reading every generated word once would take, whether or not the person read all of it.</li>
       <li><b>Attempts rejected</b> counts each extra branch at a fork. Three replies to one prompt counts as two rejected attempts.</li>
-      <li><b>Retried prompts</b> count only the words that changed. A prompt is treated as a retry when at least 60% of its words match, in order, an earlier version beside it or one of the three prompts before it on the same branch. The kept version receives credit for the shared words, and abandoned versions count only what was unique to them. The retry still counts as an attempt, and its time still counts as work.</li>
+      <li><b>Retried prompts</b> count only the words that changed. A prompt is treated as a retry when at least 60% of its words match, in phrases of five or more words, an earlier version beside it or one of the three prompts before it on the same branch. The kept version receives credit for the shared words, and abandoned versions count only what was unique to them. The retry still counts as an attempt, and its time still counts as work.</li>
       <li><b>Discarded words above</b>, for a single message, adds all words at earlier turns that are not on that message's own path. Other attempts at the same turn are not included.</li>
       <li><b>Shared dashboards</b> contain only totals, weekly hours, node shapes, categories, and rough lengths. They are self-reported and are not independently verified.</li>
       <li>Hidden model reasoning and tool output stored in collapsible blocks is left out of every count unless you turn that off under Advanced sorting. Your file is read in this browser and is not uploaded.</li>
@@ -928,7 +928,7 @@ function nextKind(n, x) {
   return list[(list.indexOf(x.k) + 1) % list.length];
 }
 const REPEAT_MIN = 40, SHINGLE = 8, WORD_TOKEN = /[\p{L}\p{N}]+(?:['’][\p{L}\p{N}]+)*/gu;
-const RETRY_SIMILAR = .6, RETRY_MIN_WORDS = 4, RETRY_MAX_EDITS = 1500;
+const RETRY_SIMILAR = .6, RETRY_MIN_WORDS = 4, RETRY_MIN_PHRASE = 5, RETRY_MAX_EDITS = 1500;
 // Marks which words of b also appear, in order, in a. Gives up when the two differ too much to be an edit.
 function matchedWords(a, b) {
   const mask = new Uint8Array(b.length); let p = 0, q = 0;
@@ -956,6 +956,17 @@ function matchedWords(a, b) {
   }
   return null;
 }
+// Isolated shared words such as "they" are coincidence. Only whole-message or real phrase matches count as unchanged.
+function keepRealPhrases(mask) {
+  for (let a = 0; a < mask.length;) {
+    if (!mask[a]) { a++; continue; }
+    let b = a; while (b + 1 < mask.length && mask[b + 1]) b++;
+    const size = b - a + 1;
+    if (size < RETRY_MIN_PHRASE && size < mask.length) mask.fill(0, a, b + 1);
+    a = b + 1;
+  }
+  return mask;
+}
 function retryCandidates(n, tokens) {
   const out = new Set(), sibs = n.parent ? n.parent.children : n.rootList || [];
   sibs.forEach(x => { if (x !== n && x.role === 'user' && tokens.has(x.id)) out.add(x); });
@@ -971,8 +982,8 @@ function bestRetry(n, words, tokens) {
     const other = tokens.get(c.id), bag = new Set(other); let shared = 0;
     for (const w of words) if (bag.has(w)) shared++;
     if (shared <= bestCount) return;
-    const mask = matchedWords(other, words); if (!mask) return;
-    const count = mask.reduce((x, y) => x + y, 0);
+    const found = matchedWords(other, words); if (!found) return;
+    const mask = keepRealPhrases(found), count = mask.reduce((x, y) => x + y, 0);
     if (count > bestCount) { bestCount = count; best = mask; }
   });
   return best;

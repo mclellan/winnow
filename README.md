@@ -67,7 +67,7 @@ You can correct the sorting at several levels:
 - **Kept** is AI story text and human prose on the branch selected at export.
 - **Abandoned** is AI story text and human prose on every other branch.
 - **Repeated text** is a run of 40 or more identical words from one earlier message. Capitalization and punctuation are ignored.
-- **Retried prompts** count only changed words when at least 60% of their words match an earlier version in order. The kept version receives credit for shared words.
+- **Retried prompts** count only changed words when at least 60% of their words match an earlier version in phrases of five or more words. The kept version receives credit for shared words.
 - **Attempts rejected** counts extra branches at each fork.
 - **Hours worked** adds the time between consecutive messages and treats a pause over the break setting (20 minutes by default) as time away.
 - **Reading time** assumes 238 words per minute.
