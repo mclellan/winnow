@@ -414,6 +414,10 @@ body.shared #tabCleanup, body.shared #timeAdjust { display: none; }
 .files-menu .chip { display: flex; justify-content: space-between; min-width: 0; }
 .files-menu .chip span { min-width: 0; }
 .files-menu .link-btn { justify-self: start; font-size: .82rem; }
+.split-menu { position: fixed; z-index: 40; display: flex; align-items: center; gap: 2px; padding: 3px; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; box-shadow: 0 8px 24px rgb(15 23 42 / .35); }
+.split-menu span { padding: 0 6px; color: var(--muted); font-size: .74rem; white-space: nowrap; }
+.split-menu button { min-height: 32px; padding: 3px 9px; border: 0; border-radius: 4px; background: none; cursor: pointer; font-size: .8rem; font-weight: 500; white-space: nowrap; }
+.split-menu button:hover, .split-menu button:focus-visible { background: var(--keep); color: var(--on-keep); }
 .method { padding-block: 10px 56px; }
 details { border-top: 1px solid var(--line); padding-top: 14px; }
 summary { cursor: pointer; font-weight: 600; }
@@ -492,8 +496,8 @@ body.dragging .map, body.dragging .hero { outline: 2px dashed var(--keep); outli
     <summary>How these numbers are calculated</summary>
     <ul>
       <li><b>Kept</b> counts AI words and the person's story prose on the branch that was selected when the chat was exported. Some AI words may be planning or feedback, so treat it as the most that could have reached the manuscript.</li>
-      <li><b>Story prose and instructions</b> are sorted automatically. By default, text in ((double parentheses)), [square brackets], {{double braces}}, or after labels such as OOC: counts as instruction. Each marker can be turned off under Advanced sorting. Unmarked paragraphs are judged by their wording, and uncertain ones are flagged for review. Open a message to correct all of its guessed text, or click one passage to switch it. Corrections are remembered in this browser.</li>
-      <li><b>Advanced sorting</b> follows these rules. A switched passage always wins. Choosing Prose, Instruction, or Story for a message sets its guessed text and lifts any word exclusion on it, while HTML tag choices and explicit markers stay in place. Choosing Continuity applies to the whole message. Otherwise, excluded words apply first, then tags and markers, then the automatic sorting. Tag markup itself is not counted as prose or instruction.</li>
+      <li><b>Story prose and instructions</b> are sorted automatically. By default, text in ((double parentheses)), [square brackets], {{double braces}}, or after labels such as OOC: counts as instruction. Each marker can be turned off under Advanced sorting. Unmarked paragraphs are judged by their wording, and uncertain ones are flagged for review. Open a message to correct all of its guessed text, click one passage to switch it, or highlight part of a passage to split it. Corrections are remembered in this browser.</li>
+      <li><b>Advanced sorting</b> follows these rules. Highlighted splits always win, followed by a switched passage. Choosing Prose, Instruction, or Story for a message sets its guessed text and lifts any word exclusion on it, while HTML tag choices and explicit markers stay in place. Choosing Continuity applies to the whole message. Otherwise, excluded words apply first, then tags and markers, then the automatic sorting. Tag markup itself is not counted as prose or instruction.</li>
       <li><b>Multiple chat logs</b> are combined. A chat found in two files is counted once using its fullest copy, and messages shared by copied chats are counted once.</li>
       <li><b>Abandoned</b> counts every other AI word and story-prose word: regenerated replies and branches the person left. Instructions are never counted as manuscript.</li>
       <li><b>Continuity notes</b> are summaries, handoffs, and background records. They are kept out of the manuscript, AI output, the person's prose, and direction totals.</li>
@@ -553,7 +557,7 @@ body.dragging .map, body.dragging .hero { outline: 2px dashed var(--keep); outli
           <div class="bad"><b id="pDisc"></b><span>discarded words above</span></div>
         </div>
         <div class="meta" id="pMeta"></div>
-        <div class="kindbar" id="pKindBar"><span id="pKindNote"></span><span class="kind-label">Sort this message</span><span class="seg" role="group" aria-label="Sort this message as"><button data-kind="auto">Auto</button><button data-kind="output">Story</button><button data-kind="prose">Prose</button><button data-kind="instruction">Instruction</button><button data-kind="continuity">Continuity</button><button data-kind="failed">Ignore</button></span><span class="kind-hint">Click any passage below to switch just that passage.</span></div>
+        <div class="kindbar" id="pKindBar"><span id="pKindNote"></span><span class="kind-label">Sort this message</span><span class="seg" role="group" aria-label="Sort this message as"><button data-kind="auto">Auto</button><button data-kind="output">Story</button><button data-kind="prose">Prose</button><button data-kind="instruction">Instruction</button><button data-kind="continuity">Continuity</button><button data-kind="failed">Ignore</button></span><span class="kind-hint">Click a passage to switch it, or highlight text to split it.</span></div>
         <div class="msg" id="pText" tabindex="0"></div>
         <div class="review-bar" id="reviewBar" hidden><span id="reviewPos" aria-live="polite"></span><p id="reviewReason"></p><button class="btn" id="reviewPrev">Back</button><button class="btn" id="reviewNext">Skip</button><button class="btn" id="reviewFail" hidden>Ignore</button><button class="btn" id="reviewNote" hidden>Continuity</button><button class="btn primary" id="reviewOk">Looks right</button></div>
         <footer><button class="btn" id="pPrev">Earlier message</button><button class="btn" id="pNext">Later message</button></footer>
@@ -615,6 +619,8 @@ body.dragging .map, body.dragging .hero { outline: 2px dashed var(--keep); outli
   </div>
 </main>
 
+<div class="split-menu" id="splitMenu" role="toolbar" aria-label="Count selected text as" hidden></div>
+
 <dialog class="share-dialog" id="batchDialog" aria-labelledby="batchTitle">
   <div class="share-body">
     <div class="share-head"><div><h2 id="batchTitle"></h2><p id="batchSub"></p></div><button class="icon" id="batchClose" aria-label="Close preview">&times;</button></div>
@@ -644,7 +650,7 @@ body.dragging .map, body.dragging .hero { outline: 2px dashed var(--keep); outli
 const $ = id => document.getElementById(id);
 const fmt = n => Math.round(n).toLocaleString();
 const SPACE_X = 24, SPACE_Y = 30, WPM_READ = 238, WORK_WEEK = 40, WORDS_PER_PAGE = 250;
-const state = { chats: [], view: 'all', gap: 20, sample: true, selected: null, shared: null, page: 'summary', mapMode: 'strip', flagFilter: 'all', ledger: [], openChat: null, openStubs: new Set(), listRows: [], nodes: [], files: [], customLabels: [], markerUsers: [], markerOff: {}, markerCounts: {}, stripDetails: true, hiddenCount: 0, over: {}, failed: {}, passages: {}, confirmed: {}, phrases: [], tagRules: {}, catalog: [], unclosedTags: [], largeAt: 2000, largeOk: {}, countNotes: false, auditFilter: 'all', queueMode: 'unsure', repeats: new Map(), reuse: new Map(), lastBulk: null, t: { k: 1, x: 0, y: 0 } };
+const state = { chats: [], view: 'all', gap: 20, sample: true, selected: null, shared: null, page: 'summary', mapMode: 'strip', flagFilter: 'all', ledger: [], openChat: null, openStubs: new Set(), listRows: [], nodes: [], files: [], customLabels: [], markerUsers: [], markerOff: {}, markerCounts: {}, stripDetails: true, hiddenCount: 0, over: {}, splits: {}, failed: {}, passages: {}, confirmed: {}, phrases: [], tagRules: {}, catalog: [], unclosedTags: [], largeAt: 2000, largeOk: {}, countNotes: false, auditFilter: 'all', queueMode: 'unsure', repeats: new Map(), reuse: new Map(), lastBulk: null, t: { k: 1, x: 0, y: 0 } };
 
 /* ---------- Reading the export ---------- */
 function cleanText(c) {
@@ -900,6 +906,12 @@ function applyPassages(n, segs) {
 function switchPassage(n, index) {
   const x = n.segs[index]; if (!x || !x.k) return;
   logDecision([n.id], 'Switched a passage');
+  if (x.split || x.cutBy) {
+    const to = nextKind(n, x), top = $('pText').scrollTop;
+    setSplit(n, x.start, x.start + x.t.length, x.split && to === x.under ? null : to);
+    refreshSplit(n, top);
+    return;
+  }
   const next = nextKind(n, x), saved = state.passages[n.id] || (state.passages[n.id] = {});
   if (next === x.base) delete saved[x.key]; else saved[x.key] = next;
   if (!Object.keys(saved).length) delete state.passages[n.id];
@@ -1062,6 +1074,84 @@ function splitRepeats(n, segs) {
   });
   return out.map(x => x.k && !/[\p{L}\p{N}]/u.test(x.t.replace(TAG_TOKEN, ' ')) ? { t: x.t, k: null } : x);
 }
+/* ---------- Highlight to split: exact character ranges chosen by the writer ---------- */
+function loadSplits() { try { const v = JSON.parse(localStorage.getItem('bluepencil.splits') || '{}'); return v && typeof v === 'object' && !Array.isArray(v) ? v : {}; } catch { return {}; } }
+function saveSplits() { try { localStorage.setItem('bluepencil.splits', JSON.stringify(state.splits)); } catch {} }
+function applySplits(n, segs) {
+  const ranges = (state.splits[n.id] || []).filter(r => Number.isInteger(r.start) && Number.isInteger(r.end) && r.start >= 0 && r.start < r.end && r.end <= n.text.length).sort((a, b) => a.start - b.start);
+  let pos = 0;
+  if (!ranges.length) { segs.forEach(x => { x.start = pos; pos += x.t.length; }); return segs; }
+  const out = [];
+  segs.forEach(s => {
+    const a = pos, b = pos + s.t.length; pos = b; let at = a;
+    ranges.forEach(r => {
+      const x = Math.max(a, r.start), y = Math.min(b, r.end); if (x >= y) return;
+      if (x > at) out.push({ ...s, t: n.text.slice(at, x), start: at, cutBy: !!s.k });
+      const last = out[out.length - 1];
+      if (last?.range === r) last.t += n.text.slice(x, y);
+      else out.push({ t: n.text.slice(x, y), k: r.k, split: true, range: r, under: s.k, base: s.base || s.k, key: s.key, start: x, fixed: true, g: false, u: false });
+      at = y;
+    });
+    if (at < b) out.push({ ...s, t: n.text.slice(at, b), start: at, cutBy: !!s.k && at > a });
+  });
+  return out;
+}
+function setSplit(n, start, end, kind) {
+  const out = [];
+  (state.splits[n.id] || []).forEach(r => {
+    if (r.end <= start || r.start >= end) { out.push(r); return; }
+    if (r.start < start) out.push({ start: r.start, end: start, k: r.k });
+    if (r.end > end) out.push({ start: end, end: r.end, k: r.k });
+  });
+  if (kind) out.push({ start, end, k: kind });
+  out.sort((a, b) => a.start - b.start);
+  const merged = [];
+  out.forEach(r => { const last = merged[merged.length - 1]; if (last && last.k === r.k && last.end === r.start) last.end = r.end; else merged.push({ ...r }); });
+  if (merged.length) state.splits[n.id] = merged; else delete state.splits[n.id];
+  saveSplits();
+}
+function refreshSplit(n, top) { classifyAll(); renderSummary(); drawNodes(); select(n); $('pText').scrollTop = top; }
+let splitDismissed = false, splitPointer = false, splitTimer = 0, splitChoice = null;
+function hideSplitMenu() { const menu = $('splitMenu'); if (menu) menu.hidden = true; splitChoice = null; }
+function messageSelection() {
+  const n = state.selected, sel = getSelection(), box = $('pText');
+  if (!n || n.failed || !n.segs || state.shared || !sel || sel.isCollapsed || !sel.rangeCount || (n.role !== 'user' && n.role !== 'assistant')) return null;
+  const range = sel.getRangeAt(0);
+  if (!box.contains(range.commonAncestorContainer) || box.textContent !== n.text) return null;
+  const before = document.createRange(); before.selectNodeContents(box); before.setEnd(range.startContainer, range.startOffset);
+  let start = before.toString().length, end = start + range.toString().length; const text = n.text;
+  while (start < end && /\s/.test(text[start])) start++;
+  while (end > start && /\s/.test(text[end - 1])) end--;
+  if (start >= end) return null;
+  while (start > 0 && /\S/.test(text[start - 1])) start--;
+  while (end < text.length && /\S/.test(text[end])) end++;
+  return { n, start, end, rect: range.getBoundingClientRect() };
+}
+function updateSplitMenu() {
+  const choice = messageSelection(), menu = $('splitMenu');
+  if (!choice) { hideSplitMenu(); return; }
+  splitChoice = choice; menu.textContent = '';
+  const label = document.createElement('span'); label.textContent = `${fmt(visibleWords(choice.n.text.slice(choice.start, choice.end)))} words as`; menu.append(label);
+  (choice.n.role === 'assistant' ? [['output', 'Story'], ['continuity', 'Continuity']] : [['prose', 'Prose'], ['instruction', 'Instruction'], ['continuity', 'Continuity']]).forEach(([kind, text]) => {
+    const b = document.createElement('button'); b.type = 'button'; b.textContent = text;
+    b.onpointerdown = e => e.preventDefault();
+    b.onclick = () => {
+      const c = splitChoice; if (!c) return;
+      const top = $('pText').scrollTop;
+      logDecision([c.n.id], 'Split a passage'); setSplit(c.n, c.start, c.end, kind);
+      getSelection().removeAllRanges(); hideSplitMenu(); refreshSplit(c.n, top);
+    };
+    menu.append(b);
+  });
+  menu.hidden = false;
+  const m = menu.getBoundingClientRect(), left = Math.max(8, Math.min(innerWidth - m.width - 8, choice.rect.left + choice.rect.width / 2 - m.width / 2));
+  const above = choice.rect.top - m.height - 8, top = above >= 8 ? above : Math.min(innerHeight - m.height - 8, choice.rect.bottom + 8);
+  menu.style.left = `${left}px`; menu.style.top = `${top}px`;
+}
+$('pText').addEventListener('pointerdown', () => { splitDismissed = !$('splitMenu').hidden; splitPointer = true; hideSplitMenu(); });
+document.addEventListener('pointerup', () => { if (!splitPointer) return; splitPointer = false; setTimeout(updateSplitMenu, 0); });
+document.addEventListener('selectionchange', () => { if (splitPointer) return; clearTimeout(splitTimer); splitTimer = setTimeout(updateSplitMenu, 140); });
+$('pText').addEventListener('scroll', () => { if (!$('splitMenu').hidden) updateSplitMenu(); }, { passive: true });
 function classifyAll() {
   const re = markerRegex(), phrases = state.phrases.map(p => p.toLowerCase());
   const aiText = slice => ({ segs: slice ? [{ t: slice, k: 'output', g: true }] : [], unsure: false });
@@ -1078,7 +1168,7 @@ function classifyAll() {
       const r = hit >= 0 ? { segs: n.text ? [{ t: n.text, k: 'continuity' }] : [] } : isAI ? ruleSegments(n, re, aiText, 'continuity') : ruleSegments(n, re);
       if (o === 'continuity') r.segs.forEach(x => { if (x.k) { x.k = 'continuity'; x.g = false; x.u = false; } });
       else if (o && !isAI) r.segs.forEach(x => { if (x.g) { x.k = o; x.u = false; } });
-      const segs = splitRepeats(n, r.segs), fixed = applyPassages(n, segs);
+      let segs = splitRepeats(n, r.segs); const fixed = applyPassages(n, segs); segs = applySplits(n, segs);
       n.segs = segs; n.unsure = !isAI && segs.some(x => x.u && !x.fixed);
       segs.forEach(x => {
         if (!x.k) return;
@@ -1089,7 +1179,7 @@ function classifyAll() {
       const total = n.counted + n.cont + n.rep; n.aside = total ? (n.cont + n.rep - n.retryW) / total : 0; n.retryShare = total ? n.retryW / total : 0;
       const p = n.prose + retryProse, d = n.instr + retryInstr;
       n.kind = !n.counted && n.cont + n.rep - n.retryW > .5 ? 'continuity' : isAI ? null : p && d ? 'mixed' : p ? 'prose' : 'instruction';
-      n.reason = [o ? `set to ${KIND_LABEL[o]}` : hit >= 0 ? `matches ${state.phrases[hit]}` : '', fixed ? `${fixed} ${fixed === 1 ? 'passage' : 'passages'} switched` : '', state.confirmed[n.id] ? 'reviewed' : ''].filter(Boolean).join(', ');
+      n.reason = [o ? `set to ${KIND_LABEL[o]}` : hit >= 0 ? `matches ${state.phrases[hit]}` : '', fixed ? `${fixed} ${fixed === 1 ? 'passage' : 'passages'} switched` : '', state.splits[n.id]?.length ? `${state.splits[n.id].length} highlighted ${state.splits[n.id].length === 1 ? 'split' : 'splits'}` : '', state.confirmed[n.id] ? 'reviewed' : ''].filter(Boolean).join(', ');
     });
     const atDepth = [];
     c.nodes.forEach(n => { n.cum = (n.parent ? n.parent.cum : 0) + n.counted; atDepth[n.depth] = (atDepth[n.depth] || 0) + n.counted; });
@@ -1531,6 +1621,7 @@ function select(n, keepInView) {
   syncViews(n);
 }
 function renderMessage(n) {
+  hideSplitMenu();
   const box = $('pText'); box.textContent = '';
   if (!n.text) { box.textContent = 'This message has no visible text.'; return; }
   if (n.failed) {
@@ -1547,7 +1638,7 @@ function renderMessage(n) {
       el.dataset.part = i; el.tabIndex = 0; el.setAttribute('role', 'button');
       el.setAttribute('aria-label', `${KIND_LABEL[s.k]} passage. Switch to ${KIND_LABEL[to]}.`);
       el.title = `Counts as ${KIND_LABEL[s.k]}${s.from ? `, copied from ${s.from}` : ''}. Click to switch to ${KIND_LABEL[to]}.`;
-      el.onclick = () => { if (!String(getSelection())) switchPassage(n, i); };
+      el.onclick = () => { if (splitDismissed) { splitDismissed = false; return; } if (!String(getSelection())) switchPassage(n, i); };
       el.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); switchPassage(n, i); } };
     }
     box.append(el);
@@ -1592,6 +1683,8 @@ function renderReviewBar() {
   bar.hidden = state.shared || (!q.length && !state.reviewing);
   bar.classList.toggle('large', messageLevel);
   $('reviewPrev').hidden = $('reviewNext').hidden = !q.length;
+  $('reviewNext').textContent = inQueue ? 'Skip' : 'Review next';
+  $('reviewNext').classList.toggle('primary', !inQueue);
   $('reviewOk').hidden = !inQueue; $('reviewNote').hidden = $('reviewFail').hidden = !inQueue || !messageLevel;
   const askReuse = inQueue && flags[0]?.type === 'reused';
   if (askReuse) $('reviewFail').hidden = true;
@@ -1680,7 +1773,7 @@ function saveLedger() { try { localStorage.setItem('bluepencil.ledger', JSON.str
 function logDecision(ids, label, source = 'You') {
   if (state.shared) return;
   const before = {};
-  ids.forEach(id => { before[id] = { failed: state.failed[id] || null, over: state.over[id] || null, largeOk: state.largeOk[id] || null, confirmed: state.confirmed[id] ? { ...state.confirmed[id] } : null, passages: state.passages[id] ? { ...state.passages[id] } : null }; });
+  ids.forEach(id => { before[id] = { failed: state.failed[id] || null, over: state.over[id] || null, largeOk: state.largeOk[id] || null, confirmed: state.confirmed[id] ? { ...state.confirmed[id] } : null, passages: state.passages[id] ? { ...state.passages[id] } : null, splits: state.splits[id] ? state.splits[id].map(r => ({ ...r })) : null }; });
   state.ledger.push({ at: Date.now(), label: ids.length > 1 ? `${label} (${fmt(ids.length)})` : label, source, before });
   if (state.ledger.length > 100) state.ledger.shift();
   saveLedger();
@@ -1688,9 +1781,9 @@ function logDecision(ids, label, source = 'You') {
 function undoDecision() {
   const entry = state.ledger.pop(); if (!entry) return;
   Object.entries(entry.before).forEach(([id, b]) => {
-    [['failed', b.failed], ['over', b.over], ['largeOk', b.largeOk], ['confirmed', b.confirmed], ['passages', b.passages]].forEach(([key, value]) => { if (value == null) delete state[key][id]; else state[key][id] = value; });
+    [['failed', b.failed], ['over', b.over], ['largeOk', b.largeOk], ['confirmed', b.confirmed], ['passages', b.passages], ...('splits' in b ? [['splits', b.splits]] : [])].forEach(([key, value]) => { if (value == null) delete state[key][id]; else state[key][id] = value; });
   });
-  saveLedger(); saveFailed(); saveDecisions(); saveConfirmed();
+  saveLedger(); saveFailed(); saveDecisions(); saveConfirmed(); saveSplits();
   try { localStorage.setItem('bluepencil.passages', JSON.stringify(state.passages)); } catch {}
   computeRepeats(); refreshCounts();
 }
@@ -1894,6 +1987,7 @@ let largeTimer; $('largeAt').addEventListener('input', e => { clearTimeout(large
 }, 200); });
 $('countNotes').addEventListener('change', e => { state.countNotes = e.target.checked; saveRules(); renderSummary(); });
 function closePanel() {
+  hideSplitMenu();
   state.selected = null; $('panel').hidden = true;
   $('ring').setAttribute('visibility', 'hidden'); $('trail').removeAttribute('d');
   syncViews(null);
@@ -2306,9 +2400,9 @@ async function boot() {
   setPage('summary');
   if (location.hash.startsWith('#s=')) {
     try { enterShared(await readShare(location.hash.slice(3))); return; }
-    catch { state.over = loadOverrides(); state.failed = loadFailed(); state.ledger = loadLedger(); state.passages = loadPassages(); state.confirmed = loadConfirmed(); loadRules(); rebuild(); $('shareBtn').disabled = true; setNotice('This share link is damaged or incomplete. Ask the author to copy it again. The sample project is shown below.', true); return; }
+    catch { state.over = loadOverrides(); state.failed = loadFailed(); state.splits = loadSplits(); state.ledger = loadLedger(); state.passages = loadPassages(); state.confirmed = loadConfirmed(); loadRules(); rebuild(); $('shareBtn').disabled = true; setNotice('This share link is damaged or incomplete. Ask the author to copy it again. The sample project is shown below.', true); return; }
   }
-  state.over = loadOverrides(); state.failed = loadFailed(); state.ledger = loadLedger(); state.passages = loadPassages(); state.confirmed = loadConfirmed(); loadRules();
+  state.over = loadOverrides(); state.failed = loadFailed(); state.splits = loadSplits(); state.ledger = loadLedger(); state.passages = loadPassages(); state.confirmed = loadConfirmed(); loadRules();
   finishLoad(rebuild());
 }
 boot();

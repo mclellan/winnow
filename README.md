@@ -44,6 +44,7 @@ Every piece of text falls into one of these categories:
 You can correct the sorting at several levels:
 
 - **One passage:** open a message and click the passage to switch its category.
+- **Part of a passage:** highlight the text, then choose its category from the small menu.
 - **One message:** use **Sort this message** in the details panel.
 - **Handoff documents:** under **Advanced sorting**, exclude a word or filename such as `bible.md`.
 - **HTML tags:** under **Advanced sorting**, choose how text inside tags such as `<scene>` or `<note>` counts.
