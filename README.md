@@ -76,6 +76,16 @@ Treat the results as a careful estimate. They are not proof of authorship.
 - **Word counts are approximate.** Hidden reasoning and tool blocks are excluded.
 - **Saved corrections are local.** Clearing browser data removes them.
 
+## Sharing your results
+
+Click **Share** after loading your chat logs. Winnow creates a read-only link and can also download a PNG summary card.
+
+- **Included:** word and effort totals, hours per week without dates, node shapes, categories, kept or abandoned status, and rough message lengths.
+- **Never included:** message text, chat titles, filenames, exact timestamps, model names, or message IDs.
+- **No upload:** the data is compressed into the part of the URL after `#`, which browsers do not send to GitHub. Anyone with the link can read what it contains, and links cannot be revoked.
+- **Long projects:** if a full link would exceed 8,000 characters, Winnow turns off the node map. You can turn it back on, but some apps may cut off long links.
+- **Self-reported:** a shared link can be edited by someone who understands the format. Shared dashboards are labeled as not independently verified.
+
 ## Run it locally
 
 Winnow is a single static page with no build step. Open `index.html` in a browser, or serve the folder:

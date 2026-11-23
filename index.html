@@ -213,6 +213,29 @@ h2 { font: 650 1.3rem/1.25 var(--display); margin: 0; text-wrap: balance; }
 .check input { accent-color: var(--keep); }
 .msg .note-part { font-family: var(--body); font-size: .88rem; color: var(--note); background: color-mix(in srgb, var(--note) 13%, transparent); }
 .msg .rep-part { font-family: var(--body); font-size: .88rem; color: var(--muted); background: color-mix(in srgb, var(--muted) 14%, transparent); }
+.share-actions { display: flex; gap: 8px; }
+.share-dialog { width: min(620px, calc(100vw - 24px)); max-height: calc(100dvh - 24px); padding: 0; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 18px 50px rgb(15 23 42 / .35); }
+.share-dialog::backdrop { background: rgb(10 14 22 / .55); }
+.share-body { display: grid; gap: 14px; padding: 20px; }
+.share-head { display: flex; align-items: start; justify-content: space-between; gap: 12px; }
+.share-head h2 { margin: 0; }
+.share-head p { margin: 3px 0 0; color: var(--muted); font-size: .9rem; }
+.share-lists { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 22px; font-size: .86rem; }
+.share-lists h3 { margin: 0 0 4px; font-size: .84rem; font-weight: 600; }
+.share-lists ul { margin: 0; padding-left: 17px; color: var(--muted); display: grid; gap: 2px; border: 0; }
+.share-link { display: flex; gap: 6px; }
+.share-link input { flex: 1; min-width: 0; min-height: 38px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--paper); font-size: .84rem; }
+.share-meta { min-height: 1.3em; margin: -6px 0 0; color: var(--muted); font-size: .8rem; }
+.share-meta.warn { color: var(--direct); }
+.share-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; padding-top: 12px; border-top: 1px solid var(--line); }
+.share-warning { color: var(--muted); font-size: .8rem; flex: 1 1 260px; }
+body.shared .upload, body.shared .field, body.shared #shareBtn, body.shared #sources, body.shared #advanced, body.shared .audit-tools, body.shared #auditList,
+body.shared #reviewWrap, body.shared .time-controls, body.shared #pKindBar, body.shared #reviewBar { display: none !important; }
+body:not(.shared) #ownLogs, body:not(.shared) #sharedImage { display: none; }
+body.shared .counts { grid-template-columns: minmax(0, 1fr); }
+body.shared .counts div + div { display: none; }
+body.no-tree section[aria-labelledby="h-map"] { display: none; }
+@media (max-width: 760px) { .share-actions { width: 100%; } .share-actions .btn { flex: 1; } .share-lists { grid-template-columns: minmax(0, 1fr); } }
 .method { padding-block: 10px 56px; }
 details { border-top: 1px solid var(--line); padding-top: 14px; }
 summary { cursor: pointer; font-weight: 600; }
@@ -235,6 +258,7 @@ body.dragging .map, body.dragging .hero { outline: 2px dashed var(--keep); outli
 <div class="topbar"><div class="wrap">
   <div class="brand"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22V7"/><path d="M12 7c-2-1-2.5-3 0-5 2.5 2 2 4 0 5z"/><path d="M12 13c-1-2.5-3-3.5-6-3.5 0 3 2 4.5 6 3.5z"/><path d="M12 13c1-2.5 3-3.5 6-3.5 0 3-2 4.5-6 3.5z"/><path d="M12 19c-1-2.5-3-3.5-6-3.5 0 3 2 4.5 6 3.5z"/><path d="M12 19c1-2.5 3-3.5 6-3.5 0 3-2 4.5-6 3.5z"/></svg>Winnow</div>
   <div class="field"><label for="project">Showing</label><select id="project"></select></div>
+  <div class="share-actions"><button class="btn" id="shareBtn">Share</button><button class="btn" id="sharedImage">Download image</button><button class="btn primary" id="ownLogs">Analyze your own logs</button></div>
   <div class="upload"><input class="sr" type="file" id="file" accept=".json,application/json" multiple><label class="btn primary" for="file">Add chat logs</label></div>
 </div></div>
 <div class="notice" id="notice" role="status"><div class="wrap" id="noticeText"></div></div>
@@ -361,16 +385,34 @@ body.dragging .map, body.dragging .hero { outline: 2px dashed var(--keep); outli
       <li><b>Attempts rejected</b> counts each extra branch at a fork. Three replies to one prompt counts as two rejected attempts.</li>
       <li><b>Retried prompts</b> count only the words that changed. A prompt is treated as a retry when at least 60% of its words match, in order, an earlier version beside it or one of the three prompts before it on the same branch. The kept version receives credit for the shared words, and abandoned versions count only what was unique to them. The retry still counts as an attempt, and its time still counts as work.</li>
       <li><b>Discarded words above</b>, for a single message, adds all words at earlier turns that are not on that message's own path. Other attempts at the same turn are not included.</li>
+      <li><b>Shared dashboards</b> contain only totals, weekly hours, node shapes, categories, and rough lengths. They are self-reported and are not independently verified.</li>
       <li>Hidden model reasoning and tool output stored in collapsible blocks is left out of every count. Your file is read in this browser and is not uploaded.</li>
     </ul>
   </details></div>
 </main>
 
+<dialog class="share-dialog" id="shareDialog" aria-labelledby="shareTitle">
+  <div class="share-body">
+    <div class="share-head">
+      <div><h2 id="shareTitle">Share this dashboard</h2><p id="shareScope"></p></div>
+      <button class="icon" id="shareClose" aria-label="Close sharing">&times;</button>
+    </div>
+    <div class="share-lists">
+      <div><h3>Included</h3><ul><li>Word and effort totals</li><li>Hours per week, without dates</li><li>Node shapes and rough lengths</li></ul></div>
+      <div><h3>Never included</h3><ul><li>Message text</li><li>Chat titles and filenames</li><li>Exact times, models, and IDs</li></ul></div>
+    </div>
+    <label class="check" for="shareTree"><input id="shareTree" type="checkbox" checked>Include the node map</label>
+    <div class="share-link"><label class="sr" for="shareUrl">Share link</label><input id="shareUrl" type="text" readonly><button class="btn primary" id="shareCopy">Copy link</button></div>
+    <p class="share-meta" id="shareMeta" aria-live="polite"></p>
+    <div class="share-foot"><span class="share-warning">Shared totals are self-reported and are not independently verified.</span><button class="btn" id="shareImage">Download image</button></div>
+  </div>
+</dialog>
+
 <script>
 const $ = id => document.getElementById(id);
 const fmt = n => Math.round(n).toLocaleString();
 const SPACE_X = 24, SPACE_Y = 30, WPM_READ = 238, WORK_WEEK = 40, WORDS_PER_PAGE = 250;
-const state = { chats: [], view: 'all', gap: 20, sample: true, selected: null, nodes: [], files: [], markers: '', over: {}, passages: {}, confirmed: {}, phrases: [], tagRules: {}, catalog: [], unclosedTags: [], largeAt: 2000, largeOk: {}, countNotes: false, auditFilter: 'all', queueMode: 'unsure', repeats: new Map(), reuse: new Map(), lastBulk: null, t: { k: 1, x: 0, y: 0 } };
+const state = { chats: [], view: 'all', gap: 20, sample: true, selected: null, shared: null, nodes: [], files: [], markers: '', over: {}, passages: {}, confirmed: {}, phrases: [], tagRules: {}, catalog: [], unclosedTags: [], largeAt: 2000, largeOk: {}, countNotes: false, auditFilter: 'all', queueMode: 'unsure', repeats: new Map(), reuse: new Map(), lastBulk: null, t: { k: 1, x: 0, y: 0 } };
 
 /* ---------- Reading the export ---------- */
 function cleanText(c) {
@@ -871,7 +913,7 @@ function hoursText(ms) {
 /* ---------- Summary ---------- */
 const activeChats = () => state.view === 'all' ? state.chats : [state.chats[+state.view]].filter(Boolean);
 function renderSummary() {
-  const chats = activeChats(), t = totals(chats), w = workTime(chats, state.gap), hrs = w.ms / 36e5;
+  const chats = activeChats(), t = state.shared ? state.shared.t : totals(chats), w = state.shared ? state.shared.w : workTime(chats, state.gap), hrs = w.ms / 36e5;
   const all = t.kept + t.cut, share = v => all ? v / all * 100 : 0;
   const timeBit = w.ms ? ` and worked for about <b>${hoursText(w.ms)}</b>` : '';
   $('thesis').innerHTML = `To keep <b>${fmt(t.kept)} words</b>, a person wrote <b>${fmt(t.prose)} words of prose</b>, gave <b>${fmt(t.instr)} words of direction</b>, rejected <b>${fmt(t.alts)} attempts</b>${timeBit}.`;
@@ -934,6 +976,7 @@ function renderAudit(t) {
   $('keyCounted').textContent = `${fmt(t.counted)} (${fmt(pct(t.counted))}%)`;
   $('keyNotes').textContent = `${fmt(t.notes)} (${fmt(pct(t.notes))}%)`;
   $('keyRepeated').textContent = `${fmt(t.repeated)} (${fmt(pct(t.repeated))}%)`;
+  if (state.shared) { $('auditCount').textContent = `${fmt(t.notes + t.repeated)} words not counted`; $('auditSub').textContent = 'Continuity notes and repeated text are kept out of the totals above.'; return; }
   const rows = auditRows(), undecided = rows.filter(r => !isDecided(r.n)), reusedOpen = rows.filter(r => r.reused && !isDecided(r.n));
   $('auditSub').textContent = rows.length ? `${fmt(rows.length)} long or reused ${rows.length === 1 ? 'message' : 'messages'} flagged. ${undecided.length ? `${fmt(undecided.length)} still ${undecided.length === 1 ? 'needs' : 'need'} a decision.` : 'All are decided.'}` : 'No messages are over the current limit.';
   if (t.retried >= 1) $('auditSub').textContent += ` ${fmt(t.retried)} repeated words are unchanged text in retried prompts.`;
@@ -979,6 +1022,7 @@ function renderAudit(t) {
 function barLabel(ms) { const h = ms / 36e5; return h >= 10 ? `${Math.round(h)}h` : h >= 1 ? `${h.toFixed(1)}h` : `${Math.max(1, Math.round(h * 60))}m`; }
 function renderChart(w) {
   state.lastWork = w;
+  if (state.shared) { renderSharedChart(); return; }
   $('gapLabel').textContent = `Count a pause over ${state.gap} minutes as a break`;
   const chart = $('chart');
   if (!w.first || !w.ms) {
@@ -1084,6 +1128,7 @@ function reveal(n) {
   if (sx < 30 || sx > right - 30 || sy < 60 || sy > bottom - 30) setView(t.k, Math.max(30, right / 2) - n.x * t.k, Math.max(70, bottom / 2) - n.y * t.k);
 }
 function select(n, keepInView) {
+  if (state.shared) return selectShared(n, keepInView);
   state.selected = n;
   $('ring').setAttribute('cx', n.x); $('ring').setAttribute('cy', n.y); $('ring').setAttribute('visibility', 'visible');
   let d = ''; for (let a = n; a.parent; a = a.parent) d += curve(a.parent, a);
@@ -1272,6 +1317,7 @@ function renderSources() {
   items.append(clear); fold.append(head, items); box.append(fold);
 }
 function finishLoad(r, errors = []) {
+  $('shareBtn').disabled = state.sample; $('shareBtn').title = state.sample ? 'Add your chat logs to share real results' : 'Share a summary without message text';
   if (state.sample && !errors.length) { setNotice('<b>Sample project.</b> These figures are made up to show the layout. Add your Open WebUI chat logs to see your real numbers.'); return; }
   const base = state.sample ? '' : `Combined <b>${state.files.length} ${state.files.length === 1 ? 'file' : 'files'}</b> into <b>${r.chats} ${r.chats === 1 ? 'conversation' : 'conversations'}</b>${r.dupes ? `, skipping ${r.dupes} duplicate ${r.dupes === 1 ? 'copy' : 'copies'}` : ''}. Files stay in this browser.`;
   const err = errors.length ? ` Could not use ${errors.map(esc).join(', ')}. Check that each is an Open WebUI JSON export.` : '';
@@ -1300,7 +1346,7 @@ $('project').addEventListener('change', e => { state.view = e.target.value; rend
 $('gap').addEventListener('input', e => { state.gap = +e.target.value; renderSummary(); });
 addEventListener('dragover', e => { e.preventDefault(); document.body.classList.add('dragging'); });
 addEventListener('dragleave', e => { if (!e.relatedTarget) document.body.classList.remove('dragging'); });
-addEventListener('drop', e => { e.preventDefault(); document.body.classList.remove('dragging'); addFiles(e.dataTransfer.files); });
+addEventListener('drop', e => { e.preventDefault(); document.body.classList.remove('dragging'); if (!state.shared) addFiles(e.dataTransfer.files); });
 let resizeTimer; addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(() => { fit(); if (state.lastWork) renderChart(state.lastWork); }, 150); });
 
 /* ---------- Clearly labelled example data, in the same shape as a real export ---------- */
@@ -1343,7 +1389,251 @@ function sampleExport() {
   }
   return out;
 }
-state.over = loadOverrides(); state.passages = loadPassages(); state.confirmed = loadConfirmed(); loadRules();
-finishLoad(rebuild());
+/* ---------- Sharing: totals and tree shape only, stored after the # so it is never sent to the host ---------- */
+const SHARE_VERSION = 1, SHARE_SOFT_LIMIT = 8000, SHARE_MAX_LINK = 2000000, SHARE_MAX_BYTES = 8000000, SHARE_MAX_NODES = 200000;
+const SHARE_HOME = 'https://mclellan.github.io/winnow/';
+const SHARE_SIZES = ['Under 100', '100–499', '500–1,999', '2,000+'], SHARE_KINDS = [null, 'prose', 'instruction', 'mixed', 'continuity', 'system'];
+const SHARE_TOTALS = ['keptProse', 'keptAI', 'cutProse', 'cutAI', 'instr', 'instrMsgs', 'prompts', 'alts', 'notes', 'repeated', 'retried', 'minutes', 'genMinutes', 'noteMinutes', 'sessions'];
+function writeVar(out, value) {
+  let v = Math.max(0, Math.round(value) || 0);
+  while (v >= 128) { out.push(v % 128 + 128); v = Math.floor(v / 128); }
+  out.push(v);
+}
+function byteReader(bytes) {
+  let at = 0;
+  return {
+    byte() { if (at >= bytes.length) throw new Error('short'); return bytes[at++]; },
+    number() { let total = 0, scale = 1; for (let i = 0; i < 8; i++) { const b = this.byte(); total += (b & 127) * scale; if (b < 128) return total; scale *= 128; } throw new Error('number'); },
+    done: () => at === bytes.length
+  };
+}
+function toBase64Url(bytes) {
+  let text = ''; for (let i = 0; i < bytes.length; i += 8190) text += String.fromCharCode(...bytes.subarray(i, i + 8190));
+  return btoa(text).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+function fromBase64Url(text) {
+  if (!/^[A-Za-z0-9_-]+$/.test(text)) throw new Error('alphabet');
+  const raw = atob(text.replace(/-/g, '+').replace(/_/g, '/') + '='.repeat((4 - text.length % 4) % 4)), out = new Uint8Array(raw.length);
+  for (let i = 0; i < raw.length; i++) out[i] = raw.charCodeAt(i);
+  return out;
+}
+async function deflateBytes(bytes) {
+  if (!('CompressionStream' in window)) return null;
+  return new Uint8Array(await new Response(new Blob([bytes]).stream().pipeThrough(new CompressionStream('deflate-raw'))).arrayBuffer());
+}
+async function inflateBytes(bytes) {
+  if (!('DecompressionStream' in window)) throw new Error('unsupported');
+  const reader = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('deflate-raw')).getReader(), parts = []; let size = 0;
+  for (;;) {
+    const { done, value } = await reader.read(); if (done) break;
+    size += value.length; if (size > SHARE_MAX_BYTES) { await reader.cancel(); throw new Error('large'); }
+    parts.push(value);
+  }
+  const out = new Uint8Array(size); let at = 0; parts.forEach(x => { out.set(x, at); at += x.length; });
+  return out;
+}
+function weeklyMinutes(w) {
+  if (!w.first) return [];
+  const monday = k => { const d = new Date(k); d.setDate(d.getDate() - (d.getDay() + 6) % 7); return d.getTime(); };
+  const weeks = new Map(), end = monday(dayKey(w.last));
+  for (let d = new Date(monday(dayKey(w.first))); d.getTime() <= end; d.setDate(d.getDate() + 7)) weeks.set(d.getTime(), 0);
+  w.days.forEach((v, k) => { const b = monday(k); weeks.set(b, (weeks.get(b) || 0) + v); });
+  return [...weeks.entries()].sort((a, b) => a[0] - b[0]).map(([, v]) => v ? Math.max(1, Math.round(v / 6e4)) : 0);
+}
+function nodeByte(n, pops, out) {
+  const kind = n.role === 'assistant' && !n.kind ? 0 : n.role === 'system' || (n.role !== 'user' && n.role !== 'assistant') ? 5 : Math.max(0, SHARE_KINDS.indexOf(n.kind));
+  const size = n.words < 100 ? 0 : n.words < 500 ? 1 : n.words < 2000 ? 2 : 3, low = kind | (n.kept ? 8 : 0) | (size << 4);
+  if (pops < 3) out.push(low | (pops << 6));
+  else { out.push(low | 192); writeVar(out, pops - 3); }
+}
+async function buildShareLink(includeTree) {
+  const chats = activeChats().slice().sort((a, b) => (a.first || 0) - (b.first || 0)), t = totals(chats), w = workTime(chats, state.gap);
+  const values = { ...t, minutes: w.ms / 6e4, genMinutes: w.genMs / 6e4, noteMinutes: w.notesMs / 6e4, sessions: w.sessions };
+  const out = [SHARE_VERSION, includeTree ? 1 : 0];
+  SHARE_TOTALS.forEach(k => writeVar(out, values[k]));
+  const weeks = weeklyMinutes(w); writeVar(out, weeks.length); weeks.forEach(v => writeVar(out, v));
+  if (includeTree) {
+    writeVar(out, chats.length);
+    chats.forEach(c => {
+      const order = (list, depth) => [...list].sort((a, b) => b.h - a.h || b.kept - a.kept || (a.ts || 0) - (b.ts || 0)).reverse().map(n => ({ n, depth }));
+      const stack = order(c.roots, 1), items = [];
+      while (stack.length) { const it = stack.pop(); items.push(it); stack.push(...order(it.n.children, it.depth + 1)); }
+      writeVar(out, items.length);
+      let prev = 0;
+      items.forEach(({ n, depth }) => { nodeByte(n, prev - depth + 1, out); prev = depth; });
+    });
+  }
+  const plain = Uint8Array.from(out), packed = await deflateBytes(plain);
+  const useDeflate = packed && packed.length < plain.length, body = useDeflate ? packed : plain, final = new Uint8Array(body.length + 1);
+  final[0] = useDeflate ? 1 : 0; final.set(body, 1);
+  const base = /^https?:$/.test(location.protocol) ? location.origin + location.pathname : SHARE_HOME;
+  return `${base}#s=${toBase64Url(final)}`;
+}
+async function readShare(text) {
+  if (!text || text.length > SHARE_MAX_LINK) throw new Error('length');
+  const wrapped = fromBase64Url(text); if (wrapped.length < 2 || wrapped[0] > 1) throw new Error('format');
+  const bytes = wrapped[0] ? await inflateBytes(wrapped.subarray(1)) : wrapped.subarray(1);
+  if (bytes.length > SHARE_MAX_BYTES) throw new Error('large');
+  const r = byteReader(bytes); if (r.byte() !== SHARE_VERSION) throw new Error('version');
+  const flags = r.byte(); if (flags > 1) throw new Error('flags');
+  const v = {}; SHARE_TOTALS.forEach(k => { v[k] = r.number(); });
+  const weekCount = r.number(); if (weekCount > 5000) throw new Error('weeks');
+  const weeks = []; for (let i = 0; i < weekCount; i++) weeks.push(r.number());
+  const chats = []; let totalNodes = 0;
+  if (flags) {
+    const chatCount = r.number(); if (chatCount > SHARE_MAX_NODES) throw new Error('chats');
+    for (let c = 0; c < chatCount; c++) {
+      const count = r.number(); totalNodes += count; if (totalNodes > SHARE_MAX_NODES) throw new Error('nodes');
+      const nodes = [], roots = [], path = [];
+      for (let i = 0; i < count; i++) {
+        const b = r.byte(), kindId = b & 7; let pops = b >> 6; if (pops === 3) pops = 3 + r.number();
+        if (kindId >= SHARE_KINDS.length || pops > path.length) throw new Error('node');
+        path.length -= pops;
+        const parent = path[path.length - 1] || null, kind = SHARE_KINDS[kindId];
+        const n = { id: `${c}-${i}`, parent, children: [], depth: path.length + 1, kept: !!(b & 8), kind: kind === 'system' ? null : kind, role: kindId === 0 ? 'assistant' : kindId === 5 ? 'system' : 'user', size: (b >> 4) & 3, h: 0, ts: i };
+        if (parent) parent.children.push(n); else roots.push(n);
+        path.push(n); nodes.push(n);
+      }
+      for (let i = nodes.length - 1; i >= 0; i--) { const n = nodes[i]; if (n.parent) n.parent.h = Math.max(n.parent.h, n.h + 1); }
+      chats.push({ title: `Chat ${c + 1}`, roots, nodes, first: c + 1 });
+    }
+  }
+  if (!r.done()) throw new Error('trailing');
+  const t = { keptProse: v.keptProse, keptAI: v.keptAI, cutProse: v.cutProse, cutAI: v.cutAI, instr: v.instr, instrMsgs: v.instrMsgs, prompts: v.prompts, alts: v.alts, notes: v.notes, repeated: v.repeated, retried: v.retried, unsure: 0 };
+  t.gen = t.keptAI + t.cutAI; t.kept = t.keptAI + t.keptProse; t.cut = t.cutAI + t.cutProse; t.prose = t.keptProse + t.cutProse; t.counted = t.gen + t.prose + t.instr;
+  return { t, w: { ms: v.minutes * 6e4, genMs: v.genMinutes * 6e4, notesMs: v.noteMinutes * 6e4, sessions: v.sessions }, weeks, chats, hasTree: !!flags };
+}
+function enterShared(data) {
+  Object.assign(state, { shared: data, sample: false, chats: data.chats, view: 'all', files: [] });
+  document.body.classList.add('shared'); document.body.classList.toggle('no-tree', !data.hasTree);
+  setNotice(`<b>Shared dashboard.</b> Self-reported from the author's chat logs and not independently verified. No message text is included.${data.hasTree ? '' : ' The node map was left out to keep this link short.'}`);
+  renderSummary(); renderMap();
+}
+function renderSharedChart() {
+  const weeks = state.shared.weeks, chart = $('chart'), max = Math.max(...weeks, 1);
+  if (!weeks.some(Boolean)) { chart.innerHTML = ''; chart.classList.remove('dense'); $('timeSub').textContent = 'No working time was recorded.'; $('axisA').textContent = $('axisB').textContent = ''; return; }
+  const room = $('chartInner').parentElement.clientWidth, dense = room / weeks.length < 34;
+  chart.classList.toggle('dense', dense); $('chartInner').style.minWidth = dense ? `${weeks.length * 16}px` : '';
+  chart.innerHTML = weeks.map((v, i) => { const pct = v ? Math.max(2, v / max * 100) : 0; return `<div class="bar-col" title="Week ${i + 1}: ${v ? hoursText(v * 6e4) : 'no work'}"><i style="height:${pct}%"></i>${v ? `<span style="bottom:calc(${pct}% + 3px)">${barLabel(v * 6e4)}</span>` : ''}</div>`; }).join('');
+  chart.setAttribute('aria-label', `Hours worked per week over ${weeks.length} weeks. The busiest week reached ${hoursText(max * 6e4)}.`);
+  $('timeSub').textContent = `Hours per week over ${fmt(weeks.length)} ${weeks.length === 1 ? 'week' : 'weeks'}.`;
+  $('axisA').textContent = 'Week 1'; $('axisB').textContent = `Week ${weeks.length}`;
+}
+function selectShared(n, keepInView) {
+  state.selected = n;
+  $('ring').setAttribute('cx', n.x); $('ring').setAttribute('cy', n.y); $('ring').setAttribute('visibility', 'visible');
+  let d = ''; for (let a = n; a.parent; a = a.parent) d += curve(a.parent, a);
+  $('trail').setAttribute('d', d);
+  $('pStatus').textContent = n.kept ? 'Kept' : 'Abandoned'; $('pStatus').classList.toggle('off', !n.kept);
+  const name = n.kind === 'continuity' ? 'Continuity or repeated text' : n.kind === 'prose' ? "Person's prose" : n.kind === 'instruction' ? 'Instruction' : n.kind === 'mixed' ? 'Prose + instruction' : n.role === 'assistant' ? 'AI reply' : 'System note';
+  $('pTitle').textContent = `${name}, turn ${n.depth}`;
+  $('pWords').textContent = SHARE_SIZES[n.size];
+  $('pMeta').textContent = 'Rough length only';
+  $('pText').textContent = 'Message text is not included in shared dashboards.';
+  $('pPrev').disabled = !n.parent; $('pNext').disabled = !n.children.length;
+  $('panel').hidden = false;
+  if (keepInView) reveal(n);
+}
+
+/* ---------- Share dialog ---------- */
+let shareRun = 0;
+async function refreshShare() {
+  const run = ++shareRun; $('shareMeta').textContent = 'Building link…'; $('shareMeta').classList.remove('warn');
+  const url = await buildShareLink($('shareTree').checked); if (run !== shareRun) return;
+  $('shareUrl').value = url;
+  const long = url.length > SHARE_SOFT_LIMIT;
+  $('shareMeta').textContent = `${fmt(url.length)} characters.${long ? ' Some apps may cut off a link this long. Turn off the node map or share the image.' : ''}`;
+  $('shareMeta').classList.toggle('warn', long);
+}
+$('shareBtn').addEventListener('click', async () => {
+  const chats = activeChats();
+  $('shareScope').textContent = state.view === 'all' ? (chats.length === 1 ? 'Sharing 1 conversation as a read-only summary.' : `Sharing all ${fmt(chats.length)} conversations as a read-only summary.`) : 'Sharing the selected conversation as a read-only summary.';
+  $('shareTree').checked = true; $('shareDialog').showModal();
+  await refreshShare();
+  if ($('shareUrl').value.length > SHARE_SOFT_LIMIT) {
+    const full = $('shareUrl').value.length; $('shareTree').checked = false; await refreshShare();
+    $('shareMeta').textContent = `${fmt($('shareUrl').value.length)} characters. The node map was turned off because the full link would be ${fmt(full)} characters.`;
+  }
+});
+$('shareTree').addEventListener('change', refreshShare);
+$('shareClose').addEventListener('click', () => $('shareDialog').close());
+$('shareDialog').addEventListener('click', e => { if (e.target === $('shareDialog')) $('shareDialog').close(); });
+$('shareCopy').addEventListener('click', async () => {
+  const input = $('shareUrl'); input.focus(); input.select();
+  try { await navigator.clipboard.writeText(input.value); $('shareCopy').textContent = 'Copied'; }
+  catch { $('shareCopy').textContent = document.execCommand && document.execCommand('copy') ? 'Copied' : 'Press Ctrl+C'; }
+  setTimeout(() => { $('shareCopy').textContent = 'Copy link'; }, 1800);
+});
+$('ownLogs').addEventListener('click', () => { location.href = location.pathname; });
+
+/* ---------- Image card ---------- */
+async function drawShareCard() {
+  const W = 1200, H = 630, c = document.createElement('canvas'); c.width = W; c.height = H;
+  const x = c.getContext('2d'), ink = '#e9edf5', muted = '#a0abbd', keep = '#86a8ff', human = '#4fd1c0', cutFill = '#4a556a', line = '#2d3748', direct = '#f2b35c', note = '#b9a2ff';
+  const serif = '"Literata", Georgia, serif', sans = '"Inter", system-ui, sans-serif';
+  try { await Promise.all([document.fonts.load(`650 58px Literata`), document.fonts.load('500 20px Inter')]); } catch {}
+  const t = state.shared ? state.shared.t : totals(activeChats()), w = state.shared ? state.shared.w : workTime(activeChats(), state.gap);
+  const nodes = state.nodes, hasMap = nodes.length > 0, left = 56, textW = hasMap ? 650 : W - 112;
+  x.fillStyle = '#10141d'; x.fillRect(0, 0, W, H);
+  x.textBaseline = 'alphabetic';
+  x.fillStyle = ink; x.font = `650 30px ${serif}`; x.fillText('Winnow', left, 72);
+  x.fillStyle = keep; x.font = `600 18px ${sans}`; x.fillText('What the human wrote, kept, and cut.', left, 101);
+  x.fillStyle = muted; x.font = `500 21px ${sans}`; x.fillText('To keep', left, 166);
+  let size = 62; const big = `${fmt(t.kept)} words`;
+  do { x.font = `650 ${size}px ${serif}`; size -= 2; } while (x.measureText(big).width > textW && size > 30);
+  x.fillStyle = ink; x.fillText(big, left, 232);
+  const stats = [[w.ms ? hoursText(w.ms) : 'No data', 'worked'], [fmt(t.prose), 'words of human prose'], [fmt(t.instr), 'words of direction'], [fmt(t.alts), 'attempts rejected']];
+  const cell = textW / 2;
+  stats.forEach(([a, b], i) => {
+    const sx = left + (i % 2) * cell, sy = 292 + Math.floor(i / 2) * 76;
+    x.fillStyle = ink; x.font = `650 31px ${serif}`; x.fillText(a, sx, sy);
+    x.fillStyle = muted; x.font = `400 17px ${sans}`; x.fillText(b, sx, sy + 25);
+  });
+  const all = t.kept + t.cut || 1, barY = 450, barH = 28, wh = t.keptProse / all * textW, wa = t.keptAI / all * textW;
+  x.fillStyle = cutFill; x.fillRect(left, barY, textW, barH);
+  x.fillStyle = human; x.fillRect(left, barY, wh, barH);
+  x.fillStyle = keep; x.fillRect(left + wh, barY, wa, barH);
+  x.font = `500 16px ${sans}`; let kx = left;
+  [[human, `Human kept ${fmt(t.keptProse / all * 100)}%`], [keep, `AI kept ${fmt(t.keptAI / all * 100)}%`], [cutFill, `Abandoned ${fmt(t.cut / all * 100)}%`]].forEach(([col, label]) => {
+    x.fillStyle = col; x.fillRect(kx, barY + 42, 12, 12);
+    x.fillStyle = ink; x.fillText(label, kx + 18, barY + 54); kx += x.measureText(label).width + 44;
+  });
+  x.strokeStyle = line; x.lineWidth = 1; x.beginPath(); x.moveTo(left, 548); x.lineTo(W - 56, 548); x.stroke();
+  x.fillStyle = muted; x.font = `400 16px ${sans}`; x.fillText("Self-reported from the author's chat logs. Not independently verified.", left, 585);
+  x.textAlign = 'right'; x.fillText('mclellan.github.io/winnow', W - 56, 585); x.textAlign = 'left';
+  if (hasMap) {
+    const bx = 756, by = 56, bw = 388, bh = 466; let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+    nodes.forEach(n => { x0 = Math.min(x0, n.x); x1 = Math.max(x1, n.x); y0 = Math.min(y0, n.y); y1 = Math.max(y1, n.y); });
+    const k = Math.min(bw / Math.max(1, x1 - x0), bh / Math.max(1, y1 - y0), 1.4), ox = bx + (bw - (x1 - x0) * k) / 2 - x0 * k, oy = by + (bh - (y1 - y0) * k) / 2 - y0 * k;
+    const px = n => n.x * k + ox, py = n => n.y * k + oy;
+    const links = kept => { x.beginPath(); nodes.forEach(n => { if (!n.parent || n.kept !== kept) return; x.moveTo(px(n.parent), py(n.parent)); x.lineTo(px(n), py(n)); }); x.stroke(); };
+    x.strokeStyle = cutFill; x.lineWidth = Math.max(.5, Math.min(1.2, k)); links(false);
+    x.strokeStyle = keep; x.lineWidth = Math.max(.9, Math.min(2.2, k * 2)); links(true);
+    const r = Math.max(.9, Math.min(4, 5 * k));
+    nodes.forEach(n => {
+      x.fillStyle = !n.kept ? muted : n.kind === 'prose' || n.kind === 'mixed' ? human : n.kind === 'instruction' ? direct : n.kind === 'continuity' ? note : keep;
+      x.beginPath(); x.arc(px(n), py(n), n.kept ? r : r * .7, 0, 7); x.fill();
+    });
+  }
+  return c;
+}
+async function downloadShareCard() {
+  const c = await drawShareCard(), blob = await new Promise(done => c.toBlob(done, 'image/png'));
+  const url = URL.createObjectURL(blob), a = document.createElement('a'); a.href = url; a.download = 'winnow-summary.png';
+  document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+$('shareImage').addEventListener('click', downloadShareCard);
+$('sharedImage').addEventListener('click', downloadShareCard);
+addEventListener('hashchange', () => { if (location.hash.startsWith('#s=') || state.shared) location.reload(); });
+
+async function boot() {
+  if (location.hash.startsWith('#s=')) {
+    try { enterShared(await readShare(location.hash.slice(3))); return; }
+    catch { state.over = loadOverrides(); state.passages = loadPassages(); state.confirmed = loadConfirmed(); loadRules(); rebuild(); $('shareBtn').disabled = true; setNotice('This share link is damaged or incomplete. Ask the author to copy it again. The sample project is shown below.', true); return; }
+  }
+  state.over = loadOverrides(); state.passages = loadPassages(); state.confirmed = loadConfirmed(); loadRules();
+  finishLoad(rebuild());
+}
+boot();
 </script>
 </html>
