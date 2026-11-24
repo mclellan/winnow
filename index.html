@@ -441,6 +441,9 @@ body.shared #tabCleanup, body.shared #timeAdjust { display: none; }
 .bundle.has-fail rect { stroke: var(--cut-ink); }
 .bundle.has-flag rect { stroke: var(--direct); }
 @media (max-width: 760px) { .list-view.no-flags .list-head, .list-view.no-flags .list-row { grid-template-columns: minmax(0, 1fr) 62px; } }
+.backup-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.backup-status { min-height: 1.3em; margin: 0; color: var(--muted); font-size: .84rem; }
+.backup-status.error { color: var(--cut-ink); }
 .method { padding-block: 10px 56px; }
 details { border-top: 1px solid var(--line); padding-top: 14px; }
 summary { cursor: pointer; font-weight: 600; }
@@ -642,6 +645,12 @@ body.dragging .map, body.dragging .hero { outline: 2px dashed var(--keep); outli
         </div>
       </div>
     </details></section>
+  <section class="wrap block" aria-labelledby="h-backup">
+    <div class="clean-head"><h2 id="h-backup">Back up your corrections</h2><span class="sub" id="backupSummary"></span></div>
+    <p class="sub">Corrections are saved only in this browser, at this address. A backup file contains your decisions and rules, but no message text. Keep it with your chat exports, because corrections are matched to those messages.</p>
+    <div class="backup-actions"><button class="btn primary" id="backupSave" type="button">Back up</button><input class="sr" type="file" id="backupFile" accept=".json,application/json"><label class="btn" for="backupFile">Restore</label><button class="btn" id="backupUndo" type="button" hidden>Undo restore</button></div>
+    <p class="backup-status" id="backupStatus" role="status"></p>
+  </section>
   </div>
 </main>
 
@@ -652,6 +661,14 @@ body.dragging .map, body.dragging .hero { outline: 2px dashed var(--keep); outli
     <div class="share-head"><div><h2 id="batchTitle"></h2><p id="batchSub"></p></div><button class="icon" id="batchClose" aria-label="Close preview">&times;</button></div>
     <ul class="batch-list" id="batchList"></ul>
     <div class="share-foot"><span class="share-warning">You can undo this from History.</span><button class="btn primary" id="batchApply"></button></div>
+  </div>
+</dialog>
+
+<dialog class="share-dialog" id="restoreDialog" aria-labelledby="restoreTitle">
+  <div class="share-body">
+    <div class="share-head"><div><h2 id="restoreTitle">Replace your corrections?</h2><p id="restoreSub"></p></div><button class="icon" id="restoreClose" aria-label="Cancel restore">&times;</button></div>
+    <div class="share-lists"><div><h3>In this browser now</h3><p class="sub" id="restoreNow"></p></div><div><h3>In the backup</h3><p class="sub" id="restoreFrom"></p></div></div>
+    <div class="share-foot"><span class="share-warning" id="restoreMatch"></span><button class="btn" id="restoreSaveFirst" type="button">Back up current first</button><button class="btn primary" id="restoreApply" type="button">Replace</button></div>
   </div>
 </dialog>
 
@@ -1423,6 +1440,7 @@ function renderSummary() {
   renderChart(w);
   renderAudit(t);
   renderCoverage();
+  renderBackup();
   renderViews();
 }
 const isDecided = n => !!n.failed || !!state.over[n.id] || !!state.largeOk[n.id] || n.aside >= .8 || n.retryShare >= .8;
@@ -2481,6 +2499,120 @@ async function downloadShareCard() {
 $('shareImage').addEventListener('click', downloadShareCard);
 $('sharedImage').addEventListener('click', downloadShareCard);
 addEventListener('hashchange', () => { if (location.hash.startsWith('#s=') || state.shared) location.reload(); });
+
+/* ---------- Backup: the saved corrections, copied exactly as stored ---------- */
+const BACKUP_PREFIX = 'bluepencil.', BACKUP_UNDO = 'winnow.restoreUndo', BACKUP_VERSION = 1;
+const isPlain = v => !!v && typeof v === 'object' && !Array.isArray(v);
+const everyValue = (o, test) => isPlain(o) && Object.values(o).every(test);
+const BACKUP_CHECKS = {
+  overrides: o => everyValue(o, v => typeof v === 'string'),
+  failed: isPlain,
+  splits: o => everyValue(o, list => Array.isArray(list) && list.every(isPlain)),
+  passages: o => everyValue(o, p => everyValue(p, v => typeof v === 'string')),
+  confirmed: o => everyValue(o, isPlain),
+  largeok: isPlain,
+  ledger: a => Array.isArray(a) && a.every(e => isPlain(e) && isPlain(e.before)),
+  rules: r => isPlain(r) && (r.tags == null || isPlain(r.tags))
+};
+const BACKUP_KEYS = Object.keys(BACKUP_CHECKS).map(k => BACKUP_PREFIX + k);
+function storedCorrections() {
+  const out = {};
+  BACKUP_KEYS.forEach(k => { const v = localStorage.getItem(k); if (v != null) out[k] = v; });
+  return out;
+}
+function correctionStats(d) {
+  const ids = new Set(), r = d.rules || {};
+  ['overrides', 'failed', 'splits', 'passages', 'confirmed', 'largeok'].forEach(k => Object.keys(d[k] || {}).forEach(id => ids.add(id)));
+  const rules = (r.phrases?.length || 0) + Object.keys(r.tags || {}).length + (r.customLabels?.length || 0) + Object.keys(r.markerOff || {}).length + (r.stripDetails === false ? 1 : 0);
+  return { ids, rules };
+}
+const statsText = s => `${fmt(s.ids.size)} corrected ${s.ids.size === 1 ? 'message' : 'messages'}, ${fmt(s.rules)} sorting ${s.rules === 1 ? 'rule' : 'rules'}`;
+const liveStats = () => correctionStats({ overrides: state.over, failed: state.failed, splits: state.splits, passages: state.passages, confirmed: state.confirmed, largeok: state.largeOk, rules: { phrases: state.phrases, tags: state.tagRules, customLabels: state.customLabels, markerOff: state.markerOff, stripDetails: state.stripDetails } });
+function setBackupStatus(text, isError) { $('backupStatus').textContent = text; $('backupStatus').classList.toggle('error', !!isError); }
+function renderBackup() {
+  if (state.shared) return;
+  $('backupSummary').textContent = statsText(liveStats());
+  let canUndo = false; try { canUndo = localStorage.getItem(BACKUP_UNDO) != null; } catch {}
+  $('backupUndo').hidden = !canUndo;
+}
+function saveBackup() {
+  try {
+    const data = storedCorrections();
+    if (!Object.keys(data).length) { setBackupStatus('There are no saved corrections to back up yet.'); return false; }
+    const now = new Date(), day = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    const blob = new Blob([JSON.stringify({ app: 'winnow', type: 'corrections-backup', version: BACKUP_VERSION, exportedAt: now.toISOString(), data })], { type: 'application/json' });
+    const url = URL.createObjectURL(blob), a = document.createElement('a'); a.href = url; a.download = `winnow-corrections-${day}.json`;
+    document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 2000);
+    setBackupStatus(`Downloaded ${a.download}.`);
+    return true;
+  } catch { setBackupStatus('This browser blocked access to saved corrections, so no backup was made.', true); return false; }
+}
+// Accepts a Winnow backup or the flat key-to-value file made by the earlier console snippet.
+function parseBackup(text) {
+  const file = JSON.parse(text);
+  if (!isPlain(file)) throw new Error('format');
+  if (file.app === 'winnow' && (file.type !== 'corrections-backup' || file.version !== BACKUP_VERSION)) throw new Error('format');
+  const source = file.app === 'winnow' ? file.data : file, data = {}, parsed = {};
+  if (!isPlain(source)) throw new Error('format');
+  BACKUP_KEYS.forEach(k => {
+    if (source[k] == null) return;
+    const name = k.slice(BACKUP_PREFIX.length), value = typeof source[k] === 'string' ? JSON.parse(source[k]) : null;
+    if (!BACKUP_CHECKS[name](value)) throw new Error('format');
+    data[k] = source[k]; parsed[name] = value;
+  });
+  if (!Object.keys(data).length) throw new Error('empty');
+  return { data, stats: correctionStats(parsed), exportedAt: file.exportedAt };
+}
+function writeCorrections(data) {
+  const before = storedCorrections();
+  try { BACKUP_KEYS.forEach(k => { if (data[k] == null) localStorage.removeItem(k); else localStorage.setItem(k, data[k]); }); }
+  catch (err) {
+    BACKUP_KEYS.forEach(k => localStorage.removeItem(k));
+    Object.entries(before).forEach(([k, v]) => localStorage.setItem(k, v));
+    throw err;
+  }
+}
+function reloadCorrections() {
+  state.over = loadOverrides(); state.failed = loadFailed(); state.splits = loadSplits(); state.ledger = loadLedger(); state.passages = loadPassages(); state.confirmed = loadConfirmed();
+  state.largeAt = 2000; state.largeOk = {}; loadRules();
+  finishLoad(rebuild());
+}
+let pendingRestore = null;
+async function openRestore(file) {
+  try { pendingRestore = parseBackup(await file.text()); }
+  catch (err) { pendingRestore = null; setBackupStatus(err.message === 'empty' ? `${file.name} has no Winnow corrections in it. Nothing changed.` : `${file.name} is not a valid Winnow backup. Nothing changed.`, true); return; }
+  const when = Date.parse(pendingRestore.exportedAt), loaded = new Set(state.chats.flatMap(c => c.nodes.map(n => n.id))), matched = [...pendingRestore.stats.ids].filter(id => loaded.has(id)).length;
+  $('restoreSub').textContent = `${file.name}${Number.isFinite(when) ? `, saved ${new Date(when).toLocaleString()}` : ''}`;
+  $('restoreNow').textContent = statsText(liveStats());
+  $('restoreFrom').textContent = statsText(pendingRestore.stats);
+  $('restoreMatch').textContent = state.sample ? 'Add your chat logs to see these corrections applied. You can undo this restore.' : `${fmt(matched)} of ${fmt(pendingRestore.stats.ids.size)} corrected messages are in the loaded logs. You can undo this restore.`;
+  $('restoreDialog').showModal();
+}
+$('backupSave').addEventListener('click', saveBackup);
+$('backupFile').addEventListener('change', e => { const file = e.target.files[0]; if (file) openRestore(file).finally(() => { e.target.value = ''; }); });
+$('restoreClose').addEventListener('click', () => $('restoreDialog').close());
+$('restoreDialog').addEventListener('close', () => { pendingRestore = null; });
+$('restoreSaveFirst').addEventListener('click', saveBackup);
+$('restoreApply').addEventListener('click', () => {
+  const next = pendingRestore; if (!next) return;
+  let hadUndo = null, wroteUndo = false;
+  try {
+    hadUndo = localStorage.getItem(BACKUP_UNDO);
+    localStorage.setItem(BACKUP_UNDO, JSON.stringify(storedCorrections())); wroteUndo = true;
+    writeCorrections(next.data);
+  } catch {
+    try { if (wroteUndo) { if (hadUndo == null) localStorage.removeItem(BACKUP_UNDO); else localStorage.setItem(BACKUP_UNDO, hadUndo); } } catch {}
+    $('restoreDialog').close(); setBackupStatus('The restore could not be saved, so your current corrections were left in place.', true); renderBackup(); return;
+  }
+  $('restoreDialog').close(); reloadCorrections(); setBackupStatus(`Restored ${statsText(next.stats)}.`);
+});
+$('backupUndo').addEventListener('click', () => {
+  try {
+    const saved = JSON.parse(localStorage.getItem(BACKUP_UNDO));
+    writeCorrections(saved); localStorage.removeItem(BACKUP_UNDO);
+  } catch { setBackupStatus('The restore could not be undone.', true); return; }
+  reloadCorrections(); setBackupStatus('Restore undone. Your earlier corrections are back.');
+});
 
 async function boot() {
   setPage('summary');

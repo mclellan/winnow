@@ -87,7 +87,7 @@ Treat the results as a careful estimate. They are not proof of authorship.
 - **Pasted text can look human.** Text from outside the loaded logs, including AI output from another tool, can be classified as human prose.
 - **Reused AI outputs need a decision.** Winnow flags them, but you decide whether each one is continuity or story.
 - **Word counts are approximate.** Hidden reasoning and tool blocks are excluded.
-- **Saved corrections are local.** Clearing browser data removes them.
+- **Saved corrections are local.** Clearing browser data removes them. Use **Back up** on **Clean up** to save them to a file, and **Restore** to load them in another browser or at another address. Backups contain no message text, but they only apply to the same chat logs.
 
 ## Sharing your results
 
