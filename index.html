@@ -3,6 +3,19 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Winnow</title>
+<meta name="description" content="Turn Open WebUI chat exports into a plain-language report on a human/AI writing project: who wrote the prose, where the effort went, and how much AI output was cut. Runs in your browser; logs are never uploaded.">
+<link rel="canonical" href="https://mclellan.github.io/winnow/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Winnow">
+<meta property="og:title" content="Winnow: what the human wrote, kept, and cut">
+<meta property="og:description" content="A plain-language report on a long human/AI writing project, built from Open WebUI chat exports. Runs in your browser; logs are never uploaded.">
+<meta property="og:url" content="https://mclellan.github.io/winnow/">
+<meta property="og:image" content="https://mclellan.github.io/winnow/og-image.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Winnow summary card for a sample project with made-up figures: 18% human and 82% AI final prose.">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cstyle%3Epath%7Bstroke:%23875c10%7D%40media (prefers-color-scheme:dark)%7Bpath%7Bstroke:%23d9aa52%7D%7D%3C/style%3E%3Cpath d=%22M12 22V7%22/%3E%3Cpath d=%22M12 7c-2-1-2.5-3 0-5 2.5 2 2 4 0 5z%22/%3E%3Cpath d=%22M12 13c-1-2.5-3-3.5-6-3.5 0 3 2 4.5 6 3.5z%22/%3E%3Cpath d=%22M12 13c1-2.5 3-3.5 6-3.5 0 3-2 4.5-6 3.5z%22/%3E%3Cpath d=%22M12 19c-1-2.5-3-3.5-6-3.5 0 3 2 4.5 6 3.5z%22/%3E%3Cpath d=%22M12 19c1-2.5 3-3.5 6-3.5 0 3-2 4.5-6 3.5z%22/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Literata:opsz,wght@7..72,500;7..72,650&display=swap">
@@ -2455,14 +2468,16 @@ function sampleExport() {
     };
     const turns = Math.round(r(8, 11));
     for (let turn = 0; turn < turns; turn++) {
-      const say = () => { const d = SAMPLE_DIRECTION[Math.floor(r(0, 3.99))], c = r(0, 1); return c < .55 ? d : c < .68 ? `${passage()}\n\n((${d}))` : c < .8 ? `<scene>${passage()}</scene>\n\n<note>${d}</note>` : passage(); };
+      // Returns [text, word count]. Prose-only turns stand in for long passages the human wrote, so the kept prose lands near 18% human / 82% AI.
+      const say = () => { const d = SAMPLE_DIRECTION[Math.floor(r(0, 3.99))], c = r(0, 1); return c < .45 ? [d] : c < .58 ? [`${passage()}\n\n((${d}))`] : c < .68 ? [`<scene>${passage()}</scene>\n\n<note>${d}</note>`] : [passage(), r(600, 1200)]; };
+      const userTurn = parentId => { const [text, w] = say(); return add(parentId, 'user', w, text); };
       const first = ch > 1 && turn === 0 && lastNote;
-      const u = first ? add(prev, 'user', lastNote.words + 8, `${lastNote.text}\n\nPick up from these notes and continue with the next chapter.`) : add(prev, 'user', null, say());
+      const u = first ? add(prev, 'user', lastNote.words + 8, `${lastNote.text}\n\nPick up from these notes and continue with the next chapter.`) : userTurn(prev);
       const tries = 1 + Math.floor(r(0, 3.6)); let chosen;
       if (ch === 5 && turn === 2) add(u, 'assistant', 1800, Array(420).fill('and the door opened').join(' '));
       for (let a = 0; a < tries; a++) {
         chosen = add(u, 'assistant', r(720, 1280)); t += r(3, 11) * 60;
-        if (a < tries - 1 && r(0, 1) < .4) { const fu = add(chosen, 'user', null, say()); t += r(2, 5) * 60; add(fu, 'assistant', r(500, 1100)); t += r(3, 8) * 60; }
+        if (a < tries - 1 && r(0, 1) < .4) { const fu = userTurn(chosen); t += r(2, 5) * 60; add(fu, 'assistant', r(500, 1100)); t += r(3, 8) * 60; }
       }
       prev = chosen; t += r(2, 8) * 60; if (turn % 4 === 3) t += 3 * 3600;
     }
