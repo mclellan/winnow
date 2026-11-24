@@ -2446,33 +2446,43 @@ async function drawShareCard() {
   const lineH = Math.round(size * 1.18), startY = 152 + size * .55;
   lines.forEach((row, i) => { let px = left; row.forEach(tok => { x.font = fontFor(size, tok.hi); x.fillStyle = tok.hi ? keep : ink; x.fillText(tok.text, px, startY + i * lineH); px += tok.width; }); });
 
-  const stats = [[finalProseShare(t), 'final human / AI'], [fmt(t.prose), 'human prose'], [fmt(t.instr), 'direction'], [fmt(t.gen), 'AI generated']], cell = textW / 4;
+  const stats = [[fmt(t.prose), 'words of human prose'], [fmt(t.instr), 'words of direction'], [fmt(t.gen), 'AI words generated']], cell = textW / 3;
   stats.forEach(([a, b], i) => {
     const sx = left + i * cell; let vs = 28; x.font = `650 ${vs}px ${serif}`;
-    while (x.measureText(a).width > cell - 12 && vs > 15) { vs--; x.font = `650 ${vs}px ${serif}`; }
-    x.fillStyle = ink; x.fillText(a, sx, 374); x.fillStyle = muted; x.font = `400 15px ${sans}`; x.fillText(b, sx, 398);
+    while (x.measureText(a).width > cell - 14 && vs > 16) { vs--; x.font = `650 ${vs}px ${serif}`; }
+    x.fillStyle = ink; x.fillText(a, sx, 346); x.fillStyle = muted; x.font = `400 15px ${sans}`; x.fillText(b, sx, 370);
   });
-  const all = t.kept + t.cut || 1, barY = 430, barH = 24, wh = t.keptProse / all * textW, wa = t.keptAI / all * textW;
-  x.fillStyle = cutFill; x.fillRect(left, barY, textW, barH);
-  x.fillStyle = human; x.fillRect(left, barY, wh, barH);
-  x.fillStyle = keep; x.fillRect(left + wh, barY, wa, barH);
-  x.font = `500 15px ${sans}`; let kx = left;
-  [[human, `Human kept ${fmt(t.keptProse / all * 100)}%`], [keep, `AI kept ${fmt(t.keptAI / all * 100)}%`], [cutFill, `Abandoned ${fmt(t.cut / all * 100)}%`]].forEach(([col, label]) => {
-    x.fillStyle = col; x.fillRect(kx, barY + 38, 11, 11);
-    x.fillStyle = ink; x.fillText(label, kx + 17, barY + 49); kx += x.measureText(label).width + 40;
+  const gap = 32, barW = (textW - gap) / 2, barY = 424, barH = 20, keptTotal = t.keptProse + t.keptAI, all = t.kept + t.cut || 1, share = finalProseShare(t);
+  const shareText = share === 'No data' ? share : `${share.split(' / ')[0]} human / ${share.split(' / ')[1]} AI`;
+  [[left, 'Final prose', shareText, [[human, keptTotal ? t.keptProse / keptTotal : 0], [keep, keptTotal ? t.keptAI / keptTotal : 0]]],
+   [left + barW + gap, 'All words', `${fmt(t.cut / all * 100)}% abandoned`, [[human, t.keptProse / all], [keep, t.keptAI / all], [cutFill, t.cut / all]]]].forEach(([bx, title, value, parts]) => {
+    x.fillStyle = muted; x.font = `500 15px ${sans}`; x.fillText(title, bx, barY - 11);
+    x.fillStyle = ink; x.font = `600 15px ${sans}`; x.textAlign = 'right'; x.fillText(value, bx + barW, barY - 11); x.textAlign = 'left';
+    x.fillStyle = line; x.fillRect(bx, barY, barW, barH);
+    let px = bx; parts.forEach(([col, part]) => { const w2 = part * barW; if (w2 <= 0) return; x.fillStyle = col; x.fillRect(px, barY, Math.max(1, w2), barH); px += w2; });
+  });
+  let keyX = left; x.font = `500 14px ${sans}`;
+  [[human, 'Human'], [keep, 'AI'], [cutFill, 'Abandoned']].forEach(([col, label]) => {
+    x.fillStyle = col; x.fillRect(keyX, barY + 36, 11, 11); x.fillStyle = muted; x.fillText(label, keyX + 17, barY + 46); keyX += x.measureText(label).width + 42;
   });
 
   if (hasMap) {
-    const bx = 760, by = 58, bw = 384, bh = 438, rows = chats.filter(ch => ch.nodes.length), spines = rows.map(chatSpine), maxLen = Math.max(...spines.map(sp => sp.length), 1), rowH = Math.min(30, bh / rows.length), bandH = Math.max(1.5, rowH * .46), tickH = Math.max(1, rowH * .3);
-    x.fillStyle = muted; x.font = `500 15px ${sans}`; x.fillText(`${fmt(rows.length)} ${rows.length === 1 ? 'chat' : 'chats'}, in order`, bx, by - 8);
-    const colorFor = n => n.failed ? fail : n.kind === 'prose' || n.kind === 'mixed' ? human : n.kind === 'instruction' ? direct : n.kind === 'continuity' ? note : keep;
-    const maxHang = Math.max(1, ...spines.flat().map(n => n.hang?.length || 0));
+    const bx = 760, top = 58, bw = 384, bh = 442, rows = chats.filter(ch => ch.nodes.length), spines = rows.map(chatSpine), maxLen = Math.max(...spines.map(sp => sp.length), 1), rowH = Math.min(52, bh / rows.length), y0 = top + (bh - rows.length * rowH) / 2;
+    const tickH = rowH * .32, bandH = Math.max(1.5, rowH * .46), minBin = rows.length > 24 ? 2 : 3;
+    x.fillStyle = muted; x.font = `500 15px ${sans}`; x.fillText(`${fmt(rows.length)} ${rows.length === 1 ? 'chat' : 'chats'}, in order`, bx, Math.max(44, y0 - 8));
+    const colors = { prose: human, mixed: human, instruction: direct, continuity: note, failed: fail, ai: keep }, order = ['prose', 'mixed', 'instruction', 'continuity', 'failed', 'ai'];
+    const peak = Math.max(1, ...spines.flat().map(n => n.hang?.length || 0));
     spines.forEach((spine, r) => {
-      const rowW = Math.max(4, bw * spine.length / maxLen), step = rowW / spine.length, y = by + 8 + r * rowH, bandY = y + tickH + Math.max(.5, rowH * .04);
+      const rowW = Math.max(4, bw * spine.length / maxLen), count = Math.max(1, Math.min(spine.length, Math.floor(rowW / minBin))), step = rowW / count, y = y0 + r * rowH, bandY = y + tickH + 1;
+      const bins = Array.from({ length: count }, () => ({ prose: 0, mixed: 0, instruction: 0, continuity: 0, failed: 0, ai: 0, hang: 0, bad: false }));
       spine.forEach((n, i) => {
-        const px = bx + i * step, pw = Math.max(.7, step - (step >= 3 ? 1 : 0));
-        x.fillStyle = colorFor(n); x.fillRect(px, bandY, pw, bandH);
-        if (n.hang?.length) { const h = Math.max(.8, Math.sqrt(n.hang.length / maxHang) * tickH); x.globalAlpha = .75; x.fillStyle = n.hang.some(a => a.failed) ? fail : muted; x.fillRect(px, bandY - h - .4, pw, h); x.globalAlpha = 1; }
+        const b = bins[Math.min(count - 1, Math.floor(i / spine.length * count))];
+        b[n.failed ? 'failed' : order.includes(n.kind) ? n.kind : 'ai']++; b.hang = Math.max(b.hang, n.hang?.length || 0); b.bad = b.bad || !!n.failed || !!n.hang?.some(h => h.failed);
+      });
+      bins.forEach((b, i) => {
+        const px = bx + i * step, pw = Math.max(1, step - (step >= 3 ? 1 : 0)), total = order.reduce((sum, k) => sum + b[k], 0); let py = bandY;
+        order.forEach(k => { if (!b[k]) return; const h = bandH * b[k] / total; x.fillStyle = colors[k]; x.fillRect(px, py, pw, h); py += h; });
+        if (b.hang || b.bad) { const h = b.bad ? tickH : Math.max(1, Math.sqrt(b.hang / peak) * tickH); x.globalAlpha = b.bad ? 1 : .7; x.fillStyle = b.bad ? fail : muted; x.fillRect(px, bandY - h - .5, pw, h); x.globalAlpha = 1; }
       });
     });
   }
