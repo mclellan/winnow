@@ -306,19 +306,31 @@ body.no-tree section[aria-labelledby="h-map"] { display: none; }
 .strip-head span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); font-size: .72rem; }
 .strip-track { flex: 1; min-width: 0; height: 54px; }
 .strip-track canvas { display: block; height: 54px; cursor: pointer; }
-.lane { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; padding: 9px 5px 5px; }
-.cell { position: relative; flex: none; width: 15px; height: 15px; padding: 0; border: 0; background: var(--keep); cursor: pointer; border-radius: 50%; }
-.cell.k-prose { background: var(--human); border-radius: 1px; }
-.cell.k-instruction { background: var(--direct); border-radius: 0; transform: rotate(45deg) scale(.82); }
-.cell.k-mixed { background: var(--human); border-radius: 0; clip-path: polygon(50% 0, 100% 100%, 0 100%); }
-.cell.k-continuity { width: 20px; height: 9px; background: var(--note); border-radius: 1px; }
-.cell.k-failed { background: none; border-radius: 0; color: var(--cut-ink); font: 700 15px/15px var(--body); }
-.cell.k-failed::before { content: "\00D7"; }
-.cell.cut:not(.k-failed) { background: var(--surface); box-shadow: inset 0 0 0 1.5px var(--muted); }
-.cell.flagged { outline: 2px solid var(--direct); outline-offset: 1px; }
+.lane { display: grid; gap: 10px; padding: 8px 5px 6px; }
+.lane-grid, .tray-grid { display: grid; grid-template-columns: repeat(auto-fill, 14px); gap: 13px 3px; padding-block: 8px 5px; }
+.tray-grid { gap: 6px 3px; padding-block: 2px; }
+.branch-tray { display: grid; gap: 5px; padding: 8px 10px; background: var(--paper); border-radius: 5px; }
+.branch-tray p { margin: 0; color: var(--muted); font-size: .76rem; }
+.cell { --c: var(--keep); position: relative; display: block; width: 14px; height: 18px; padding: 0; border: 0; border-radius: 2px; background: var(--c); color: var(--cut-ink); cursor: pointer; }
+.cell.k-ai { border-radius: 7px; }
+.cell.k-prose { --c: var(--human); }
+.cell.k-instruction { --c: var(--direct); background: repeating-linear-gradient(180deg, var(--direct) 0 3px, color-mix(in srgb, var(--direct) 55%, transparent) 3px 5px); }
+.cell.k-mixed { --c: var(--human); background: linear-gradient(135deg, var(--human) 50%, var(--direct) 50%); }
+.cell.k-continuity { --c: var(--note); height: 10px; margin-top: 4px; }
+.cell.k-failed { background: none; font: 700 15px/18px var(--body); text-align: center; }
+.cell.cut:not(.k-failed) { background: none; box-shadow: inset 0 0 0 1.5px var(--c); }
+.cell.cut.k-mixed { box-shadow: inset 1.5px 1.5px 0 var(--human), inset -1.5px -1.5px 0 var(--direct); }
+.cell.has-cut::before { content: ""; position: absolute; left: 2px; right: 2px; bottom: calc(100% + 1px); height: var(--cut); border-radius: 1px; background: var(--muted); opacity: .7; }
+.cell.k-continuity.has-cut::before { bottom: calc(100% + 5px); }
+.cell.has-fail::before { background: var(--cut-ink); opacity: 1; }
+.cell.flagged::after { content: ""; position: absolute; left: 50%; top: calc(100% + 2px); width: 4px; height: 4px; margin-left: -2px; border-radius: 50%; background: var(--direct); }
+.cell.k-continuity.flagged::after { top: calc(100% + 6px); }
 .cell.sel { outline: 2.5px solid var(--cut-ink); outline-offset: 2px; z-index: 1; }
-.stub { flex: none; height: 17px; padding: 0 4px; border: 1px solid var(--line); border-radius: 3px; background: var(--paper); color: var(--muted); cursor: pointer; font-size: .68rem; line-height: 1; }
-.branch-cells { flex: 1 0 100%; display: flex; flex-wrap: wrap; gap: 4px; padding: 5px 7px; border-left: 2px solid var(--line); }
+.legend-tiles .cell { flex: none; cursor: default; }
+.legend-tiles .mini-cut, .legend-tiles .mini-flag { flex: none; display: block; }
+.legend-tiles .mini-cut { width: 10px; height: 7px; margin-inline: 2px; border-radius: 1px; background: var(--muted); opacity: .7; }
+.legend-tiles .mini-flag { width: 5px; height: 5px; margin-inline: 4.5px; border-radius: 50%; background: var(--direct); }
+body[data-view="strip"] .key-pop .legend:not(.legend-tiles), body:not([data-view="strip"]) .key-pop .legend-tiles { display: none; }
 .list-head, .list-row { display: grid; grid-template-columns: 150px 118px 66px 138px minmax(0, 1fr); gap: 8px; align-items: center; padding: 0 10px; font-size: .8rem; }
 .list-head { position: sticky; top: 0; z-index: 2; height: 32px; background: var(--surface); border-bottom: 1px solid var(--line); color: var(--muted); font-size: .72rem; font-weight: 600; }
 .list-space { position: relative; }
@@ -418,6 +430,16 @@ body.shared #tabCleanup, body.shared #timeAdjust { display: none; }
 .split-menu span { padding: 0 6px; color: var(--muted); font-size: .74rem; white-space: nowrap; }
 .split-menu button { min-height: 32px; padding: 3px 9px; border: 0; border-radius: 4px; background: none; cursor: pointer; font-size: .8rem; font-weight: 500; white-space: nowrap; }
 .split-menu button:hover, .split-menu button:focus-visible { background: var(--keep); color: var(--on-keep); }
+.list-view.no-flags .list-head, .list-view.no-flags .list-row { grid-template-columns: 150px 118px 66px minmax(0, 1fr); }
+.list-view.no-flags .list-head > :nth-child(4), .list-view.no-flags .list-row > :nth-child(4) { display: none; }
+.bundle { cursor: pointer; }
+.bundle rect { fill: var(--paper); stroke: var(--muted); stroke-width: 1; }
+.bundle text { fill: var(--muted); font: 600 10px var(--body); text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+.bundle path { fill: none; stroke: var(--cut); stroke-width: 1.2; }
+.bundle:hover rect { stroke: var(--keep); }
+.bundle.has-fail rect { stroke: var(--cut-ink); }
+.bundle.has-flag rect { stroke: var(--direct); }
+@media (max-width: 760px) { .list-view.no-flags .list-head, .list-view.no-flags .list-row { grid-template-columns: minmax(0, 1fr) 62px; } }
 .method { padding-block: 10px 56px; }
 details { border-top: 1px solid var(--line); padding-top: 14px; }
 summary { cursor: pointer; font-weight: 600; }
@@ -528,7 +550,7 @@ body.dragging .map, body.dragging .hero { outline: 2px dashed var(--keep); outli
         <span><svg width="14" height="12"><rect x="0" y="2.5" width="14" height="7" fill="var(--note)"/></svg>Continuity</span>
         <span><svg width="12" height="12"><circle cx="6" cy="6" r="4.5" fill="var(--surface)" stroke="var(--muted)"/></svg>Abandoned</span>
         <span><svg width="12" height="12"><path d="M2 2l8 8M10 2l-8 8" fill="none" stroke="var(--cut-ink)" stroke-width="2" stroke-linecap="round"/></svg>Technical failure</span>
-      </div></details></div>
+      </div><div class="legend legend-tiles" aria-label="Chapter key"><span><i class="cell k-ai"></i>AI reply</span><span><i class="cell k-prose"></i>Person's prose</span><span><i class="cell k-instruction"></i>Instruction</span><span><i class="cell k-mixed"></i>Prose + instruction</span><span><i class="cell k-continuity"></i>Continuity</span><span><i class="cell k-prose cut"></i>Abandoned (outlined)</span><span><i class="cell k-failed">×</i>Technical failure</span><span><i class="mini-cut"></i>Abandoned attempts</span><span><i class="mini-flag"></i>Needs review</span></div></details></div>
       
     </div>
     <div class="flag-bar" id="flagBar">
@@ -545,11 +567,12 @@ body.dragging .map, body.dragging .hero { outline: 2px dashed var(--keep); outli
         <button class="btn" id="zoomIn" aria-label="Zoom in">+</button>
         <button class="btn" id="zoomOut" aria-label="Zoom out">&minus;</button>
         <button class="btn" id="fit">Show all</button>
+        <button class="btn" id="treeAll">Expand all</button>
       </div>
       <div class="strip-view" id="stripView"></div>
       <div class="list-view" id="listView"><div class="list-head" aria-hidden="true"><span>Where</span><span>Type</span><span class="num">Words</span><span>Flag</span><span>Preview</span></div><div class="list-space" id="listSpace"></div></div>
-      <svg class="canvas" id="canvas" aria-hidden="true"><g id="scene"><path class="l-cut" id="linksCut"/><path class="l-keep" id="linksKeep"/><path class="l-trail" id="trail"/><path class="n-cut" id="nodesCut"/><path class="n-keep" id="nodesKeep"/><path class="n-prose" id="nodesProse"/><path class="n-instr" id="nodesInstr"/><path class="n-mixed" id="nodesMixed"/><path class="n-note" id="nodesNote"/><path class="n-fail" id="nodesFail"/><g id="labels"></g><circle class="ring" id="ring" r="10" visibility="hidden"/></g></svg>
-      <div class="hint">Click any mark to read it. Drag to move. Ctrl + scroll to zoom.</div>
+      <svg class="canvas" id="canvas" aria-hidden="true"><g id="scene"><path class="l-cut" id="linksCut"/><path class="l-keep" id="linksKeep"/><path class="l-trail" id="trail"/><path class="n-cut" id="nodesCut"/><path class="n-keep" id="nodesKeep"/><path class="n-prose" id="nodesProse"/><path class="n-instr" id="nodesInstr"/><path class="n-mixed" id="nodesMixed"/><path class="n-note" id="nodesNote"/><path class="n-fail" id="nodesFail"/><g id="bundles"></g><g id="labels"></g><circle class="ring" id="ring" r="10" visibility="hidden"/></g></svg>
+      <div class="hint">Click +N to open a branch. Scroll to move. Ctrl + scroll to zoom.</div>
       <aside class="panel" id="panel" aria-label="Message details" hidden>
         <header><span class="pill" id="pStatus"></span><h3 id="pTitle"></h3><button class="icon" id="pClose" aria-label="Close details">&times;</button></header>
         <div class="counts">
@@ -651,7 +674,7 @@ body.dragging .map, body.dragging .hero { outline: 2px dashed var(--keep); outli
 const $ = id => document.getElementById(id);
 const fmt = n => Math.round(n).toLocaleString();
 const SPACE_X = 24, SPACE_Y = 30, WPM_READ = 238, WORK_WEEK = 40, WORDS_PER_PAGE = 250;
-const state = { chats: [], view: 'all', gap: 20, sample: true, selected: null, shared: null, page: 'summary', mapMode: 'strip', flagFilter: 'all', ledger: [], openChat: null, openStubs: new Set(), listRows: [], nodes: [], files: [], customLabels: [], markerUsers: [], markerOff: {}, markerCounts: {}, stripDetails: true, hiddenCount: 0, over: {}, splits: {}, failed: {}, passages: {}, confirmed: {}, phrases: [], tagRules: {}, catalog: [], unclosedTags: [], largeAt: 2000, largeOk: {}, countNotes: false, auditFilter: 'all', queueMode: 'unsure', repeats: new Map(), reuse: new Map(), lastBulk: null, t: { k: 1, x: 0, y: 0 } };
+const state = { chats: [], view: 'all', gap: 20, sample: true, selected: null, shared: null, treeAll: false, treeOpen: new Set(), treeSeq: 0, page: 'summary', mapMode: 'strip', flagFilter: 'all', ledger: [], openChat: null, openStubs: new Set(), listRows: [], nodes: [], files: [], customLabels: [], markerUsers: [], markerOff: {}, markerCounts: {}, stripDetails: true, hiddenCount: 0, over: {}, splits: {}, failed: {}, passages: {}, confirmed: {}, phrases: [], tagRules: {}, catalog: [], unclosedTags: [], largeAt: 2000, largeOk: {}, countNotes: false, auditFilter: 'all', queueMode: 'unsure', repeats: new Map(), reuse: new Map(), lastBulk: null, t: { k: 1, x: 0, y: 0 } };
 
 /* ---------- Reading the export ---------- */
 function cleanText(c) {
@@ -1526,19 +1549,42 @@ function renderChart(w) {
 /* ---------- Map ---------- */
 function layout(chat, offset) {
   chat.nodes.forEach(n => n.children.sort((a, b) => b.h - a.h || b.kept - a.kept || (a.ts || 0) - (b.ts || 0)));
-  const roots = [...chat.roots].sort((a, b) => b.h - a.h), free = [], stack = [];
+  const spine = chatSpine(chat), first = spine[0];
+  if (chat.treeKey == null) chat.treeKey = state.treeSeq++;
+  const isOpen = a => state.treeAll || state.treeOpen.has(`${chat.treeKey}:${a.index}`);
+  chat.nodes.forEach(n => { n.treeHidden = !n.kept && !isOpen(n.anchor || first); });
+  for (let i = chat.nodes.length - 1; i >= 0; i--) {
+    const n = chat.nodes[i]; n.vh = 0;
+    n.children.forEach(k => { if (!k.treeHidden) n.vh = Math.max(n.vh, k.vh + 1); });
+  }
+  const byDepth = (a, b) => b.vh - a.vh || b.kept - a.kept || (a.ts || 0) - (b.ts || 0);
+  const roots = chat.roots.filter(n => !n.treeHidden).sort(byDepth), free = [], stack = [];
   let maxCol = offset;
   for (let i = roots.length - 1; i >= 0; i--) stack.push({ n: roots[i], col: null, min: offset });
   while (stack.length) {
     const { n, col, min } = stack.pop();
     let c = col;
-    if (c == null) { c = min; for (let d = n.depth; d <= n.depth + n.h; d++) c = Math.max(c, free[d] || 0); }
+    if (c == null) { c = min; for (let d = n.depth; d <= n.depth + n.vh; d++) c = Math.max(c, free[d] || 0); }
     n.col = c; n.x = c * SPACE_X; n.y = n.depth * SPACE_Y;
     free[n.depth] = Math.max(free[n.depth] || 0, c + 1); maxCol = Math.max(maxCol, c);
-    for (let i = n.children.length - 1; i >= 1; i--) stack.push({ n: n.children[i], col: null, min: c + 1 });
-    if (n.children.length) stack.push({ n: n.children[0], col: c });
+    if (n.kept && n.hang?.length) { free[n.depth] = Math.max(free[n.depth], c + 3); maxCol = Math.max(maxCol, c + 2); }
+    const kids = n.children.filter(k => !k.treeHidden).sort(byDepth);
+    for (let i = kids.length - 1; i >= 1; i--) stack.push({ n: kids[i], col: null, min: c + 1 });
+    if (kids.length) stack.push({ n: kids[0], col: c });
   }
+  chat.nodes.forEach(n => { if (n.treeHidden) { const a = n.anchor || first; n.x = a.x; n.y = a.y; } });
   return maxCol;
+}
+function bundleHtml(c, n) {
+  const count = n.hang?.length || 0; if (!count) return '';
+  const key = `${c.treeKey}:${n.index}`, open = state.treeAll || state.treeOpen.has(key), label = open ? '−' : `+${fmt(count)}`, width = Math.max(20, label.length * 6.5 + 8), left = n.x + 12;
+  const cls = `bundle${n.hang.some(h => h.failed) ? ' has-fail' : n.hang.some(h => h.flags?.length) ? ' has-flag' : ''}`;
+  return `<g class="${cls}" data-bundle="${key}"><title>${open ? 'Collapse' : 'Show'} ${fmt(count)} abandoned ${count === 1 ? 'attempt' : 'attempts'} after turn ${n.depth}</title><path d="M${n.x + 5} ${n.y}H${left}"/><rect x="${left}" y="${n.y - 7}" width="${width}" height="14" rx="3"/><text x="${left + width / 2}" y="${n.y}">${label}</text></g>`;
+}
+function ensureTreeVisible(n) {
+  if (!n?.treeHidden || state.mapMode !== 'tree') return;
+  state.treeOpen.add(`${n.chat.treeKey}:${(n.anchor || chatSpine(n.chat)[0]).index}`);
+  renderMap(true);
 }
 const curve = (a, b) => { const m = (a.y + b.y) / 2; return `M${a.x} ${a.y}C${a.x} ${m} ${b.x} ${m} ${b.x} ${b.y}`; };
 const mark = n => n.failed ? `M${n.x - 5} ${n.y - 5}l10 10M${n.x + 5} ${n.y - 5}l-10 10`
@@ -1550,22 +1596,24 @@ const mark = n => n.failed ? `M${n.x - 5} ${n.y - 5}l10 10M${n.x + 5} ${n.y - 5}
 function drawNodes() {
   const g = { nodesKeep: [], nodesProse: [], nodesInstr: [], nodesMixed: [], nodesNote: [], nodesFail: [], nodesCut: [] };
   state.nodes.forEach(n => {
+    if (n.treeHidden) return;
     const k = n.failed ? 'nodesFail' : !n.kept ? 'nodesCut' : n.kind === 'continuity' ? 'nodesNote' : n.kind === 'prose' ? 'nodesProse' : n.kind === 'instruction' ? 'nodesInstr' : n.kind === 'mixed' ? 'nodesMixed' : 'nodesKeep';
     g[k].push(mark(n));
   });
   Object.keys(g).forEach(id => $(id).setAttribute('d', g[id].join('')));
 }
-function renderMap() {
-  closePanel();
+function renderMap(keepView = false) {
+  if (!keepView) closePanel();
   const chats = activeChats().slice().sort((a, b) => (a.first || 0) - (b.first || 0));
-  let offset = 0, keep = [], cut = [], labels = '';
+  let offset = 0, keep = [], cut = [], labels = '', bundles = '';
   state.nodes = [];
   chats.forEach(c => {
     const end = layout(c, offset);
     c.nodes.forEach(n => {
       state.nodes.push(n);
-      if (n.parent) (n.kept ? keep : cut).push(curve(n.parent, n));
+      if (n.parent && !n.treeHidden) (n.kept ? keep : cut).push(curve(n.parent, n));
     });
+    chatSpine(c).forEach(n => { bundles += bundleHtml(c, n); });
     if (chats.length > 1) {
       const t = c.title.length > 26 ? c.title.slice(0, 25) + '…' : c.title;
       labels += `<text class="chat-label" transform="translate(${offset * SPACE_X - 3} ${SPACE_Y - 14}) rotate(-38)">${esc(t)}</text>`;
@@ -1574,8 +1622,12 @@ function renderMap() {
   });
   $('linksKeep').setAttribute('d', keep.join('')); $('linksCut').setAttribute('d', cut.join(''));
   drawNodes();
-  $('labels').innerHTML = labels;
-  fit();
+  $('labels').innerHTML = labels; $('bundles').innerHTML = bundles;
+  $('treeAll').textContent = state.treeAll ? 'Collapse all' : 'Expand all';
+  if (keepView) {
+    const n = state.selected;
+    if (n) { $('ring').setAttribute('cx', n.x); $('ring').setAttribute('cy', n.y); let d = ''; for (let a = n; a.parent; a = a.parent) d += curve(a.parent, a); $('trail').setAttribute('d', d); }
+  } else fit();
   renderViews();
 }
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -1590,13 +1642,18 @@ function setView(k, x, y) {
   if (zoom) canvas.call(zoom.transform, d3.zoomIdentity.translate(x, y).scale(k));
   else { state.t = { k, x, y }; $('scene').setAttribute('transform', `translate(${x},${y}) scale(${k})`); }
 }
-function fit() {
+function treeBounds() {
+  let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+  state.nodes.forEach(n => { if (n.treeHidden) return; x0 = Math.min(x0, n.x); x1 = Math.max(x1, n.x + (n.kept && n.hang?.length ? 48 : 0)); y0 = Math.min(y0, n.y); y1 = Math.max(y1, n.y); });
+  return { x0, x1, y0, y1 };
+}
+function fit(showAll = false) {
   if (!state.nodes.length || state.page !== 'messages') return;
-  const box = $('map').getBoundingClientRect(), xs = state.nodes.map(n => n.x), ys = state.nodes.map(n => n.y);
-  const x0 = xs.reduce((a, b) => Math.min(a, b)), x1 = xs.reduce((a, b) => Math.max(a, b)), y0 = ys.reduce((a, b) => Math.min(a, b)), y1 = ys.reduce((a, b) => Math.max(a, b));
-  const top = activeChats().length > 1 ? 130 : 64, side = 40;
-  const k = Math.max(.02, Math.min(1.5, (box.width - side * 2) / Math.max(1, x1 - x0), (box.height - top - 34) / Math.max(1, y1 - y0)));
-  setView(k, (box.width - (x1 - x0) * k) / 2 - x0 * k, top - y0 * k);
+  const box = $('map').getBoundingClientRect(), { x0, x1, y0, y1 } = treeBounds();
+  const top = activeChats().length > 1 ? 130 : 64, side = 40, byWidth = (box.width - side * 2) / Math.max(1, x1 - x0);
+  const k = showAll === true ? Math.max(.02, Math.min(1.25, byWidth, (box.height - top - 34) / Math.max(1, y1 - y0))) : Math.max(.3, Math.min(1.25, byWidth));
+  const contentW = (x1 - x0) * k, left = contentW < box.width - side * 2 ? (box.width - contentW) / 2 : side;
+  setView(k, left - x0 * k, top - y0 * k);
 }
 function zoomBy(f) {
   const b = $('map').getBoundingClientRect(), t = state.t, k = Math.min(5, Math.max(.02, t.k * f));
@@ -1610,6 +1667,7 @@ function reveal(n) {
 }
 function select(n, keepInView) {
   if (state.page !== 'messages') setPage('messages');
+  ensureTreeVisible(n);
   if (state.shared) return selectShared(n, keepInView);
   state.selected = n;
   $('ring').setAttribute('cx', n.x); $('ring').setAttribute('cy', n.y); $('ring').setAttribute('visibility', 'visible');
@@ -1851,7 +1909,7 @@ function renderCoverage() {
 }
 
 /* ---------- Views: chapters, list, and full map ---------- */
-const VIEW_HELP = { strip: 'One row per chat. Bars show abandoned attempts.', list: 'Every message in order. Arrow keys move between rows.', tree: 'The straight line in each chat is what survived.' };
+const VIEW_HELP = { strip: 'One row per chat. Open a chat, then pick a message to see its abandoned attempts.', list: 'Every message in order. Arrow keys move between rows.', tree: 'The straight line in each chat is what survived. Open +N to see abandoned branches.' };
 const typeName = n => n.failed ? 'Technical failure' : n.kind === 'continuity' ? 'Continuity' : n.kind === 'prose' ? "Person's prose" : n.kind === 'instruction' ? 'Instruction' : n.kind === 'mixed' ? 'Prose + instruction' : n.role === 'assistant' ? 'AI reply' : 'System note';
 function chatSpine(c) {
   if (c.spine) { c.nodes.forEach((n, i) => { n.index = i; }); return c.spine; }
@@ -1868,7 +1926,7 @@ function chatSpine(c) {
 }
 function renderViews() {
   const map = $('map'); if (!map) return;
-  map.dataset.mode = state.mapMode;
+  map.dataset.mode = state.mapMode; document.body.dataset.view = state.mapMode;
   document.querySelectorAll('[data-view]').forEach(b => b.setAttribute('aria-selected', b.dataset.view === state.mapMode));
   $('mapSub').textContent = VIEW_HELP[state.mapMode];
   renderFlagBar();
@@ -1878,7 +1936,7 @@ function renderViews() {
 }
 document.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click', () => {
   state.mapMode = b.dataset.view; renderViews();
-  if (state.mapMode === 'tree') fit();
+  if (state.mapMode === 'tree') { ensureTreeVisible(state.selected); fit(); }
   if (state.selected) syncViews(state.selected);
 }));
 function renderFlagBar() {
@@ -1925,15 +1983,16 @@ function drawStripRow(canvas, c, maxLen, trackWidth) {
     }
   });
 }
-function cellHtml(n) {
-  const k = n.failed ? 'failed' : ['prose', 'mixed', 'instruction', 'continuity'].includes(n.kind) ? n.kind : 'ai';
-  return `<button class="cell k-${k}${n.kept ? '' : ' cut'}${n.flags?.length ? ' flagged' : ''}${state.selected === n ? ' sel' : ''}" data-n="${n.index}" tabindex="-1" title="${esc(`Turn ${n.depth}: ${typeName(n)}${n.kept ? '' : ', abandoned'}${n.flags?.length ? `. ${n.flags[0].label}` : ''}`)}" aria-label="${esc(`Turn ${n.depth}, ${typeName(n)}`)}"></button>`;
+function cellHtml(n, maxHang = 0) {
+  const k = n.failed ? 'failed' : ['prose', 'mixed', 'instruction', 'continuity'].includes(n.kind) ? n.kind : 'ai', hang = n.kept ? n.hang?.length || 0 : 0;
+  const cutStyle = hang ? ` style="--cut:${Math.round(2 + Math.sqrt(hang / Math.max(1, maxHang)) * 6)}px"` : '';
+  const label = `Turn ${n.depth}: ${typeName(n)}${n.kept ? '' : ', abandoned'}${hang ? `, ${fmt(hang)} abandoned ${hang === 1 ? 'attempt' : 'attempts'}` : ''}${n.flags?.length ? `. ${n.flags[0].label}` : ''}`;
+  return `<button class="cell k-${k}${n.kept ? '' : ' cut'}${hang ? ' has-cut' : ''}${n.hang?.some(h => h.failed) ? ' has-fail' : ''}${n.flags?.length ? ' flagged' : ''}${state.selected === n ? ' sel' : ''}" data-n="${n.index}" tabindex="-1"${cutStyle} title="${esc(label)}" aria-label="${esc(label)}">${k === 'failed' ? '×' : ''}</button>`;
 }
 function laneHtml(c) {
-  return chatSpine(c).map(n => {
-    const open = state.openStubs.has(`${c.first}:${n.index}`), hang = n.hang?.length || 0;
-    return cellHtml(n) + (hang ? `<button class="stub" data-stub="${n.index}" aria-expanded="${open}" title="${fmt(hang)} abandoned">+${fmt(hang)}</button>` : '') + (open ? `<div class="branch-cells">${n.hang.map(cellHtml).join('')}</div>` : '');
-  }).join('');
+  const spine = chatSpine(c), maxHang = Math.max(1, ...spine.map(n => n.hang?.length || 0));
+  const picked = state.selected?.chat === c ? (state.selected.kept ? state.selected : state.selected.anchor || spine[0]) : null, tray = picked?.hang || [];
+  return `<div class="lane-grid">${spine.map(n => cellHtml(n, maxHang)).join('')}</div>` + (tray.length ? `<div class="branch-tray"><p>${fmt(tray.length)} abandoned ${tray.length === 1 ? 'attempt' : 'attempts'} after turn ${picked.depth}</p><div class="tray-grid">${tray.map(n => cellHtml(n)).join('')}</div></div>` : '');
 }
 function renderStrip() {
   const box = $('stripView'), top = box.scrollTop, chats = activeChats().slice().sort((a, b) => (a.first || 0) - (b.first || 0));
@@ -1957,9 +2016,8 @@ function renderStrip() {
     if (state.openChat === c) {
       const lane = document.createElement('div'); lane.className = 'lane'; lane.innerHTML = laneHtml(c);
       lane.onclick = e => {
-        const stub = e.target.closest('[data-stub]'), cell = e.target.closest('[data-n]');
-        if (stub) { const key = `${c.first}:${stub.dataset.stub}`; if (state.openStubs.has(key)) state.openStubs.delete(key); else state.openStubs.add(key); renderStrip(); }
-        else if (cell) select(c.nodes[+cell.dataset.n]);
+        const cell = e.target.closest('[data-n]');
+        if (cell) select(c.nodes[+cell.dataset.n]);
       };
       row.append(lane);
     }
@@ -1972,12 +2030,12 @@ function renderStrip() {
 function renderList() {
   const box = $('listView'), space = $('listSpace'), seen = new Set(), rowH = 44;
   state.listRows = state.nodes.filter(n => { if (seen.has(n.id) || !matchesFilter(n, state.flagFilter)) return false; seen.add(n.id); return true; });
-  const rows = state.listRows; space.style.height = `${rows.length * rowH}px`; space.textContent = '';
+  const rows = state.listRows; box.classList.toggle('no-flags', !rows.some(n => n.flags?.length)); space.style.height = `${rows.length * rowH}px`; space.textContent = '';
   if (!rows.length) { space.style.height = 'auto'; space.innerHTML = '<div class="list-empty">No messages match this filter.</div>'; return; }
   const from = Math.max(0, Math.floor(box.scrollTop / rowH) - 8), to = Math.min(rows.length, from + Math.ceil(box.clientHeight / rowH) + 16);
   for (let i = from; i < to; i++) {
     const n = rows[i], b = document.createElement('button'); b.className = `list-row${state.selected?.id === n.id ? ' sel' : ''}`; b.style.top = `${i * rowH}px`; b.tabIndex = -1;
-    const cols = [`${n.chatTitle}, turn ${n.depth}`, typeName(n) + (n.kept ? '' : ' (abandoned)'), state.shared ? SHARE_SIZES[n.size] : fmt(n.words ?? 0), n.flags?.[0]?.label || (n.failed ? 'Ignored' : ''), state.shared ? 'Text not shared' : (n.text || '').slice(0, 200).replace(/\s+/g, ' ')];
+    const cols = [`${n.chatTitle}, turn ${n.depth}`, typeName(n) + (n.kept ? '' : ' (abandoned)'), state.shared ? SHARE_SIZES[n.size] : fmt(n.words ?? 0), n.flags?.[0]?.label || '', state.shared ? 'Text not shared' : (n.text || '').slice(0, 200).replace(/\s+/g, ' ')];
     cols.forEach((text, c) => { const el = document.createElement('span'); el.textContent = text; if (c === 2) el.className = 'num'; if (c === 3) el.className = 'flagtxt'; b.append(el); });
     b.onclick = () => select(n); space.append(b);
   }
@@ -1989,7 +2047,6 @@ function syncViews(n) {
   const had = map.classList.contains('with-panel'); map.classList.toggle('with-panel', !!n);
   if (state.mapMode === 'strip') {
     if (n && state.openChat !== n.chat) state.openChat = n.chat;
-    if (n && !n.kept) state.openStubs.add(`${n.chat.first}:${(n.anchor || chatSpine(n.chat)[0]).index}`);
     if (n) chatSpine(n.chat);
     if (n || had) renderStrip();
     const cell = n && $('stripView').querySelector(`.lane [data-n="${n.index}"]`);
@@ -2013,11 +2070,26 @@ function closePanel() {
   $('ring').setAttribute('visibility', 'hidden'); $('trail').removeAttribute('d');
   syncViews(null);
 }
+$('canvas').addEventListener('wheel', e => {
+  if (e.ctrlKey || e.metaKey || state.mapMode !== 'tree' || !state.nodes.length) return;
+  const b = $('map').getBoundingClientRect(), t = state.t, { x0, x1, y0, y1 } = treeBounds(), pad = 60;
+  const clamp = (value, low, high) => low > high ? (low + high) / 2 : Math.max(low, Math.min(high, value));
+  const nextY = clamp(t.y - e.deltaY, b.height - pad - y1 * t.k, 130 - y0 * t.k), nextX = clamp(t.x - (e.shiftKey ? e.deltaY : e.deltaX), b.width - pad - x1 * t.k, pad - x0 * t.k);
+  if (Math.abs(nextY - t.y) < .5 && Math.abs(nextX - t.x) < .5) return;
+  e.preventDefault(); setView(t.k, nextX, nextY);
+}, { passive: false });
 $('canvas').addEventListener('click', e => {
+  const bundle = e.target.closest?.('[data-bundle]');
+  if (bundle) {
+    const key = bundle.dataset.bundle;
+    if (state.treeAll) { state.treeAll = false; state.treeOpen = new Set(activeChats().flatMap(c => chatSpine(c).filter(n => n.hang?.length).map(n => `${c.treeKey}:${n.index}`))); }
+    if (state.treeOpen.has(key)) state.treeOpen.delete(key); else state.treeOpen.add(key);
+    renderMap(true); return;
+  }
   const b = $('canvas').getBoundingClientRect(), t = state.t;
   const px = (e.clientX - b.left - t.x) / t.k, py = (e.clientY - b.top - t.y) / t.k, reach = Math.max(9, 14 / t.k);
   let best = null, bd = reach * reach;
-  for (const n of state.nodes) { const d = (n.x - px) ** 2 + (n.y - py) ** 2; if (d <= bd) { bd = d; best = n; } }
+  for (const n of state.nodes) { if (n.treeHidden) continue; const d = (n.x - px) ** 2 + (n.y - py) ** 2; if (d <= bd) { bd = d; best = n; } }
   best ? select(best) : closePanel();
 });
 function siblings(n) { return n.parent ? n.parent.children : activeChats().flatMap(c => c.roots); }
@@ -2044,7 +2116,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape' && state.sele
 $('pClose').onclick = closePanel;
 $('pPrev').onclick = () => state.selected?.parent && select(state.selected.parent, true);
 $('pNext').onclick = () => state.selected?.children[0] && select(state.selected.children[0], true);
-$('zoomIn').onclick = () => zoomBy(1.4); $('zoomOut').onclick = () => zoomBy(1 / 1.4); $('fit').onclick = fit;
+$('zoomIn').onclick = () => zoomBy(1.4); $('zoomOut').onclick = () => zoomBy(1 / 1.4); $('fit').onclick = () => fit(true); $('treeAll').onclick = () => { state.treeAll = !state.treeAll; if (!state.treeAll) state.treeOpen.clear(); const n = state.selected; if (n?.treeHidden === false && !n.kept && !state.treeAll) state.treeOpen.add(`${n.chat.treeKey}:${(n.anchor || chatSpine(n.chat)[0]).index}`); renderMap(true); fit(); };
 
 /* ---------- Loading ---------- */
 function setNotice(html, isError) { $('notice').hidden = false; $('noticeText').innerHTML = html; $('notice').classList.toggle('error', !!isError); }
