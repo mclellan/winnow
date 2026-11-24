@@ -324,14 +324,15 @@ body.no-tree section[aria-labelledby="h-map"] { display: none; }
 .cell.has-cut::before { content: ""; position: absolute; left: 2px; right: 2px; bottom: calc(100% + 1px); height: var(--cut); border-radius: 1px; background: var(--muted); opacity: .7; }
 .cell.k-continuity.has-cut::before { bottom: calc(100% + 5px); }
 .cell.has-fail::before { background: var(--cut-ink); opacity: 1; }
-.cell.flagged::after { content: ""; position: absolute; left: 50%; top: calc(100% + 2px); width: 4px; height: 4px; margin-left: -2px; border-radius: 50%; background: var(--direct); }
+/* Needs review: the same small triangle the chapter rows draw under a flagged turn. */
+.cell.flagged::after { content: ""; position: absolute; left: 50%; top: calc(100% + 2px); width: 7px; height: 6px; margin-left: -3.5px; background: var(--direct); clip-path: polygon(50% 0, 100% 100%, 0 100%); }
 .cell.k-continuity.flagged::after { top: calc(100% + 6px); }
 .cell.sel { outline: 2.5px solid var(--cut-ink); outline-offset: 2px; z-index: 1; }
 .legend-tiles .cell { flex: none; cursor: default; }
 .legend-tiles .mini-cut, .legend-tiles .mini-flag { flex: none; display: block; }
 .legend-tiles .mini-cut { width: 10px; height: 7px; margin-inline: 2px; border-radius: 1px; background: var(--muted); opacity: .7; }
-.legend-tiles .mini-flag { width: 5px; height: 5px; margin-inline: 4.5px; border-radius: 50%; background: var(--direct); }
-body[data-view="strip"] .key-pop .legend:not(.legend-tiles), body:not([data-view="strip"]) .key-pop .legend-tiles { display: none; }
+.legend-tiles .mini-flag { width: 8px; height: 7px; margin-inline: 3px; background: var(--direct); clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+body[data-view="strip"] .keybar .legend:not(.legend-tiles), body:not([data-view="strip"]) .keybar .legend-tiles, body[data-view="list"] .keybar { display: none; }
 .list-head, .list-row { display: grid; grid-template-columns: 150px 118px 66px 138px minmax(0, 1fr); gap: 8px; align-items: center; padding: 0 10px; font-size: .8rem; }
 .list-head { position: sticky; top: 0; z-index: 2; height: 32px; background: var(--surface); border-bottom: 1px solid var(--line); color: var(--muted); font-size: .72rem; font-weight: 600; }
 .list-space { position: relative; }
@@ -395,23 +396,38 @@ section.summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24
 .map-head { align-items: center; }
 .map-head h2 { font-size: 1.12rem; }
 .map-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
-.key-pop { position: relative; border: 0; padding: 0; }
-.key-pop > summary { display: inline-flex; align-items: center; min-height: 36px; padding: 5px 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); font-size: .86rem; font-weight: 500; list-style: none; }
-.key-pop > summary::-webkit-details-marker { display: none; }
-.key-pop .legend { position: absolute; right: 0; top: calc(100% + 4px); z-index: 8; display: grid; gap: 6px; width: 190px; padding: 10px 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; box-shadow: 0 10px 28px rgb(30 20 10 / .25); }
+/* Key bar: sticks under the page tabs (--nav-h is measured in JS) and collapses to its button. */
+.keybar { position: sticky; top: calc(env(safe-area-inset-top, 0px) + var(--nav-h, 43px)); z-index: 7; display: flex; align-items: flex-start; gap: 6px 14px; margin-top: -6px; padding: 7px 0; background: var(--paper); border-bottom: 1px solid var(--line); box-shadow: -16px 0 0 var(--paper), 16px 0 0 var(--paper); }
+.key-toggle { flex: none; display: inline-flex; align-items: center; gap: 5px; min-height: 28px; padding: 2px 10px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); cursor: pointer; font-size: .8rem; font-weight: 600; }
+.key-toggle::after { content: "\25BE"; font-size: .7rem; color: var(--muted); }
+.key-toggle[aria-expanded="false"]::after { content: "\25B8"; }
+.key-toggle:hover { border-color: var(--keep); }
+.key-items { flex: 1; min-width: 0; padding-top: 4px; }
+.key-items[hidden] { display: none; }
+.keybar .legend { gap: 5px 16px; font-size: .8rem; }
+.keybar.collapsed { border-bottom-color: transparent; }
+.key-more { display: none; flex: none; align-items: center; min-height: 28px; padding: 2px 4px; font-size: .8rem; font-weight: 600; text-decoration: none; }
 .flag-chips button { min-height: 30px; }
 body.shared #tabCleanup, body.shared #timeAdjust { display: none; }
 @media (max-width: 760px) {
   section.summary-grid { grid-template-columns: minmax(0, 1fr); }
   .topbar .brand { width: auto; margin-right: auto; }
-  .topbar .field { order: 3; flex: 1 1 0; }
+  .topbar .field { order: 3; flex: 1 1 100%; }
   .topbar .files-pop { order: 4; }
   .files-menu { right: 0; }
   .topbar .share-actions, .topbar .upload { width: auto; flex: 0 0 auto; }
   .topbar .share-actions .btn { flex: none; }
   .topbar .upload .btn { width: auto; }
   .map { height: calc(100dvh - 260px); }
-  .key-pop .legend { right: auto; left: 0; }
+  /* Phones: one clipped line so the sticky key stays short, plus "See all" for the full key in a dropdown card. */
+  .keybar { align-items: center; }
+  .key-items { padding-top: 0; }
+  .keybar .legend { flex-wrap: nowrap; gap: 14px; overflow: hidden; font-size: .78rem; -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 28px), transparent); }
+  .keybar .legend span { flex: none; white-space: nowrap; }
+  .keybar:not(.collapsed) .key-more { display: inline-flex; }
+  .keybar.show-all .key-items { position: absolute; left: 0; right: 0; top: calc(100% + 4px); padding: 12px 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; box-shadow: 0 12px 30px rgb(20 13 7 / .35); }
+  .keybar.show-all .legend { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px 14px; overflow: visible; -webkit-mask-image: none; mask-image: none; font-size: .82rem; }
+  .keybar.show-all .legend span { white-space: normal; }
 }
 .files-pop { position: relative; flex: none; border: 0; padding: 0; }
 .files-pop > summary { display: inline-flex; align-items: center; min-height: 38px; padding: 6px 4px; border-radius: 6px; color: var(--muted); cursor: pointer; font-size: .86rem; font-weight: 500; list-style: none; white-space: nowrap; }
@@ -610,9 +626,7 @@ body.dragging .map, body.dragging .hero { outline: 2px dashed var(--keep); outli
 
   <div class="page" id="pageMessages" hidden>
   <section class="wrap block" aria-labelledby="h-map">
-    <div class="map-head">
-      <div><h2 id="h-map">Every draft</h2><p class="sub" id="mapSub"></p></div>
-      <div class="map-controls"><div class="view-tabs" role="tablist" aria-label="Choose a view"><button role="tab" data-view="strip">Chapters</button><button role="tab" data-view="list">List</button><button role="tab" data-view="tree">Full map</button></div><details class="key-pop"><summary>Key</summary><div class="legend" aria-label="Map legend">
+    <div class="keybar" id="keyBar"><button class="key-toggle" id="keyToggle" type="button" aria-expanded="true" aria-controls="keyItems">Key</button><div class="key-items" id="keyItems"><div class="legend" aria-label="Map legend">
         <span><svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="var(--keep)"/></svg>Kept AI reply</span>
         <span><svg width="12" height="12"><rect x="1" y="1" width="10" height="10" fill="var(--human)"/></svg>Person's prose</span>
         <span><svg width="12" height="12"><path d="M6 0l6 6-6 6-6-6z" fill="var(--direct)"/></svg>Instruction</span>
@@ -620,7 +634,10 @@ body.dragging .map, body.dragging .hero { outline: 2px dashed var(--keep); outli
         <span><svg width="14" height="12"><rect x="0" y="2.5" width="14" height="7" fill="var(--note)"/></svg>Continuity</span>
         <span><svg width="12" height="12"><circle cx="6" cy="6" r="4.5" fill="var(--surface)" stroke="var(--muted)"/></svg>Winnowed</span>
         <span><svg width="12" height="12"><path d="M2 2l8 8M10 2l-8 8" fill="none" stroke="var(--cut-ink)" stroke-width="2" stroke-linecap="round"/></svg>Technical failure</span>
-      </div><div class="legend legend-tiles" aria-label="Chapter key"><span><i class="cell k-ai"></i>AI reply</span><span><i class="cell k-prose"></i>Person's prose</span><span><i class="cell k-instruction"></i>Instruction</span><span><i class="cell k-mixed"></i>Prose + instruction</span><span><i class="cell k-continuity"></i>Continuity</span><span><i class="cell k-prose cut"></i>Winnowed (outlined)</span><span><i class="cell k-failed">×</i>Technical failure</span><span><i class="mini-cut"></i>Winnowed drafts</span><span><i class="mini-flag"></i>Needs review</span></div></details></div>
+      </div><div class="legend legend-tiles" aria-label="Chapter key"><span><i class="cell k-ai"></i>AI reply</span><span><i class="cell k-prose"></i>Person's prose</span><span><i class="cell k-instruction"></i>Instruction</span><span><i class="cell k-mixed"></i>Prose + instruction</span><span><i class="cell k-continuity"></i>Continuity</span><span><i class="cell k-prose cut"></i>Winnowed (outlined)</span><span><i class="cell k-failed">×</i>Technical failure</span><span><i class="mini-cut"></i>Winnowed drafts</span><span><i class="mini-flag"></i>Needs review</span></div></div><button class="link-btn key-more" id="keyMore" type="button" aria-expanded="false" aria-controls="keyItems">See all</button></div>
+    <div class="map-head">
+      <div><h2 id="h-map">Every draft</h2><p class="sub" id="mapSub"></p></div>
+      <div class="map-controls"><div class="view-tabs" role="tablist" aria-label="Choose a view"><button role="tab" data-view="strip">Chapters</button><button role="tab" data-view="list">List</button><button role="tab" data-view="tree">Full map</button></div></div>
       
     </div>
     <div class="flag-bar" id="flagBar">
@@ -2181,6 +2198,25 @@ function renderList() {
     b.onclick = () => select(n); space.append(b);
   }
 }
+// Key bar: open by default, collapsed state remembered in this browser only.
+// On phones the key is clipped to one line; "See all" opens the whole key as a dropdown card.
+function setKeyAll(on) {
+  $('keyBar').classList.toggle('show-all', on); $('keyMore').setAttribute('aria-expanded', on); $('keyMore').textContent = on ? 'Close' : 'See all';
+}
+$('keyMore').addEventListener('click', () => setKeyAll(!$('keyBar').classList.contains('show-all')));
+document.addEventListener('click', e => { if ($('keyBar').classList.contains('show-all') && !$('keyBar').contains(e.target)) setKeyAll(false); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && $('keyBar').classList.contains('show-all')) { setKeyAll(false); $('keyMore').focus(); } });
+document.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click', () => setKeyAll(false)));
+function setKeyOpen(open, save) {
+  if (!open) setKeyAll(false);
+  $('keyToggle').setAttribute('aria-expanded', open); $('keyItems').hidden = !open; $('keyBar').classList.toggle('collapsed', !open);
+  if (save) try { localStorage.setItem('winnow.keyOpen', open ? '1' : '0'); } catch {}
+}
+try { setKeyOpen(localStorage.getItem('winnow.keyOpen') !== '0'); } catch { setKeyOpen(true); }
+$('keyToggle').addEventListener('click', () => setKeyOpen($('keyToggle').getAttribute('aria-expanded') !== 'true', true));
+// The key sticks just under the page tabs, whose height changes with safe areas and font size.
+{ const nav = document.querySelector('.page-nav'), sync = () => document.documentElement.style.setProperty('--nav-h', `${nav.getBoundingClientRect().height}px`);
+  sync(); try { new ResizeObserver(sync).observe(nav); } catch { addEventListener('resize', sync); } }
 $('listView').addEventListener('scroll', () => { if (state.mapMode === 'list') requestAnimationFrame(renderList); }, { passive: true });
 function syncViews(n) {
   const map = $('map'); if (!map) return;
