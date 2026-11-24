@@ -35,7 +35,7 @@ Every piece of text falls into one of these categories:
 
 | Category | Meaning | Counts toward |
 |---|---|---|
-| **Prose** | Story text written by the person | Human prose |
+| **Prose** | Story text written by the human | Human prose |
 | **Instruction** | Direction to the AI | Human direction, never manuscript |
 | **AI story** | AI output | Kept or winnowed AI words |
 | **Continuity** | Summaries, handoffs, story bibles, and record keeping | Set aside |
@@ -57,7 +57,8 @@ You can correct the sorting at several levels:
 
 - **Chapters** shows one row per chat. Bars above a row show winnowed drafts, and alerts stay visible at any zoom. Click a row to see its messages.
 - **List** shows every message in a keyboard-friendly list with the same filters.
-- **Full map** keeps the complete branching tree.
+- **Full map** keeps the complete branching tree. Click a kept message, or its **+N**, to open its winnowed drafts.
+- **Key** stays at the top of **Messages**. Click an item, such as **Instruction** or **Needs review**, to highlight those messages in **Chapters** and **Full map**. The filter pills highlight the same way.
 - **Suggestions** flag likely loops, reused AI outputs, long messages, and unsure sorting. Each flag states its reason.
 - **Batch preview** lets you uncheck false positives before applying a suggestion.
 - **History** records your decisions, and **Undo** reverses the latest one.
@@ -74,7 +75,7 @@ Corrections and sorting rules live in one browser at one address. The live site,
 ## How the numbers work
 
 - **Kept** is AI story text and human prose on the branch selected at export.
-- **Final prose: human / AI** compares the person's story prose with AI story text on the selected chat branch. It leaves out instructions, continuity notes, repeated text, winnowed drafts, and technical failures. It does not measure the published manuscript.
+- **Final prose: human / AI** compares the human's story prose with AI story text on the selected chat branch. It leaves out instructions, continuity notes, repeated text, winnowed drafts, and technical failures. It does not measure the published manuscript.
 - **Winnowed** is AI story text and human prose on every other branch.
 - **Repeated text** is a run of 40 or more identical words from one earlier message. Capitalization and punctuation are ignored.
 - **Retried prompts** count only changed words when at least 60% of their words match an earlier version in phrases of five or more words. The kept version receives credit for shared words.
