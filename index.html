@@ -1583,10 +1583,10 @@ function renderSummary() {
   $('keyHuman').textContent = `${fmt(t.keptProse)} (${fmt(share(t.keptProse))}%)`;
   $('keyKept').textContent = `${fmt(t.keptAI)} (${fmt(share(t.keptAI))}%)`;
   $('keyCut').textContent = `${fmt(t.cut)} (${fmt(share(t.cut))}%)`;
-  // AI and Human shares of the winnowed words, AI on the left and Human on the right.
-  const ofCut = v => { const p = t.cut ? v / t.cut * 100 : 0; return p > 0 && p < 1 ? '<1%' : p > 99 && p < 100 ? '>99%' : `${fmt(p)}%`; };
-  $('keyCutSplit').innerHTML = t.cutProse >= 1 ? `<span>${fmt(t.cutAI)} AI (${ofCut(t.cutAI)})</span><span>${fmt(t.cutProse)} Human (${ofCut(t.cutProse)})</span>` : '';
-  $('keyCutSplit').title = t.cutProse >= 1 ? 'Shares of the winnowed words' : '';
+  // Winnowed words by author, each as a share of that author's own words: AI story words generated, and the human's story prose.
+  const rate = (v, total) => { const p = total ? v / total * 100 : 0; return p > 0 && p < 1 ? '<1%' : p > 99 && p < 100 ? '>99%' : `${fmt(p)}%`; };
+  $('keyCutSplit').innerHTML = t.cutProse >= 1 ? `<span>${fmt(t.cutAI)} AI (${rate(t.cutAI, t.gen)} of AI)</span><span>${fmt(t.cutProse)} Human (${rate(t.cutProse, t.prose)} of human)</span>` : '';
+  $('keyCutSplit').title = t.cutProse >= 1 ? `${rate(t.cutAI, t.gen)} of the AI's story words and ${rate(t.cutProse, t.prose)} of the human's story prose were winnowed` : '';
 
   const typed = t.prose + t.instr, pShare = typed ? t.prose / typed * 100 : 0;
   $('humanProse').style.width = (typed ? t.keptProse / typed * 100 : 0) + '%';
