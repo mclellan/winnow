@@ -431,6 +431,9 @@ body.shared #tabCleanup, body.shared #timeAdjust { display: none; }
 .split-menu button:hover, .split-menu button:focus-visible { background: var(--keep); color: var(--on-keep); }
 .list-view.no-flags .list-head, .list-view.no-flags .list-row { grid-template-columns: 150px 118px 66px minmax(0, 1fr); }
 .list-view.no-flags .list-head > :nth-child(4), .list-view.no-flags .list-row > :nth-child(4) { display: none; }
+/* Shared links show a length range such as "1,000–1,999" instead of a count, so the Words column is wider. */
+body.shared .list-view .list-head, body.shared .list-view .list-row { grid-template-columns: 150px 118px 92px 138px minmax(0, 1fr); }
+body.shared .list-view.no-flags .list-head, body.shared .list-view.no-flags .list-row { grid-template-columns: 150px 118px 92px minmax(0, 1fr); }
 .bundle { cursor: pointer; }
 .bundle rect { fill: var(--paper); stroke: var(--muted); stroke-width: 1; }
 .bundle text { fill: var(--muted); font: 600 10px var(--body); text-anchor: middle; dominant-baseline: central; pointer-events: none; }
@@ -2173,7 +2176,7 @@ function renderList() {
   const from = Math.max(0, Math.floor(box.scrollTop / rowH) - 8), to = Math.min(rows.length, from + Math.ceil(box.clientHeight / rowH) + 16);
   for (let i = from; i < to; i++) {
     const n = rows[i], b = document.createElement('button'); b.className = `list-row${state.selected?.id === n.id ? ' sel' : ''}`; b.style.top = `${i * rowH}px`; b.tabIndex = -1;
-    const cols = [`${n.chatTitle}, turn ${n.depth}`, typeName(n) + (n.kept ? '' : ' (winnowed)'), state.shared ? SHARE_SIZES[n.size] : fmt(n.words ?? 0), n.flags?.[0]?.label || '', state.shared ? 'Text not shared' : (n.text || '').slice(0, 200).replace(/\s+/g, ' ')];
+    const cols = [`${n.chatTitle}, turn ${n.depth}`, typeName(n) + (n.kept ? '' : ' (winnowed)'), state.shared ? n.sizeLabel : fmt(n.words ?? 0), n.flags?.[0]?.label || '', state.shared ? 'Text not shared' : (n.text || '').slice(0, 200).replace(/\s+/g, ' ')];
     cols.forEach((text, c) => { const el = document.createElement('span'); el.textContent = text; if (c === 2) el.className = 'num'; if (c === 3) el.className = 'flagtxt'; b.append(el); });
     b.onclick = () => select(n); space.append(b);
   }
@@ -2376,9 +2379,11 @@ function sampleExport() {
   return out;
 }
 /* ---------- Sharing: totals and tree shape only, stored after the # so it is never sent to the host ---------- */
-const SHARE_VERSION = 2, SHARE_SOFT_LIMIT = 8000, SHARE_MAX_LINK = 2000000, SHARE_MAX_BYTES = 8000000, SHARE_MAX_NODES = 200000;
+const SHARE_VERSION = 3, SHARE_SOFT_LIMIT = 8000, SHARE_MAX_LINK = 2000000, SHARE_MAX_BYTES = 8000000, SHARE_MAX_NODES = 200000;
 const SHARE_HOME = 'https://mclellan.github.io/winnow/';
-const SHARE_SIZES = ['Under 100', '100–499', '500–1,999', '2,000+'], SHARE_KINDS = [null, 'prose', 'instruction', 'mixed', 'continuity', 'system', 'failed'];
+// Rough message lengths in shared links. Version 3 links use SHARE_SIZES; versions 1 and 2 used the four SHARE_SIZES_V2 buckets.
+const SHARE_SIZES = ['Under 100', '100–499', '500–999', '1,000–1,999', '2,000–3,499', '3,500–9,999', '10,000+'], SHARE_SIZE_MIN = [0, 100, 500, 1000, 2000, 3500, 10000];
+const SHARE_SIZES_V2 = ['Under 100', '100–499', '500–1,999', '2,000+'], SHARE_KINDS = [null, 'prose', 'instruction', 'mixed', 'continuity', 'system', 'failed'];
 const SHARE_TOTALS = ['keptProse', 'keptAI', 'cutProse', 'cutAI', 'instr', 'instrMsgs', 'prompts', 'alts', 'notes', 'repeated', 'retried', 'minutes', 'genMinutes', 'noteMinutes', 'sessions'], SHARE_TOTALS_V2 = ['failedMsgs', 'failedWords', 'failedMinutes'];
 function writeVar(out, value) {
   let v = Math.max(0, Math.round(value) || 0);
@@ -2426,11 +2431,25 @@ function weeklyMinutes(w) {
   w.days.forEach((v, k) => { const b = monday(k); weeks.set(b, (weeks.get(b) || 0) + v); });
   return [...weeks.entries()].sort((a, b) => a[0] - b[0]).map(([, v]) => v ? Math.max(1, Math.round(v / 6e4)) : 0);
 }
+// Version 3 node: code = kind + 7 * (kept + 2 * size), 0 to 97.
+// Byte 0-97: code, same depth or one deeper (pops 0). Byte 98-195: code + 98, one level up first (pops 1).
+// Byte 196: then a code byte and a number holding pops - 2. Bytes 197-255 are unused.
+const SHARE_CODES = 98, SHARE_POP_ESCAPE = 196;
 function nodeByte(n, pops, out) {
   const kind = n.role === 'assistant' && !n.kind ? 0 : n.role === 'system' || (n.role !== 'user' && n.role !== 'assistant') ? 5 : Math.max(0, SHARE_KINDS.indexOf(n.kind));
-  const size = n.words < 100 ? 0 : n.words < 500 ? 1 : n.words < 2000 ? 2 : 3, low = kind | (n.kept ? 8 : 0) | (size << 4);
-  if (pops < 3) out.push(low | (pops << 6));
-  else { out.push(low | 192); writeVar(out, pops - 3); }
+  let size = 0; while (size < SHARE_SIZE_MIN.length - 1 && (n.words || 0) >= SHARE_SIZE_MIN[size + 1]) size++;
+  const code = kind + 7 * ((n.kept ? 1 : 0) + 2 * size);
+  if (pops < 2) out.push(code + pops * SHARE_CODES);
+  else { out.push(SHARE_POP_ESCAPE, code); writeVar(out, pops - 2); }
+}
+function readNode(r, version) {
+  const b = r.byte();
+  if (version < 3) { let pops = b >> 6; if (pops === 3) pops = 3 + r.number(); return { kindId: b & 7, kept: !!(b & 8), sizeLabel: SHARE_SIZES_V2[(b >> 4) & 3], pops }; }
+  let code, pops;
+  if (b < SHARE_POP_ESCAPE) { code = b % SHARE_CODES; pops = Math.floor(b / SHARE_CODES); }
+  else if (b === SHARE_POP_ESCAPE) { code = r.byte(); if (code >= SHARE_CODES) throw new Error('node'); pops = 2 + r.number(); }
+  else throw new Error('node');
+  return { kindId: code % 7, kept: !!(Math.floor(code / 7) % 2), sizeLabel: SHARE_SIZES[Math.floor(code / 14)], pops };
 }
 async function buildShareLink(includeTree) {
   const chats = activeChats().slice().sort((a, b) => (a.first || 0) - (b.first || 0)), t = totals(chats), w = workTime(chats, state.gap);
@@ -2460,7 +2479,7 @@ async function readShare(text) {
   const wrapped = fromBase64Url(text); if (wrapped.length < 2 || wrapped[0] > 1) throw new Error('format');
   const bytes = wrapped[0] ? await inflateBytes(wrapped.subarray(1)) : wrapped.subarray(1);
   if (bytes.length > SHARE_MAX_BYTES) throw new Error('large');
-  const r = byteReader(bytes), version = r.byte(); if (version !== 1 && version !== SHARE_VERSION) throw new Error('version');
+  const r = byteReader(bytes), version = r.byte(); if (version < 1 || version > SHARE_VERSION) throw new Error('version');
   const flags = r.byte(); if (flags > 1) throw new Error('flags');
   const v = { failedMsgs: 0, failedWords: 0, failedMinutes: 0 }; (version === 1 ? SHARE_TOTALS : [...SHARE_TOTALS, ...SHARE_TOTALS_V2]).forEach(k => { v[k] = r.number(); });
   const weekCount = r.number(); if (weekCount > 5000) throw new Error('weeks');
@@ -2472,11 +2491,11 @@ async function readShare(text) {
       const count = r.number(); totalNodes += count; if (totalNodes > SHARE_MAX_NODES) throw new Error('nodes');
       const nodes = [], roots = [], path = [];
       for (let i = 0; i < count; i++) {
-        const b = r.byte(), kindId = b & 7; let pops = b >> 6; if (pops === 3) pops = 3 + r.number();
+        const { kindId, kept, sizeLabel, pops } = readNode(r, version);
         if (kindId >= SHARE_KINDS.length || pops > path.length) throw new Error('node');
         path.length -= pops;
         const parent = path[path.length - 1] || null, kind = SHARE_KINDS[kindId];
-        const n = { id: `${c}-${i}`, parent, children: [], depth: path.length + 1, kept: !!(b & 8), kind: kind === 'system' ? null : kind, failed: kind === 'failed', role: kindId === 0 ? 'assistant' : kindId === 5 ? 'system' : 'user', size: (b >> 4) & 3, h: 0, ts: i };
+        const n = { id: `${c}-${i}`, parent, children: [], depth: path.length + 1, kept, kind: kind === 'system' ? null : kind, failed: kind === 'failed', role: kindId === 0 ? 'assistant' : kindId === 5 ? 'system' : 'user', sizeLabel, h: 0, ts: i };
         if (parent) parent.children.push(n); else roots.push(n);
         path.push(n); nodes.push(n);
       }
@@ -2514,7 +2533,7 @@ function selectShared(n, keepInView) {
   $('pStatus').textContent = n.kept ? 'Kept' : 'Winnowed'; $('pStatus').classList.toggle('off', !n.kept);
   const name = n.failed ? 'Technical failure' : n.kind === 'continuity' ? 'Continuity or repeated text' : n.kind === 'prose' ? "Person's prose" : n.kind === 'instruction' ? 'Instruction' : n.kind === 'mixed' ? 'Prose + instruction' : n.role === 'assistant' ? 'AI reply' : 'System note';
   $('pTitle').textContent = `${name}, turn ${n.depth}`;
-  $('pWords').textContent = SHARE_SIZES[n.size];
+  $('pWords').textContent = n.sizeLabel;
   $('pMeta').textContent = 'Rough length only';
   $('pText').textContent = 'Message text is not included in shared dashboards.';
   $('pPrev').disabled = !n.parent; $('pNext').disabled = !n.children.length;
