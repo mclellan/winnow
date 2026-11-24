@@ -62,6 +62,15 @@ You can correct the sorting at several levels:
 - **Batch preview** lets you uncheck false positives before applying a suggestion.
 - **History** records your decisions, and **Undo** reverses the latest one.
 
+## Backing up your corrections
+
+Corrections and sorting rules live in one browser at one address. The live site, a local copy, and a file opened directly each keep their own set. To keep or move them, use **Back up your corrections** on **Sift**.
+
+- **Back up** downloads a dated JSON file, such as `winnow-corrections-2026-11-24.json`. It holds your decisions, message IDs, and passage fingerprints, but no message text.
+- **Restore** opens a backup and compares it with what this browser has now. Click **Back up current first** if you might want the current set later, then **Replace**.
+- **Undo restore** puts back the corrections you had before the last restore.
+- A backup only applies to the same chat logs. Corrections reattach to their messages whenever those exports are loaded.
+
 ## How the numbers work
 
 - **Kept** is AI story text and human prose on the branch selected at export.
@@ -87,7 +96,7 @@ Treat the results as a careful estimate. They are not proof of authorship.
 - **Pasted text can look human.** Text from outside the loaded logs, including AI output from another tool, can be classified as human prose.
 - **Reused AI outputs need a decision.** Winnow flags them, but you decide whether each one is continuity or story.
 - **Word counts are approximate.** Hidden reasoning and tool blocks are excluded.
-- **Saved corrections are local.** Clearing browser data removes them. Use **Back up** on **Sift** to save them to a file, and **Restore** to load them in another browser or at another address. Backups contain no message text, but they only apply to the same chat logs.
+- **Saved corrections are local.** Clearing browser data removes them. See [Backing up your corrections](#backing-up-your-corrections).
 
 ## Sharing your results
 
