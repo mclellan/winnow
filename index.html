@@ -377,6 +377,8 @@ body[data-view="strip"] .keybar .legend:not(.legend-tiles), body:not([data-view=
 .batch-list label { display: flex; gap: 8px; padding: 7px 9px; font-size: .84rem; cursor: pointer; }
 .batch-list small { display: block; color: var(--muted); }
 body.shared .flag-bar, body.shared #coverageMeasured { display: none !important; }
+/* Shared links carry no review flags, so the Needs review key item would never match anything. */
+body.shared .keybar [data-hi="review"] { display: none; }
 @media (min-width: 761px) { .map.with-panel .strip-view, .map.with-panel .list-view { right: 400px; } }
 @media (max-width: 760px) {
   .coverage { grid-template-columns: minmax(0, 1fr); }
@@ -1708,6 +1710,8 @@ function renderAudit(t) {
   table.append(body); wrap.append(table); box.append(wrap); wrap.scrollTop = oldTop;
   if (shown.length > 200) { const p = document.createElement('p'); p.className = 'empty-note'; p.textContent = `Showing the 200 longest of ${fmt(shown.length)}. Raise the limit to narrow the list.`; box.append(p); }
 }
+// Shown when no reply recorded its generation time, so nothing could be subtracted. Shared links carry the same total as genMinutes.
+const NO_GEN_TIME = ' Includes time spent waiting for the AI, because these chat logs do not record how long replies took.';
 function barLabel(ms) { const h = ms / 36e5; return h >= 10 ? `${Math.round(h)}h` : h >= 1 ? `${h.toFixed(1)}h` : `${Math.max(1, Math.round(h * 60))}m`; }
 function renderChart(w) {
   state.lastWork = w;
@@ -1729,7 +1733,7 @@ function renderChart(w) {
   chart.innerHTML = rows.map(([k, v]) => { const pct = v ? Math.max(2, v / max * 100) : 0; return `<div class="bar-col" title="${weekly ? 'Week of ' : ''}${dateText(k)}: ${v ? hoursText(v) : 'no work'}"><i style="height:${pct}%"></i>${v ? `<span style="bottom:calc(${pct}% + 3px)">${barLabel(v)}</span>` : ''}</div>`; }).join('');
   chart.setAttribute('aria-label', `Hours worked per ${weekly ? 'week' : 'day'}. The busiest ${weekly ? 'week' : 'day'} reached ${hoursText(max)}.`);
   const left = [w.genMs >= 60000 ? `${hoursText(w.genMs)} of recorded AI generation` : '', w.notesMs >= 60000 ? `${hoursText(w.notesMs)} around continuity notes` : '', w.failedMs >= 60000 ? `${hoursText(w.failedMs)} around technical failures` : ''].filter(Boolean).join(', ');
-  $('timeSub').textContent = `Hours per ${weekly ? 'week' : 'day'} over ${fmt(span)} calendar ${span === 1 ? "day" : "days"}, across ${fmt(w.sessions)} ${w.sessions === 1 ? 'sitting' : 'sittings'}.${left ? ` Left out: ${left}.` : ''}`;
+  $('timeSub').textContent = `Hours per ${weekly ? 'week' : 'day'} over ${fmt(span)} calendar ${span === 1 ? "day" : "days"}, across ${fmt(w.sessions)} ${w.sessions === 1 ? 'sitting' : 'sittings'}.${left ? ` Left out: ${left}.` : ''}${w.genMs ? '' : NO_GEN_TIME}`;
   $('axisA').textContent = dateText(w.first); $('axisB').textContent = dateText(w.last);
 }
 
@@ -2637,7 +2641,7 @@ function renderSharedChart() {
   chart.innerHTML = weeks.map((v, i) => { const pct = v ? Math.max(2, v / max * 100) : 0; return `<div class="bar-col" title="Week ${i + 1}: ${v ? hoursText(v * 6e4) : 'no work'}"><i style="height:${pct}%"></i>${v ? `<span style="bottom:calc(${pct}% + 3px)">${barLabel(v * 6e4)}</span>` : ''}</div>`; }).join('');
   chart.setAttribute('aria-label', `Hours worked per week over ${weeks.length} weeks. The busiest week reached ${hoursText(max * 6e4)}.`);
   const sittings = state.shared.w.sessions;
-  $('timeSub').textContent = `Hours per week over ${fmt(weeks.length)} ${weeks.length === 1 ? 'week' : 'weeks'}, across ${fmt(sittings)} ${sittings === 1 ? 'sitting' : 'sittings'}.`;
+  $('timeSub').textContent = `Hours per week over ${fmt(weeks.length)} ${weeks.length === 1 ? 'week' : 'weeks'}, across ${fmt(sittings)} ${sittings === 1 ? 'sitting' : 'sittings'}.${state.shared.w.genMs ? '' : NO_GEN_TIME}`;
   $('axisA').textContent = 'Week 1'; $('axisB').textContent = `Week ${weeks.length}`;
 }
 function selectShared(n, keepInView) {
