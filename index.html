@@ -353,8 +353,6 @@ body.shared .flag-bar, body.shared #coverageMeasured { display: none !important;
 @media (max-width: 760px) {
   .coverage { grid-template-columns: minmax(0, 1fr); }
   .strip-main { display: block; } .strip-head { width: 100%; }
-  .list-head, .list-row { grid-template-columns: minmax(0, 1fr) 62px minmax(0, 1fr); }
-  .list-head > :nth-child(2), .list-head > :nth-child(5), .list-row > :nth-child(2), .list-row > :nth-child(5) { display: none; }
 }
 .page-nav { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 9; background: var(--surface); border-bottom: 1px solid var(--line); }
 .page-tabs { display: flex; gap: 22px; }
@@ -440,7 +438,6 @@ body.shared #tabCleanup, body.shared #timeAdjust { display: none; }
 .bundle:hover rect { stroke: var(--keep); }
 .bundle.has-fail rect { stroke: var(--cut-ink); }
 .bundle.has-flag rect { stroke: var(--direct); }
-@media (max-width: 760px) { .list-view.no-flags .list-head, .list-view.no-flags .list-row { grid-template-columns: minmax(0, 1fr) 62px; } }
 .backup-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 .backup-status { min-height: 1.3em; margin: 0; color: var(--muted); font-size: .84rem; }
 .backup-status.error { color: var(--cut-ink); }
@@ -484,6 +481,15 @@ body.dragging .map, body.dragging .hero { outline: 2px dashed var(--keep); outli
   .review-bar { padding: 5px 8px 5px 14px; }
   .panel footer { padding: 6px 8px; }
   .panel footer .btn { min-height: 36px; }
+  /* List view: three lines per row (where and words, type and flag, then the preview). Row height 70px matches listRowH(). */
+  #listView .list-head { display: none; }
+  #listView .list-row { height: 70px; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: repeat(3, auto); align-content: center; gap: 1px 10px; padding: 0 12px; }
+  #listView .list-row > :nth-child(1) { grid-area: 1 / 1; font-weight: 600; }
+  #listView .list-row > :nth-child(2) { grid-area: 2 / 1; color: var(--muted); font-size: .74rem; }
+  #listView .list-row > :nth-child(3) { grid-area: 1 / 2; }
+  #listView .list-row > :nth-child(3)::after { content: " words"; color: var(--muted); font-size: .72rem; }
+  #listView .list-row > :nth-child(4) { display: block; grid-area: 2 / 2; text-align: right; font-size: .74rem; }
+  #listView .list-row > :nth-child(5) { display: block; grid-area: 3 / 1 / 4 / 3; color: var(--muted); font-size: .76rem; }
   /* Keep "Adjust" beside its heading instead of on a line of its own. */
   .chart-head { flex-wrap: nowrap; align-items: start; }
   .chart-head .link-btn { flex: none; }
@@ -2155,8 +2161,12 @@ function renderStrip() {
   rows.forEach(([canvas, c]) => drawStripRow(canvas, c, maxLen, trackWidth));
   box.scrollTop = top;
 }
+// Narrow screens stack each row into three lines (see the max-width: 760px list styles), so rows are taller.
+const narrowList = matchMedia('(max-width: 760px)');
+const listRowH = () => narrowList.matches ? 70 : 44;
+try { narrowList.addEventListener('change', () => { if (state.mapMode === 'list') syncViews(state.selected); }); } catch {}
 function renderList() {
-  const box = $('listView'), space = $('listSpace'), seen = new Set(), rowH = 44;
+  const box = $('listView'), space = $('listSpace'), seen = new Set(), rowH = listRowH();
   state.listRows = state.nodes.filter(n => { if (seen.has(n.id) || !matchesFilter(n, state.flagFilter)) return false; seen.add(n.id); return true; });
   const rows = state.listRows; box.classList.toggle('no-flags', !rows.some(n => n.flags?.length)); space.style.height = `${rows.length * rowH}px`; space.textContent = '';
   if (!rows.length) { space.style.height = 'auto'; space.innerHTML = '<div class="list-empty">No messages match this filter.</div>'; return; }
@@ -2181,7 +2191,7 @@ function syncViews(n) {
     if (cell) { const box = $('stripView'), a = cell.getBoundingClientRect(), b = box.getBoundingClientRect(); if (a.top < b.top + 8 || a.bottom > b.bottom - 8) box.scrollTop += a.top - b.top - box.clientHeight / 2; }
   }
   if (state.mapMode === 'list') {
-    if (n) { const at = state.listRows.findIndex(x => x.id === n.id), box = $('listView'); if (at >= 0) { const y = at * 44; if (y < box.scrollTop + 32 || y + 44 > box.scrollTop + box.clientHeight) box.scrollTop = Math.max(0, y - box.clientHeight / 2); } }
+    if (n) { const at = state.listRows.findIndex(x => x.id === n.id), box = $('listView'); if (at >= 0) { const h = listRowH(), y = at * h; if (y < box.scrollTop + 32 || y + h > box.scrollTop + box.clientHeight) box.scrollTop = Math.max(0, y - box.clientHeight / 2); } }
     renderList();
   }
 }
