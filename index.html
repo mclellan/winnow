@@ -461,6 +461,62 @@ body.dragging .map, body.dragging .hero { outline: 2px dashed var(--keep); outli
   .upload { width: 100%; } .upload .btn { width: 100%; }
   .panel { position: fixed; top: auto; left: 0; right: 0; bottom: 0; width: 100%; height: 66vh; border-radius: 10px 10px 0 0; z-index: 20; padding-bottom: env(safe-area-inset-bottom, 0px); }
 }
+.hint-touch { display: none; }
+@media (hover: none) and (pointer: coarse) {
+  .hint-mouse { display: none; } .hint-touch { display: inline; }
+  .seg button { min-height: 36px; }
+  .custom-row button { width: 34px; height: 34px; }
+  .chip button { width: 34px; height: 34px; }
+}
+@media (max-width: 760px) {
+  /* Message sheet: give the text most of the screen and trim the chrome around it. */
+  .panel { height: min(90dvh, calc(100dvh - 44px - env(safe-area-inset-top, 0px))); box-shadow: 0 -8px 30px rgb(20 13 7 / .45); }
+  .panel header { padding: 6px 6px 6px 14px; }
+  .counts div { padding: 6px 6px 6px 14px; }
+  .counts b { font-size: .98rem; }
+  .counts span { font-size: .7rem; }
+  .meta { padding: 5px 14px; }
+  .kindbar { padding: 6px 14px; gap: 5px; }
+  .kindbar .kind-label { display: none; }
+  .kindbar .seg { display: flex; width: 100%; }
+  .kindbar .seg button { flex: 1 1 auto; padding: 4px 3px; }
+  .msg { overscroll-behavior: contain; }
+  .review-bar { padding: 5px 8px 5px 14px; }
+  .panel footer { padding: 6px 8px; }
+  .panel footer .btn { min-height: 36px; }
+  /* Keep "Adjust" beside its heading instead of on a line of its own. */
+  .chart-head { flex-wrap: nowrap; align-items: start; }
+  .chart-head .link-btn { flex: none; }
+  /* Flagged and ignored messages: one card per message instead of a wide table. */
+  .audit-scroll { max-height: 62dvh; overscroll-behavior: contain; }
+  .audit-table { min-width: 0 !important; }
+  .audit-table, .audit-table tbody { display: block; }
+  .audit-table thead { display: none; }
+  .audit-table tr { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+  .audit-table tr:last-child { border-bottom: 0; }
+  .audit-table td { display: block; padding: 0; border: 0; color: var(--muted); font-size: .78rem; }
+  .audit-table td:first-child { flex: 1 1 100%; color: var(--ink); font-size: .84rem; }
+  .audit-table td.num::after { content: " words"; }
+  .audit-table td:last-child { flex: 1 1 100%; margin-top: 4px; }
+  .audit-table td:last-child .seg { display: flex; width: 100%; }
+  .audit-table td:last-child .seg button { flex: 1 1 auto; min-height: 36px; }
+  .audit-table td:last-child > .btn { width: 100%; }
+  .row-open { max-width: none; white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  /* HTML tags: name and counts on one line, the choice below. */
+  .tag-table { min-width: 0; }
+  .tag-table, .tag-table tbody { display: block; }
+  .tag-table thead { display: none; }
+  .tag-table tr { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; padding: 9px 10px; border-bottom: 1px solid var(--line); }
+  .tag-table tr:last-child { border-bottom: 0; }
+  .tag-table td { display: block; padding: 0; border: 0; }
+  .tag-table td.tag-name { margin-right: auto; }
+  .tag-table td.num { color: var(--muted); font-size: .76rem; }
+  .tag-table td:nth-child(2)::after { content: " msgs"; }
+  .tag-table td:nth-child(3)::after { content: " words"; }
+  .tag-table td:last-child { flex: 1 1 100%; }
+  .tag-table .seg { display: flex; width: 100%; }
+  .tag-table .seg button { flex: 1 1 auto; }
+}
 </style>
 
 <div class="topbar"><div class="wrap">
@@ -577,7 +633,7 @@ body.dragging .map, body.dragging .hero { outline: 2px dashed var(--keep); outli
       <div class="strip-view" id="stripView"></div>
       <div class="list-view" id="listView"><div class="list-head" aria-hidden="true"><span>Where</span><span>Type</span><span class="num">Words</span><span>Flag</span><span>Preview</span></div><div class="list-space" id="listSpace"></div></div>
       <svg class="canvas" id="canvas" aria-hidden="true"><g id="scene"><path class="l-cut" id="linksCut"/><path class="l-keep" id="linksKeep"/><path class="l-trail" id="trail"/><path class="n-cut" id="nodesCut"/><path class="n-keep" id="nodesKeep"/><path class="n-prose" id="nodesProse"/><path class="n-instr" id="nodesInstr"/><path class="n-mixed" id="nodesMixed"/><path class="n-note" id="nodesNote"/><path class="n-fail" id="nodesFail"/><g id="bundles"></g><g id="labels"></g><circle class="ring" id="ring" r="10" visibility="hidden"/></g></svg>
-      <div class="hint">Click +N to open a branch. Scroll to move. Ctrl + scroll to zoom.</div>
+      <div class="hint"><span class="hint-mouse">Click +N to open a branch. Scroll to move. Ctrl + scroll to zoom.</span><span class="hint-touch">Tap +N to open a branch. Pinch with two fingers to zoom.</span></div>
       <aside class="panel" id="panel" aria-label="Message details" hidden>
         <header><span class="pill" id="pStatus"></span><h3 id="pTitle"></h3><button class="icon" id="pClose" aria-label="Close details">&times;</button></header>
         <div class="counts">
@@ -586,7 +642,7 @@ body.dragging .map, body.dragging .hero { outline: 2px dashed var(--keep); outli
           <div class="bad"><b id="pDisc"></b><span>winnowed words above</span></div>
         </div>
         <div class="meta" id="pMeta"></div>
-        <div class="kindbar" id="pKindBar"><span id="pKindNote"></span><span class="kind-label">Sort this message</span><span class="seg" role="group" aria-label="Sort this message as"><button data-kind="auto">Auto</button><button data-kind="output">Story</button><button data-kind="prose">Prose</button><button data-kind="instruction">Instruction</button><button data-kind="continuity">Continuity</button><button data-kind="failed">Ignore</button></span><span class="kind-hint">Click a passage to switch it, or highlight text to split it.</span></div>
+        <div class="kindbar" id="pKindBar"><span id="pKindNote"></span><span class="kind-label">Sort this message</span><span class="seg" role="group" aria-label="Sort this message as"><button data-kind="auto">Auto</button><button data-kind="output">Story</button><button data-kind="prose">Prose</button><button data-kind="instruction">Instruction</button><button data-kind="continuity">Continuity</button><button data-kind="failed">Ignore</button></span><span class="kind-hint"><span class="hint-mouse">Click a passage to switch it, or highlight text to split it.</span><span class="hint-touch">Tap a passage to switch it, or select text to split it.</span></span></div>
         <div class="msg" id="pText" tabindex="0"></div>
         <div class="review-bar" id="reviewBar" hidden><span id="reviewPos" aria-live="polite"></span><p id="reviewReason"></p><button class="btn" id="reviewPrev">Back</button><button class="btn" id="reviewNext">Skip</button><button class="btn" id="reviewFail" hidden>Ignore</button><button class="btn" id="reviewNote" hidden>Continuity</button><button class="btn primary" id="reviewOk">Looks right</button></div>
         <footer><button class="btn" id="pPrev">Earlier message</button><button class="btn" id="pNext">Later message</button></footer>
@@ -1246,11 +1302,14 @@ function updateSplitMenu() {
   });
   menu.hidden = false;
   const m = menu.getBoundingClientRect(), left = Math.max(8, Math.min(innerWidth - m.width - 8, choice.rect.left + choice.rect.width / 2 - m.width / 2));
-  const above = choice.rect.top - m.height - 8, top = above >= 8 ? above : Math.min(innerHeight - m.height - 8, choice.rect.bottom + 8);
+  // On touch screens the system copy/paste bar sits above a selection, so go below it, clear of the handles.
+  const touch = matchMedia('(pointer: coarse)').matches, below = Math.min(innerHeight - m.height - 8, choice.rect.bottom + (touch ? 30 : 8));
+  const above = choice.rect.top - m.height - 8, top = touch ? below : above >= 8 ? above : below;
   menu.style.left = `${left}px`; menu.style.top = `${top}px`;
 }
 $('pText').addEventListener('pointerdown', () => { splitDismissed = !$('splitMenu').hidden; splitPointer = true; hideSplitMenu(); });
-document.addEventListener('pointerup', () => { if (!splitPointer) return; splitPointer = false; setTimeout(updateSplitMenu, 0); });
+// A touch long-press ends in pointercancel, not pointerup, once the browser takes over to select text.
+['pointerup', 'pointercancel'].forEach(type => document.addEventListener(type, () => { if (!splitPointer) return; splitPointer = false; setTimeout(updateSplitMenu, 0); }));
 document.addEventListener('selectionchange', () => { if (splitPointer) return; clearTimeout(splitTimer); splitTimer = setTimeout(updateSplitMenu, 140); });
 $('pText').addEventListener('scroll', () => { if (!$('splitMenu').hidden) updateSplitMenu(); }, { passive: true });
 function classifyAll() {
