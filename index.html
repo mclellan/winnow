@@ -696,10 +696,20 @@ const SPACE_X = 24, SPACE_Y = 30, WPM_READ = 238, WORK_WEEK = 40, WORDS_PER_PAGE
 const state = { chats: [], view: 'all', gap: 20, sample: true, selected: null, shared: null, treeAll: false, treeOpen: new Set(), treeSeq: 0, page: 'summary', mapMode: 'strip', flagFilter: 'all', ledger: [], openChat: null, openStubs: new Set(), listRows: [], nodes: [], files: [], customLabels: [], markerUsers: [], markerOff: {}, markerCounts: {}, stripDetails: true, hiddenCount: 0, over: {}, splits: {}, failed: {}, passages: {}, confirmed: {}, phrases: [], tagRules: {}, catalog: [], unclosedTags: [], largeAt: 2000, largeOk: {}, countNotes: false, auditFilter: 'all', queueMode: 'unsure', repeats: new Map(), reuse: new Map(), lastBulk: null, t: { k: 1, x: 0, y: 0 } };
 
 /* ---------- Reading the export ---------- */
-function cleanText(c) {
-  let s = typeof c === 'string' ? c : Array.isArray(c) ? c.map(p => typeof p === 'string' ? p : (p && p.text) || '').join('\n') : '';
-  return (state.stripDetails ? s.replace(/<details\b[^>]*>[\s\S]*?<\/details>/gi, '') : s).trim();
+const rawContent = c => typeof c === 'string' ? c : Array.isArray(c) ? c.map(p => typeof p === 'string' ? p : (p && p.text) || '').join('\n') : '';
+// The visible text, plus which stretches of the original it came from, so saved positions survive hiding or showing <details>.
+function visibleText(raw) {
+  const pieces = []; let at = 0;
+  if (state.stripDetails) for (const m of raw.matchAll(/<details\b[^>]*>[\s\S]*?<\/details>/gi)) {
+    if (m.index > at) pieces.push({ r: at, len: m.index - at });
+    at = m.index + m[0].length;
+  }
+  if (at < raw.length) pieces.push({ r: at, len: raw.length - at });
+  const joined = pieces.map(p => raw.slice(p.r, p.r + p.len)).join(''), lead = joined.length - joined.trimStart().length;
+  let v = -lead; pieces.forEach(p => { p.v = v; v += p.len; });
+  return { pieces, text: joined.trim() };
 }
+const cleanText = c => visibleText(rawContent(c)).text;
 const countWords = s => { const m = s.match(/\S+/g); return m ? m.length : 0; };
 function toMs(v) {
   if (v == null || v === '') return null;
@@ -1131,8 +1141,41 @@ function splitRepeats(n, segs) {
 /* ---------- Highlight to split: exact character ranges chosen by the writer ---------- */
 function loadSplits() { try { const v = JSON.parse(localStorage.getItem('bluepencil.splits') || '{}'); return v && typeof v === 'object' && !Array.isArray(v) ? v : {}; } catch { return {}; } }
 function saveSplits() { try { localStorage.setItem('bluepencil.splits', JSON.stringify(state.splits)); } catch {} }
+// Saved ranges use { at, to } in the original message. Older { start, end } ranges were positions in the visible text.
+const textMap = n => n.textMap || (n.textMap = visibleText(rawContent(n.raw.content)));
+const isOldSplit = r => !!r && r.at == null;
+const validOldSplit = (n, r) => Number.isInteger(r.start) && Number.isInteger(r.end) && r.start >= 0 && r.start < r.end && r.end <= n.text.length;
+function toOriginal(n, start, end) {
+  return textMap(n).pieces.flatMap(p => {
+    const a = Math.max(start, p.v, 0), b = Math.min(end, p.v + p.len, n.text.length);
+    return a < b ? [{ at: p.r + a - p.v, to: p.r + b - p.v }] : [];
+  });
+}
+function visibleSplits(n) {
+  const spans = (state.splits[n.id] || []).filter(r => r && Number.isInteger(r.at) && Number.isInteger(r.to) && r.at >= 0 && r.at < r.to).flatMap(r => textMap(n).pieces.flatMap(p => {
+    const a = Math.max(r.at, p.r), b = Math.min(r.to, p.r + p.len), start = Math.max(p.v + a - p.r, 0), end = Math.min(p.v + b - p.r, n.text.length);
+    return a < b && start < end ? [{ start, end, k: r.k }] : [];
+  })).sort((a, b) => a.start - b.start), out = [];
+  spans.forEach(r => { const last = out[out.length - 1]; if (last && last.k === r.k && last.end === r.start) last.end = r.end; else out.push(r); });
+  return out;
+}
+function migrateSplits() {
+  const hasOld = list => Array.isArray(list) && list.some(isOldSplit), need = new Set();
+  Object.entries(state.splits).forEach(([id, list]) => { if (hasOld(list)) need.add(id); });
+  state.ledger.forEach(e => Object.entries(e?.before || {}).forEach(([id, b]) => { if (hasOld(b?.splits)) need.add(id); }));
+  if (!need.size) return;
+  let savedSplits = false, savedLedger = false;
+  state.chats.forEach(c => c.nodes.forEach(n => {
+    if (!need.delete(n.id)) return;
+    const convert = list => list.flatMap(r => isOldSplit(r) && validOldSplit(n, r) ? toOriginal(n, r.start, r.end).map(s => ({ ...s, k: r.k })) : [r]);
+    if (hasOld(state.splits[n.id])) { state.splits[n.id] = convert(state.splits[n.id]); savedSplits = true; }
+    state.ledger.forEach(e => { const b = e?.before?.[n.id]; if (hasOld(b?.splits)) { b.splits = convert(b.splits); savedLedger = true; } });
+  }));
+  if (savedSplits) saveSplits();
+  if (savedLedger) saveLedger();
+}
 function applySplits(n, segs) {
-  const ranges = (state.splits[n.id] || []).filter(r => Number.isInteger(r.start) && Number.isInteger(r.end) && r.start >= 0 && r.start < r.end && r.end <= n.text.length).sort((a, b) => a.start - b.start);
+  const ranges = visibleSplits(n);
   let pos = 0;
   if (!ranges.length) { segs.forEach(x => { x.start = pos; pos += x.t.length; }); return segs; }
   const out = [];
@@ -1151,16 +1194,20 @@ function applySplits(n, segs) {
   return out;
 }
 function setSplit(n, start, end, kind) {
-  const out = [];
-  (state.splits[n.id] || []).forEach(r => {
-    if (r.end <= start || r.start >= end) { out.push(r); return; }
-    if (r.start < start) out.push({ start: r.start, end: start, k: r.k });
-    if (r.end > end) out.push({ start: end, end: r.end, k: r.k });
+  const stored = state.splits[n.id] || [], unmatched = stored.filter(isOldSplit), spans = toOriginal(n, start, end);
+  let out = stored.filter(r => !isOldSplit(r));
+  // Only the visible stretches change, so a selection across a hidden block leaves that block's own splits alone.
+  spans.forEach(s => {
+    out = out.flatMap(r => {
+      if (r.to <= s.at || r.at >= s.to) return [r];
+      return [...(r.at < s.at ? [{ at: r.at, to: s.at, k: r.k }] : []), ...(r.to > s.to ? [{ at: s.to, to: r.to, k: r.k }] : [])];
+    });
   });
-  if (kind) out.push({ start, end, k: kind });
-  out.sort((a, b) => a.start - b.start);
+  if (kind) spans.forEach(s => out.push({ ...s, k: kind }));
+  out.sort((a, b) => a.at - b.at);
   const merged = [];
-  out.forEach(r => { const last = merged[merged.length - 1]; if (last && last.k === r.k && last.end === r.start) last.end = r.end; else merged.push({ ...r }); });
+  out.forEach(r => { const last = merged[merged.length - 1]; if (last && last.k === r.k && last.to === r.at) last.to = r.to; else merged.push({ ...r }); });
+  merged.push(...unmatched);
   if (merged.length) state.splits[n.id] = merged; else delete state.splits[n.id];
   saveSplits();
 }
@@ -1207,6 +1254,7 @@ document.addEventListener('pointerup', () => { if (!splitPointer) return; splitP
 document.addEventListener('selectionchange', () => { if (splitPointer) return; clearTimeout(splitTimer); splitTimer = setTimeout(updateSplitMenu, 140); });
 $('pText').addEventListener('scroll', () => { if (!$('splitMenu').hidden) updateSplitMenu(); }, { passive: true });
 function classifyAll() {
+  migrateSplits();
   const re = markerRegex(), phrases = state.phrases.map(p => p.toLowerCase());
   const aiText = slice => ({ segs: slice ? [{ t: slice, k: 'output', g: true }] : [], unsure: false });
   state.chats.forEach(c => {
@@ -1233,7 +1281,8 @@ function classifyAll() {
       const total = n.counted + n.cont + n.rep; n.aside = total ? (n.cont + n.rep - n.retryW) / total : 0; n.retryShare = total ? n.retryW / total : 0;
       const p = n.prose + retryProse, d = n.instr + retryInstr;
       n.kind = !n.counted && n.cont + n.rep - n.retryW > .5 ? 'continuity' : isAI ? null : p && d ? 'mixed' : p ? 'prose' : 'instruction';
-      n.reason = [o ? `set to ${KIND_LABEL[o]}` : hit >= 0 ? `matches ${state.phrases[hit]}` : '', fixed ? `${fixed} ${fixed === 1 ? 'passage' : 'passages'} switched` : '', state.splits[n.id]?.length ? `${state.splits[n.id].length} highlighted ${state.splits[n.id].length === 1 ? 'split' : 'splits'}` : '', state.confirmed[n.id] ? 'reviewed' : ''].filter(Boolean).join(', ');
+      const splitCount = visibleSplits(n).length;
+      n.reason = [o ? `set to ${KIND_LABEL[o]}` : hit >= 0 ? `matches ${state.phrases[hit]}` : '', fixed ? `${fixed} ${fixed === 1 ? 'passage' : 'passages'} switched` : '', splitCount ? `${splitCount} highlighted ${splitCount === 1 ? 'split' : 'splits'}` : '', state.confirmed[n.id] ? 'reviewed' : ''].filter(Boolean).join(', ');
     });
     const atDepth = [];
     c.nodes.forEach(n => { n.cum = (n.parent ? n.parent.cum : 0) + n.counted; atDepth[n.depth] = (atDepth[n.depth] || 0) + n.counted; });
