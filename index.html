@@ -3,24 +3,25 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Winnow</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cstyle%3Epath%7Bstroke:%23875c10%7D%40media (prefers-color-scheme:dark)%7Bpath%7Bstroke:%23d9aa52%7D%7D%3C/style%3E%3Cpath d=%22M12 22V7%22/%3E%3Cpath d=%22M12 7c-2-1-2.5-3 0-5 2.5 2 2 4 0 5z%22/%3E%3Cpath d=%22M12 13c-1-2.5-3-3.5-6-3.5 0 3 2 4.5 6 3.5z%22/%3E%3Cpath d=%22M12 13c1-2.5 3-3.5 6-3.5 0 3-2 4.5-6 3.5z%22/%3E%3Cpath d=%22M12 19c-1-2.5-3-3.5-6-3.5 0 3 2 4.5 6 3.5z%22/%3E%3Cpath d=%22M12 19c1-2.5 3-3.5 6-3.5 0 3-2 4.5-6 3.5z%22/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Literata:opsz,wght@7..72,500;7..72,650&display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
 <style>
 /* Layout concept: an editor's report. The verdict first, then the evidence, then the full map of every draft. */
 :root {
-  --paper: #f2f5f9; --surface: #ffffff; --ink: #172033; --muted: #566277; --line: #d7dee9;
-  --keep: #1f4fd1; --keep-soft: #e3eafc; --cut: #b9c3d3; --cut-ink: #a5345a; --on-keep: #ffffff; --human: #0f766e; --direct: #a85f00; --note: #6d4fc2;
+  --paper: #f5eddc; --surface: #fffaf0; --ink: #2e2116; --muted: #6b5a45; --line: #e0d2b8;
+  --keep: #875c10; --keep-soft: #f1e2c0; --cut: #c9b89b; --cut-ink: #a8321f; --on-keep: #fffaf0; --human: #1e5a4b; --direct: #a8501f; --note: #7a4f6b;
   --display: "Literata", Georgia, "Times New Roman", serif;
   --body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --paper: #10141d; --surface: #191f2c; --ink: #e9edf5; --muted: #a0abbd; --line: #2d3748;
-  --keep: #86a8ff; --keep-soft: #222f50; --cut: #4a556a; --cut-ink: #f492af; --on-keep: #10141d; --human: #4fd1c0; --direct: #f2b35c; --note: #b9a2ff; color-scheme: dark;
+  --paper: #17110b; --surface: #231a11; --ink: #f3e8d3; --muted: #b8a68a; --line: #3d3022;
+  --keep: #d9aa52; --keep-soft: #3a2c17; --cut: #5d4e3c; --cut-ink: #f0705f; --on-keep: #1b1309; --human: #b9e3d2; --direct: #de8a5a; --note: #c9a3b4; color-scheme: dark;
 } }
 :root[data-theme="dark"] {
-  --paper: #10141d; --surface: #191f2c; --ink: #e9edf5; --muted: #a0abbd; --line: #2d3748;
-  --keep: #86a8ff; --keep-soft: #222f50; --cut: #4a556a; --cut-ink: #f492af; --on-keep: #10141d; --human: #4fd1c0; --direct: #f2b35c; --note: #b9a2ff; color-scheme: dark;
+  --paper: #17110b; --surface: #231a11; --ink: #f3e8d3; --muted: #b8a68a; --line: #3d3022;
+  --keep: #d9aa52; --keep-soft: #3a2c17; --cut: #5d4e3c; --cut-ink: #f0705f; --on-keep: #1b1309; --human: #b9e3d2; --direct: #de8a5a; --note: #c9a3b4; color-scheme: dark;
 }
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
@@ -112,7 +113,7 @@ h2 { font: 650 1.3rem/1.25 var(--display); margin: 0; text-wrap: balance; }
 .ring { fill: none; stroke: var(--cut-ink); stroke-width: 2.5; }
 .chat-label { fill: var(--muted); font-size: 11px; font-family: var(--body); }
 
-.panel { position: absolute; top: 10px; right: 10px; bottom: 10px; width: min(380px, calc(100% - 20px)); z-index: 3; display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; box-shadow: 0 10px 28px rgb(15 23 42 / .22); }
+.panel { position: absolute; top: 10px; right: 10px; bottom: 10px; width: min(380px, calc(100% - 20px)); z-index: 3; display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; box-shadow: 0 10px 28px rgb(30 20 10 / .22); }
 .panel header { display: flex; align-items: center; gap: 8px; padding: 10px 10px 10px 14px; border-bottom: 1px solid var(--line); }
 .pill { font-size: .76rem; font-weight: 600; padding: 2px 8px; border-radius: 3px; background: var(--keep); color: var(--on-keep); }
 .pill.off { background: transparent; color: var(--cut-ink); box-shadow: inset 0 0 0 1px var(--cut-ink); }
@@ -213,8 +214,8 @@ h2 { font: 650 1.3rem/1.25 var(--display); margin: 0; text-wrap: balance; }
 .msg .note-part { font-family: var(--body); font-size: .88rem; color: var(--note); background: color-mix(in srgb, var(--note) 13%, transparent); }
 .msg .rep-part { font-family: var(--body); font-size: .88rem; color: var(--muted); background: color-mix(in srgb, var(--muted) 14%, transparent); }
 .share-actions { display: flex; gap: 8px; }
-.share-dialog { width: min(620px, calc(100vw - 24px)); max-height: calc(100dvh - 24px); padding: 0; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 18px 50px rgb(15 23 42 / .35); }
-.share-dialog::backdrop { background: rgb(10 14 22 / .55); }
+.share-dialog { width: min(620px, calc(100vw - 24px)); max-height: calc(100dvh - 24px); padding: 0; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 18px 50px rgb(30 20 10 / .35); }
+.share-dialog::backdrop { background: rgb(20 13 7 / .6); }
 .share-body { display: grid; gap: 14px; padding: 20px; }
 .share-head { display: flex; align-items: start; justify-content: space-between; gap: 12px; }
 .share-head h2 { margin: 0; }
@@ -289,7 +290,7 @@ body.no-tree section[aria-labelledby="h-map"] { display: none; }
 .history { position: relative; border: 0; padding: 0; }
 .history > summary { display: inline-flex; align-items: center; min-height: 34px; padding: 4px 11px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); font-size: .84rem; font-weight: 500; list-style: none; }
 .history > summary::-webkit-details-marker { display: none; }
-.history-pop { position: absolute; right: 0; top: calc(100% + 4px); z-index: 8; width: min(340px, 86vw); max-height: 280px; overflow: auto; padding: 8px 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; box-shadow: 0 10px 28px rgb(15 23 42 / .25); }
+.history-pop { position: absolute; right: 0; top: calc(100% + 4px); z-index: 8; width: min(340px, 86vw); max-height: 280px; overflow: auto; padding: 8px 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; box-shadow: 0 10px 28px rgb(30 20 10 / .25); }
 .history-pop ol { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; font-size: .82rem; }
 .history-pop small { display: block; color: var(--muted); }
 .map[data-mode="strip"] .canvas, .map[data-mode="strip"] .tools, .map[data-mode="strip"] .hint,
@@ -399,7 +400,7 @@ section.summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24
 .key-pop { position: relative; border: 0; padding: 0; }
 .key-pop > summary { display: inline-flex; align-items: center; min-height: 36px; padding: 5px 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); font-size: .86rem; font-weight: 500; list-style: none; }
 .key-pop > summary::-webkit-details-marker { display: none; }
-.key-pop .legend { position: absolute; right: 0; top: calc(100% + 4px); z-index: 8; display: grid; gap: 6px; width: 190px; padding: 10px 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; box-shadow: 0 10px 28px rgb(15 23 42 / .25); }
+.key-pop .legend { position: absolute; right: 0; top: calc(100% + 4px); z-index: 8; display: grid; gap: 6px; width: 190px; padding: 10px 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; box-shadow: 0 10px 28px rgb(30 20 10 / .25); }
 .flag-chips button { min-height: 30px; }
 body.shared #tabCleanup, body.shared #timeAdjust { display: none; }
 @media (max-width: 760px) {
@@ -419,14 +420,14 @@ body.shared #tabCleanup, body.shared #timeAdjust { display: none; }
 .files-pop > summary::-webkit-details-marker { display: none; }
 .files-pop > summary::after { content: "\25BE"; margin-left: 5px; font-size: .75rem; }
 .files-pop > summary:hover, .files-pop[open] > summary { color: var(--ink); }
-.files-menu { position: absolute; right: 0; top: calc(100% + 4px); z-index: 20; display: grid; gap: 9px; width: min(340px, calc(100vw - 32px)); padding: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; box-shadow: 0 12px 30px rgb(15 23 42 / .3); }
+.files-menu { position: absolute; right: 0; top: calc(100% + 4px); z-index: 20; display: grid; gap: 9px; width: min(340px, calc(100vw - 32px)); padding: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; box-shadow: 0 12px 30px rgb(30 20 10 / .3); }
 .files-menu p { margin: 0; color: var(--muted); font-size: .82rem; line-height: 1.4; }
 .files-menu p b { color: var(--ink); font-weight: 600; }
 .files-menu .source-list { display: grid; gap: 5px; padding: 0; }
 .files-menu .chip { display: flex; justify-content: space-between; min-width: 0; }
 .files-menu .chip span { min-width: 0; }
 .files-menu .link-btn { justify-self: start; font-size: .82rem; }
-.split-menu { position: fixed; z-index: 40; display: flex; align-items: center; gap: 2px; padding: 3px; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; box-shadow: 0 8px 24px rgb(15 23 42 / .35); }
+.split-menu { position: fixed; z-index: 40; display: flex; align-items: center; gap: 2px; padding: 3px; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; box-shadow: 0 8px 24px rgb(30 20 10 / .35); }
 .split-menu span { padding: 0 6px; color: var(--muted); font-size: .74rem; white-space: nowrap; }
 .split-menu button { min-height: 32px; padding: 3px 9px; border: 0; border-radius: 4px; background: none; cursor: pointer; font-size: .8rem; font-weight: 500; white-space: nowrap; }
 .split-menu button:hover, .split-menu button:focus-visible { background: var(--keep); color: var(--on-keep); }
@@ -464,7 +465,7 @@ body.dragging .map, body.dragging .hero { outline: 2px dashed var(--keep); outli
   <div class="field"><label for="project">Showing</label><select id="project"></select></div>
   <details class="files-pop" id="filesPop" hidden><summary id="filesLabel"></summary><div class="files-menu"><p id="filesNote"></p><div class="source-list" id="sources"></div></div></details>
   <div class="share-actions"><button class="btn" id="shareBtn">Share</button><button class="btn" id="sharedImage">Download image</button><button class="btn primary" id="ownLogs">Analyze your own logs</button></div>
-  <div class="upload"><input class="sr" type="file" id="file" accept=".json,application/json" multiple><label class="btn primary" for="file">Add chat logs</label></div>
+  <div class="upload"><input class="sr" type="file" id="file" accept=".json,application/json" multiple><label class="btn primary" for="file" title="Open WebUI JSON exports only">Add chat logs</label></div>
 </div></div>
 <nav class="page-nav" aria-label="Winnow sections"><div class="wrap"><div class="page-tabs" role="tablist"><button role="tab" data-page="summary">Summary</button><button role="tab" data-page="messages">Messages</button><button role="tab" data-page="cleanup" id="tabCleanup">Clean up</button></div></div></nav>
 <div class="notice" id="notice" role="status"><div class="wrap" id="noticeText"></div></div>
@@ -513,6 +514,7 @@ body.dragging .map, body.dragging .hero { outline: 2px dashed var(--keep); outli
       <div><h3>Not visible in chat logs</h3><ul><li>Edits made in another app</li><li>Planning, research, and rereading away from the chat</li><li>Whether kept text reached the final book</li></ul></div>
       <div id="coverageMeasured"><h3>Available in these logs</h3><ul id="coverageList"></ul></div>
     </div>
+    <p class="sub">Winnow currently supports Open WebUI JSON chat exports only.</p>
   </section>
   <div class="wrap method"><details>
     <summary>How these numbers are calculated</summary>
@@ -2167,9 +2169,9 @@ document.addEventListener('click', e => { const pop = $('filesPop'); if (pop.ope
 document.addEventListener('keydown', e => { const pop = $('filesPop'); if (e.key === 'Escape' && pop.open) { pop.open = false; pop.querySelector('summary').focus(); } });
 function finishLoad(r, errors = []) {
   $('shareBtn').disabled = state.sample; $('shareBtn').title = state.sample ? 'Add your chat logs to share real results' : 'Share a summary without message text';
-  if (state.sample && !errors.length) { setNotice('<b>Sample project.</b> These figures are made up to show the layout. Add your Open WebUI chat logs to see your real numbers.'); return; }
+  if (state.sample && !errors.length) { setNotice('<b>Sample project.</b> These figures are made up. Add Open WebUI JSON chat logs to see your real numbers. Other chat formats are not supported yet.'); return; }
   const base = state.sample ? '' : `Combined <b>${state.files.length} ${state.files.length === 1 ? 'file' : 'files'}</b> into <b>${r.chats} ${r.chats === 1 ? 'conversation' : 'conversations'}</b>${r.dupes ? `, skipping ${r.dupes} duplicate ${r.dupes === 1 ? 'copy' : 'copies'}` : ''}. Files stay in this browser.`;
-  const err = errors.length ? ` Could not use ${errors.map(esc).join(', ')}. Check that each is an Open WebUI JSON export.` : '';
+  const err = errors.length ? ` Could not use ${errors.map(esc).join(', ')}. Winnow currently supports only Open WebUI JSON exports.` : '';
   $('filesNote').innerHTML = base;
   if (errors.length) setNotice(base + err, true); else $('notice').hidden = true;
 }
@@ -2419,12 +2421,12 @@ $('ownLogs').addEventListener('click', () => { location.href = location.pathname
 /* ---------- Image card ---------- */
 async function drawShareCard() {
   const W = 1200, H = 630, c = document.createElement('canvas'); c.width = W; c.height = H;
-  const x = c.getContext('2d'), ink = '#e9edf5', muted = '#a0abbd', keep = '#86a8ff', human = '#4fd1c0', cutFill = '#4a556a', line = '#2d3748', direct = '#f2b35c', note = '#b9a2ff', fail = '#f492af';
+  const x = c.getContext('2d'), ink = '#f3e8d3', muted = '#b8a68a', keep = '#d9aa52', human = '#b9e3d2', cutFill = '#5d4e3c', line = '#3d3022', direct = '#de8a5a', note = '#c9a3b4', fail = '#f0705f';
   const serif = '"Literata", Georgia, serif', sans = '"Inter", system-ui, sans-serif';
   try { await Promise.all([document.fonts.load('650 46px Literata'), document.fonts.load('500 46px Literata'), document.fonts.load('500 20px Inter'), document.fonts.load('600 18px Inter')]); } catch {}
   const chats = activeChats().slice().sort((a, b) => (a.first || 0) - (b.first || 0)), t = state.shared ? state.shared.t : totals(chats), w = state.shared ? state.shared.w : workTime(chats, state.gap);
-  const hasMap = chats.some(ch => ch.nodes.length), left = 56, textW = hasMap ? 640 : W - 112;
-  x.fillStyle = '#10141d'; x.fillRect(0, 0, W, H); x.textBaseline = 'alphabetic';
+  const left = 56, textW = W - 112;
+  x.fillStyle = '#17110b'; x.fillRect(0, 0, W, H); x.textBaseline = 'alphabetic';
   x.fillStyle = ink; x.font = `650 28px ${serif}`; x.fillText('Winnow', left, 70);
   x.fillStyle = keep; x.font = `600 17px ${sans}`; x.fillText('What the human wrote, kept, and cut.', left, 98);
 
@@ -2466,26 +2468,6 @@ async function drawShareCard() {
     x.fillStyle = col; x.fillRect(keyX, barY + 36, 11, 11); x.fillStyle = muted; x.fillText(label, keyX + 17, barY + 46); keyX += x.measureText(label).width + 42;
   });
 
-  if (hasMap) {
-    const bx = 760, top = 58, bw = 384, bh = 442, rows = chats.filter(ch => ch.nodes.length), spines = rows.map(chatSpine), maxLen = Math.max(...spines.map(sp => sp.length), 1), rowH = Math.min(52, bh / rows.length), y0 = top + (bh - rows.length * rowH) / 2;
-    const tickH = rowH * .32, bandH = Math.max(1.5, rowH * .46), minBin = rows.length > 24 ? 2 : 3;
-    x.fillStyle = muted; x.font = `500 15px ${sans}`; x.fillText(`${fmt(rows.length)} ${rows.length === 1 ? 'chat' : 'chats'}, in order`, bx, Math.max(44, y0 - 8));
-    const colors = { prose: human, mixed: human, instruction: direct, continuity: note, failed: fail, ai: keep }, order = ['prose', 'mixed', 'instruction', 'continuity', 'failed', 'ai'];
-    const peak = Math.max(1, ...spines.flat().map(n => n.hang?.length || 0));
-    spines.forEach((spine, r) => {
-      const rowW = Math.max(4, bw * spine.length / maxLen), count = Math.max(1, Math.min(spine.length, Math.floor(rowW / minBin))), step = rowW / count, y = y0 + r * rowH, bandY = y + tickH + 1;
-      const bins = Array.from({ length: count }, () => ({ prose: 0, mixed: 0, instruction: 0, continuity: 0, failed: 0, ai: 0, hang: 0, bad: false }));
-      spine.forEach((n, i) => {
-        const b = bins[Math.min(count - 1, Math.floor(i / spine.length * count))];
-        b[n.failed ? 'failed' : order.includes(n.kind) ? n.kind : 'ai']++; b.hang = Math.max(b.hang, n.hang?.length || 0); b.bad = b.bad || !!n.failed || !!n.hang?.some(h => h.failed);
-      });
-      bins.forEach((b, i) => {
-        const px = bx + i * step, pw = Math.max(1, step - (step >= 3 ? 1 : 0)), total = order.reduce((sum, k) => sum + b[k], 0); let py = bandY;
-        order.forEach(k => { if (!b[k]) return; const h = bandH * b[k] / total; x.fillStyle = colors[k]; x.fillRect(px, py, pw, h); py += h; });
-        if (b.hang || b.bad) { const h = b.bad ? tickH : Math.max(1, Math.sqrt(b.hang / peak) * tickH); x.globalAlpha = b.bad ? 1 : .7; x.fillStyle = b.bad ? fail : muted; x.fillRect(px, bandY - h - .5, pw, h); x.globalAlpha = 1; }
-      });
-    });
-  }
   x.strokeStyle = line; x.lineWidth = 1; x.beginPath(); x.moveTo(left, 536); x.lineTo(W - 56, 536); x.stroke();
   x.fillStyle = muted; x.font = `400 15px ${sans}`; x.fillText("Self-reported from the author's chat logs. Not independently verified.", left, 576);
   x.textAlign = 'right'; x.fillText('mclellan.github.io/winnow', W - 56, 576); x.textAlign = 'left';
