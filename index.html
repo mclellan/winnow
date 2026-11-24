@@ -470,7 +470,7 @@ body.dragging .map, body.dragging .hero { outline: 2px dashed var(--keep); outli
   <div class="share-actions"><button class="btn" id="shareBtn">Share</button><button class="btn" id="sharedImage">Download image</button><button class="btn primary" id="ownLogs">Analyze your own logs</button></div>
   <div class="upload"><input class="sr" type="file" id="file" accept=".json,application/json" multiple><label class="btn primary" for="file" title="Open WebUI JSON exports only">Add chat logs</label></div>
 </div></div>
-<nav class="page-nav" aria-label="Winnow sections"><div class="wrap"><div class="page-tabs" role="tablist"><button role="tab" data-page="summary">Summary</button><button role="tab" data-page="messages">Messages</button><button role="tab" data-page="cleanup" id="tabCleanup">Clean up</button></div></div></nav>
+<nav class="page-nav" aria-label="Winnow sections"><div class="wrap"><div class="page-tabs" role="tablist"><button role="tab" data-page="summary">Summary</button><button role="tab" data-page="messages">Messages</button><button role="tab" data-page="cleanup" id="tabCleanup">Sift</button></div></div></nav>
 <div class="notice" id="notice" role="status"><div class="wrap" id="noticeText"></div></div>
 
 <main>
@@ -481,12 +481,12 @@ body.dragging .map, body.dragging .hero { outline: 2px dashed var(--keep); outli
   <section class="wrap block" aria-label="Human effort totals"><div class="stats" id="stats"></div></section>
   <section class="wrap block summary-grid">
     <div class="summary-col" role="group" aria-labelledby="h-words">
-    <h2 id="h-words">Where the words went</h2>
+    <h2 id="h-words">Kept and winnowed</h2>
     <div class="ledger" id="ledger" role="img"><div class="human" id="ledgerHuman"></div><div class="kept" id="ledgerKept"></div><div class="cut"></div></div>
     <div class="ledger-key">
       <span><i class="swatch" style="background:var(--human)"></i>Kept, written by the person <b id="keyHuman"></b></span>
       <span><i class="swatch" style="background:var(--keep)"></i>Kept, written by AI <b id="keyKept"></b></span>
-      <span><i class="swatch" style="background:var(--cut)"></i>Abandoned <b id="keyCut"></b><span id="keyCutSplit"></span></span>
+      <span><i class="swatch" style="background:var(--cut)"></i>Winnowed <b id="keyCut"></b><span id="keyCutSplit"></span></span>
     </div>
   </div>
     <div class="summary-col" role="group" aria-labelledby="h-human">
@@ -496,7 +496,7 @@ body.dragging .map, body.dragging .hero { outline: 2px dashed var(--keep); outli
     <div class="ledger" id="humanBar" role="img"><div class="human" id="humanProse"></div><div class="human-cut" id="humanProseCut"></div><div class="direct" id="humanDirect" style="flex:1"></div></div>
     <div class="ledger-key">
       <span><i class="swatch" style="background:var(--human)"></i>Prose kept <b id="keyProse"></b></span>
-      <span><i class="swatch" style="background:repeating-linear-gradient(135deg, var(--human) 0 2px, transparent 2px 4px)"></i>Prose abandoned <b id="keyProseCut"></b></span>
+      <span><i class="swatch" style="background:repeating-linear-gradient(135deg, var(--human) 0 2px, transparent 2px 4px)"></i>Prose winnowed <b id="keyProseCut"></b></span>
       <span><i class="swatch" style="background:var(--direct)"></i>Instructions to the AI <b id="keyDirect"></b></span>
       <span id="reviewWrap"><span id="reviewText"></span> <button class="link-btn" id="reviewBtn">Review next</button></span>
     </div>
@@ -526,17 +526,17 @@ body.dragging .map, body.dragging .hero { outline: 2px dashed var(--keep); outli
       <li><b>Story prose and instructions</b> are sorted automatically. By default, text in ((double parentheses)), [square brackets], {{double braces}}, or after labels such as OOC: counts as instruction. Each marker can be turned off under Advanced sorting. Unmarked paragraphs are judged by their wording, and uncertain ones are flagged for review. Open a message to correct all of its guessed text, click one passage to switch it, or highlight part of a passage to split it. Corrections are remembered in this browser.</li>
       <li><b>Advanced sorting</b> follows these rules. Highlighted splits always win, followed by a switched passage. Choosing Prose, Instruction, or Story for a message sets its guessed text and lifts any word exclusion on it, while HTML tag choices and explicit markers stay in place. Choosing Continuity applies to the whole message. Otherwise, excluded words apply first, then tags and markers, then the automatic sorting. Tag markup itself is not counted as prose or instruction.</li>
       <li><b>Multiple chat logs</b> are combined. A chat found in two files is counted once using its fullest copy, and messages shared by copied chats are counted once.</li>
-      <li><b>Final prose: human / AI</b> compares the person's story prose with AI story text on the selected chat branch. Instructions, continuity notes, repeated text, abandoned branches, and technical failures are left out. It measures the kept chat path, not the published manuscript, and cannot see edits made outside the chat.</li>
-      <li><b>Abandoned</b> counts every other AI word and story-prose word: regenerated replies and branches the person left. Instructions are never counted as manuscript.</li>
+      <li><b>Final prose: human / AI</b> compares the person's story prose with AI story text on the selected chat branch. Instructions, continuity notes, repeated text, winnowed drafts, and technical failures are left out. It measures the kept chat path, not the published manuscript, and cannot see edits made outside the chat.</li>
+      <li><b>Winnowed</b> counts every other AI word and story-prose word: regenerated replies and branches the person left. Instructions are never counted as manuscript.</li>
       <li><b>Continuity notes</b> are summaries, handoffs, and background records. They are kept out of the manuscript, AI output, the person's prose, and direction totals.</li>
       <li><b>Automatic suggestions</b> never change the totals by themselves, except exact repeats and retried text. A likely loop must end with at least 200 words of one phrase repeating. Every decision is recorded in History and can be undone.</li>
-      <li><b>Technical failures</b> are messages you chose to ignore, such as a model stuck in an output loop. They are removed from words, attempts, repeat detection, and hours, and are listed separately.</li>
-      <li><b>Repeated text</b> is any run of 40 or more identical words already seen in an earlier message, ignoring capitalization and punctuation. Only the first appearance counts, so a summary pasted into a new chat is not counted again. Text on a kept branch takes priority over an abandoned copy.</li>
+      <li><b>Technical failures</b> are messages you chose to ignore, such as a model stuck in an output loop. They are removed from words, drafts, repeat detection, and hours, and are listed separately.</li>
+      <li><b>Repeated text</b> is any run of 40 or more identical words already seen in an earlier message, ignoring capitalization and punctuation. Only the first appearance counts, so a summary pasted into a new chat is not counted again. Text on a kept branch takes priority over a winnowed copy.</li>
       <li><b>Hours worked</b> adds the time between consecutive messages, using the export's timestamps. Any pause longer than the break setting counts as time away. AI generation time is subtracted when the export records it; otherwise the total includes waiting for the AI. Time around messages that are mostly continuity notes or repeated text is left out unless you choose to count it. Work done outside the chat is not included.</li>
       <li><b>Reading time</b> assumes 238 words per minute, a typical adult silent reading speed. It shows how long reading every generated word once would take, whether or not the person read all of it.</li>
-      <li><b>Attempts rejected</b> counts each extra branch at a fork. Three replies to one prompt counts as two rejected attempts.</li>
-      <li><b>Retried prompts</b> count only the words that changed. A prompt is treated as a retry when at least 60% of its words match, in phrases of five or more words, an earlier version beside it or one of the three prompts before it on the same branch. The kept version receives credit for the shared words, and abandoned versions count only what was unique to them. The retry still counts as an attempt, and its time still counts as work.</li>
-      <li><b>Discarded words above</b>, for a single message, adds all words at earlier turns that are not on that message's own path. Other attempts at the same turn are not included.</li>
+      <li><b>Drafts winnowed out</b> counts each extra branch at a fork. Three replies to one prompt counts as two winnowed drafts.</li>
+      <li><b>Retried prompts</b> count only the words that changed. A prompt is treated as a retry when at least 60% of its words match, in phrases of five or more words, an earlier version beside it or one of the three prompts before it on the same branch. The kept version receives credit for the shared words, and winnowed versions count only what was unique to them. The retry still counts as a draft, and its time still counts as work.</li>
+      <li><b>Winnowed words above</b>, for a single message, adds all words at earlier turns that are not on that message's own path. Other drafts at the same turn are not included.</li>
       <li><b>Shared dashboards</b> contain only totals, weekly hours, node shapes, categories, and rough lengths. They are self-reported and are not independently verified.</li>
       <li>Hidden model reasoning and tool output stored in collapsible blocks is left out of every count unless you turn that off under Advanced sorting. Your file is read in this browser and is not uploaded.</li>
     </ul>
@@ -553,9 +553,9 @@ body.dragging .map, body.dragging .hero { outline: 2px dashed var(--keep); outli
         <span><svg width="12" height="12"><path d="M6 0l6 6-6 6-6-6z" fill="var(--direct)"/></svg>Instruction</span>
         <span><svg width="12" height="12"><path d="M6 1l5 10H1z" fill="var(--human)" stroke="var(--direct)" stroke-width="1.5"/></svg>Both</span>
         <span><svg width="14" height="12"><rect x="0" y="2.5" width="14" height="7" fill="var(--note)"/></svg>Continuity</span>
-        <span><svg width="12" height="12"><circle cx="6" cy="6" r="4.5" fill="var(--surface)" stroke="var(--muted)"/></svg>Abandoned</span>
+        <span><svg width="12" height="12"><circle cx="6" cy="6" r="4.5" fill="var(--surface)" stroke="var(--muted)"/></svg>Winnowed</span>
         <span><svg width="12" height="12"><path d="M2 2l8 8M10 2l-8 8" fill="none" stroke="var(--cut-ink)" stroke-width="2" stroke-linecap="round"/></svg>Technical failure</span>
-      </div><div class="legend legend-tiles" aria-label="Chapter key"><span><i class="cell k-ai"></i>AI reply</span><span><i class="cell k-prose"></i>Person's prose</span><span><i class="cell k-instruction"></i>Instruction</span><span><i class="cell k-mixed"></i>Prose + instruction</span><span><i class="cell k-continuity"></i>Continuity</span><span><i class="cell k-prose cut"></i>Abandoned (outlined)</span><span><i class="cell k-failed">×</i>Technical failure</span><span><i class="mini-cut"></i>Abandoned attempts</span><span><i class="mini-flag"></i>Needs review</span></div></details></div>
+      </div><div class="legend legend-tiles" aria-label="Chapter key"><span><i class="cell k-ai"></i>AI reply</span><span><i class="cell k-prose"></i>Person's prose</span><span><i class="cell k-instruction"></i>Instruction</span><span><i class="cell k-mixed"></i>Prose + instruction</span><span><i class="cell k-continuity"></i>Continuity</span><span><i class="cell k-prose cut"></i>Winnowed (outlined)</span><span><i class="cell k-failed">×</i>Technical failure</span><span><i class="mini-cut"></i>Winnowed drafts</span><span><i class="mini-flag"></i>Needs review</span></div></details></div>
       
     </div>
     <div class="flag-bar" id="flagBar">
@@ -583,7 +583,7 @@ body.dragging .map, body.dragging .hero { outline: 2px dashed var(--keep); outli
         <div class="counts">
           <div><b id="pWords"></b><span>words in this message</span></div>
           <div><b id="pCum"></b><span>total words up to here</span></div>
-          <div class="bad"><b id="pDisc"></b><span>discarded words above</span></div>
+          <div class="bad"><b id="pDisc"></b><span>winnowed words above</span></div>
         </div>
         <div class="meta" id="pMeta"></div>
         <div class="kindbar" id="pKindBar"><span id="pKindNote"></span><span class="kind-label">Sort this message</span><span class="seg" role="group" aria-label="Sort this message as"><button data-kind="auto">Auto</button><button data-kind="output">Story</button><button data-kind="prose">Prose</button><button data-kind="instruction">Instruction</button><button data-kind="continuity">Continuity</button><button data-kind="failed">Ignore</button></span><span class="kind-hint">Click a passage to switch it, or highlight text to split it.</span></div>
@@ -596,7 +596,7 @@ body.dragging .map, body.dragging .hero { outline: 2px dashed var(--keep); outli
   </div>
 
   <div class="page" id="pageCleanup" hidden>
-  <div class="wrap page-intro"><h1>Clean up the counts</h1><p>Decide what should not count as writing. Message decisions can be undone.</p></div>
+  <div class="wrap page-intro"><h1>Sift the counts</h1><p>Decide what should not count as writing. Message decisions can be undone.</p></div>
   <section class="wrap block" aria-labelledby="h-audit">
     <div class="audit-fold" id="auditFold"><div class="clean-head"><h2 id="h-audit">Repeated text and continuity</h2><span id="auditCount"></span></div><div class="audit-body"><p class="sub" id="auditSub"></p>
     <div class="ledger" id="auditBar" role="img"><div class="plain" id="auditCounted"></div><div class="note" id="auditNotes"></div><div class="cut"></div></div>
@@ -1080,7 +1080,7 @@ function computeRepeats() {
     if (retry) for (let a = 0; a < len;) {
       if (!retry[a]) { a++; continue; }
       let b = a; while (b + 1 < len && retry[b + 1]) b++;
-      runs.push({ start: starts[a], end: ends[b], from: 'another attempt', retry: true });
+      runs.push({ start: starts[a], end: ends[b], from: 'another draft', retry: true });
       a = b + 1;
     }
     if (shingles.length) {
@@ -1453,7 +1453,7 @@ function finalProseShare(t) {
 function renderSummary() {
   const chats = activeChats(), t = state.shared ? state.shared.t : totals(chats), w = state.shared ? state.shared.w : workTime(chats, state.gap), hrs = w.ms / 36e5;
   const all = t.kept + t.cut, share = v => all ? v / all * 100 : 0;
-  $('thesis').innerHTML = `To keep <b>${fmt(t.kept)} words</b>, a person ${w.ms ? `worked about <b>${hoursText(w.ms)}</b> and ` : ''}rejected <b>${fmt(t.alts)} ${t.alts === 1 ? "attempt" : "attempts"}</b>.`;
+  $('thesis').innerHTML = `To keep <b>${fmt(t.kept)} words</b>, a person ${w.ms ? `worked about <b>${hoursText(w.ms)}</b> and ` : ''}winnowed out <b>${fmt(t.alts)} ${t.alts === 1 ? "draft" : "drafts"}</b>.`;
   const perKept = t.keptAI ? (t.gen / t.keptAI).toFixed(1) : '0';
   const weeks = hrs / WORK_WEEK;
   $('subthesis').textContent = `The AI produced ${fmt(t.gen)} words, about ${fmt(t.gen / WORDS_PER_PAGE)} book pages.`;
@@ -1462,7 +1462,7 @@ function renderSummary() {
 
   $('ledgerHuman').style.width = share(t.keptProse) + '%';
   $('ledgerKept').style.width = share(t.keptAI) + '%';
-  $('ledger').setAttribute('aria-label', `${fmt(t.keptProse)} kept words written by the person, ${fmt(t.keptAI)} kept words written by AI, and ${fmt(t.cut)} abandoned words`);
+  $('ledger').setAttribute('aria-label', `${fmt(t.keptProse)} kept words written by the person, ${fmt(t.keptAI)} kept words written by AI, and ${fmt(t.cut)} winnowed words`);
   $('keyHuman').textContent = `${fmt(t.keptProse)} (${fmt(share(t.keptProse))}%)`;
   $('keyKept').textContent = `${fmt(t.keptAI)} (${fmt(share(t.keptAI))}%)`;
   $('keyCut').textContent = `${fmt(t.cut)} (${fmt(share(t.cut))}%)`;
@@ -1471,7 +1471,7 @@ function renderSummary() {
   const typed = t.prose + t.instr, pShare = typed ? t.prose / typed * 100 : 0;
   $('humanProse').style.width = (typed ? t.keptProse / typed * 100 : 0) + '%';
   $('humanProseCut').style.width = (typed ? t.cutProse / typed * 100 : 0) + '%';
-  $('humanBar').setAttribute('aria-label', `${fmt(t.keptProse)} words of prose kept, ${fmt(t.cutProse)} words of prose abandoned, and ${fmt(t.instr)} words of instructions`);
+  $('humanBar').setAttribute('aria-label', `${fmt(t.keptProse)} words of prose kept, ${fmt(t.cutProse)} words of prose winnowed, and ${fmt(t.instr)} words of instructions`);
   $('humanSub').textContent = `${fmt(t.prompts)} messages, ${fmt(typed)} words, including ${fmt(t.prose)} words of story prose. ${fmt(t.instrMsgs)} ${t.instrMsgs === 1 ? "message contains" : "messages contain"} direction to the AI.`;
   $('keyProse').textContent = `${fmt(t.keptProse)} (${fmt(typed ? t.keptProse / typed * 100 : 0)}%)`;
   $('keyProseCut').textContent = `${fmt(t.cutProse)} (${fmt(typed ? t.cutProse / typed * 100 : 0)}%)`;
@@ -1648,7 +1648,7 @@ function bundleHtml(c, n) {
   const count = n.hang?.length || 0; if (!count) return '';
   const key = `${c.treeKey}:${n.index}`, open = state.treeAll || state.treeOpen.has(key), label = open ? '−' : `+${fmt(count)}`, width = Math.max(20, label.length * 6.5 + 8), left = n.x + 12;
   const cls = `bundle${n.hang.some(h => h.failed) ? ' has-fail' : n.hang.some(h => h.flags?.length) ? ' has-flag' : ''}`;
-  return `<g class="${cls}" data-bundle="${key}"><title>${open ? 'Collapse' : 'Show'} ${fmt(count)} abandoned ${count === 1 ? 'attempt' : 'attempts'} after turn ${n.depth}</title><path d="M${n.x + 5} ${n.y}H${left}"/><rect x="${left}" y="${n.y - 7}" width="${width}" height="14" rx="3"/><text x="${left + width / 2}" y="${n.y}">${label}</text></g>`;
+  return `<g class="${cls}" data-bundle="${key}"><title>${open ? 'Collapse' : 'Show'} ${fmt(count)} winnowed ${count === 1 ? 'draft' : 'drafts'} after turn ${n.depth}</title><path d="M${n.x + 5} ${n.y}H${left}"/><rect x="${left}" y="${n.y - 7}" width="${width}" height="14" rx="3"/><text x="${left + width / 2}" y="${n.y}">${label}</text></g>`;
 }
 function ensureTreeVisible(n) {
   if (!n?.treeHidden || state.mapMode !== 'tree') return;
@@ -1742,7 +1742,7 @@ function select(n, keepInView) {
   $('ring').setAttribute('cx', n.x); $('ring').setAttribute('cy', n.y); $('ring').setAttribute('visibility', 'visible');
   let d = ''; for (let a = n; a.parent; a = a.parent) d += curve(a.parent, a);
   $('trail').setAttribute('d', d);
-  $('pStatus').textContent = n.kept ? 'Kept' : 'Abandoned'; $('pStatus').classList.toggle('off', !n.kept);
+  $('pStatus').textContent = n.kept ? 'Kept' : 'Winnowed'; $('pStatus').classList.toggle('off', !n.kept);
   const userTitle = { prose: "Person's prose", instruction: 'Instruction', mixed: 'Prose + instruction' }[n.kind];
   $('pTitle').textContent = `${n.failed ? 'Technical failure' : n.kind === 'continuity' ? (n.cont >= n.rep ? 'Continuity note' : 'Repeated text') : n.role === 'user' ? userTitle : n.role === 'assistant' ? 'AI reply' : 'System note'}, turn ${n.depth}`;
   $('pWords').textContent = fmt(n.words); $('pCum').textContent = fmt(n.cum); $('pDisc').textContent = fmt(n.disc);
@@ -1978,7 +1978,7 @@ function renderCoverage() {
 }
 
 /* ---------- Views: chapters, list, and full map ---------- */
-const VIEW_HELP = { strip: 'One row per chat. Open a chat, then pick a message to see its abandoned attempts.', list: 'Every message in order. Arrow keys move between rows.', tree: 'The straight line in each chat is what survived. Open +N to see abandoned branches.' };
+const VIEW_HELP = { strip: 'One row per chat. Open a chat, then pick a message to see its winnowed drafts.', list: 'Every message in order. Arrow keys move between rows.', tree: 'The straight line in each chat is what was kept. Open +N to see winnowed drafts.' };
 const typeName = n => n.failed ? 'Technical failure' : n.kind === 'continuity' ? 'Continuity' : n.kind === 'prose' ? "Person's prose" : n.kind === 'instruction' ? 'Instruction' : n.kind === 'mixed' ? 'Prose + instruction' : n.role === 'assistant' ? 'AI reply' : 'System note';
 function chatSpine(c) {
   if (c.spine) { c.nodes.forEach((n, i) => { n.index = i; }); return c.spine; }
@@ -2055,13 +2055,13 @@ function drawStripRow(canvas, c, maxLen, trackWidth) {
 function cellHtml(n, maxHang = 0) {
   const k = n.failed ? 'failed' : ['prose', 'mixed', 'instruction', 'continuity'].includes(n.kind) ? n.kind : 'ai', hang = n.kept ? n.hang?.length || 0 : 0;
   const cutStyle = hang ? ` style="--cut:${Math.round(2 + Math.sqrt(hang / Math.max(1, maxHang)) * 6)}px"` : '';
-  const label = `Turn ${n.depth}: ${typeName(n)}${n.kept ? '' : ', abandoned'}${hang ? `, ${fmt(hang)} abandoned ${hang === 1 ? 'attempt' : 'attempts'}` : ''}${n.flags?.length ? `. ${n.flags[0].label}` : ''}`;
+  const label = `Turn ${n.depth}: ${typeName(n)}${n.kept ? '' : ', winnowed'}${hang ? `, ${fmt(hang)} winnowed ${hang === 1 ? 'draft' : 'drafts'}` : ''}${n.flags?.length ? `. ${n.flags[0].label}` : ''}`;
   return `<button class="cell k-${k}${n.kept ? '' : ' cut'}${hang ? ' has-cut' : ''}${n.hang?.some(h => h.failed) ? ' has-fail' : ''}${n.flags?.length ? ' flagged' : ''}${state.selected === n ? ' sel' : ''}" data-n="${n.index}" tabindex="-1"${cutStyle} title="${esc(label)}" aria-label="${esc(label)}">${k === 'failed' ? '×' : ''}</button>`;
 }
 function laneHtml(c) {
   const spine = chatSpine(c), maxHang = Math.max(1, ...spine.map(n => n.hang?.length || 0));
   const picked = state.selected?.chat === c ? (state.selected.kept ? state.selected : state.selected.anchor || spine[0]) : null, tray = picked?.hang || [];
-  return `<div class="lane-grid">${spine.map(n => cellHtml(n, maxHang)).join('')}</div>` + (tray.length ? `<div class="branch-tray"><p>${fmt(tray.length)} abandoned ${tray.length === 1 ? 'attempt' : 'attempts'} after turn ${picked.depth}</p><div class="tray-grid">${tray.map(n => cellHtml(n)).join('')}</div></div>` : '');
+  return `<div class="lane-grid">${spine.map(n => cellHtml(n, maxHang)).join('')}</div>` + (tray.length ? `<div class="branch-tray"><p>${fmt(tray.length)} winnowed ${tray.length === 1 ? 'draft' : 'drafts'} after turn ${picked.depth}</p><div class="tray-grid">${tray.map(n => cellHtml(n)).join('')}</div></div>` : '');
 }
 function renderStrip() {
   const box = $('stripView'), top = box.scrollTop, chats = activeChats().slice().sort((a, b) => (a.first || 0) - (b.first || 0));
@@ -2074,13 +2074,13 @@ function renderStrip() {
     const main = document.createElement('div'); main.className = 'strip-main';
     const head = document.createElement('button'), title = document.createElement('b'), meta = document.createElement('span'), abandoned = c.nodes.length - spine.length, flagged = c.nodes.filter(n => n.flags?.length).length, failed = c.nodes.filter(n => n.failed).length;
     head.className = 'strip-head'; head.setAttribute('aria-expanded', state.openChat === c);
-    title.textContent = c.title; title.title = c.title; meta.textContent = [`${fmt(spine.length)} kept`, `${fmt(abandoned)} cut`, flagged ? `${fmt(flagged)} flagged` : '', failed ? `${fmt(failed)} failed` : ''].filter(Boolean).join(' · ');
+    title.textContent = c.title; title.title = c.title; meta.textContent = [`${fmt(spine.length)} kept`, `${fmt(abandoned)} winnowed`, flagged ? `${fmt(flagged)} flagged` : '', failed ? `${fmt(failed)} failed` : ''].filter(Boolean).join(' · ');
     head.append(title, meta); head.onclick = () => { state.openChat = state.openChat === c ? null : c; renderStrip(); };
     const track = document.createElement('div'); track.className = 'strip-track';
     const canvas = document.createElement('canvas'); canvas.setAttribute('role', 'img'); canvas.setAttribute('aria-label', `${c.title}: ${meta.textContent}`);
     const pick = e => { const r = canvas.getBoundingClientRect(), i = Math.max(0, Math.min(spine.length - 1, Math.floor((e.clientX - r.left) / r.width * spine.length))), reach = Math.max(1, Math.ceil(spine.length / Math.max(1, r.width / 3))); const near = spine.slice(Math.max(0, i - reach + 1), i + reach); return near.find(n => n.failed || n.flags?.length) || near.flatMap(n => n.hang || []).find(n => n.failed || n.flags?.length) || spine[i]; };
     canvas.onclick = e => { state.openChat = c; select(pick(e)); };
-    canvas.onmousemove = e => { const n = pick(e); canvas.title = `Turn ${n.depth}: ${typeName(n)}${n.hang?.length ? `, ${n.hang.length} abandoned` : ''}${n.flags?.length ? `. ${n.flags[0].label}` : ''}`; };
+    canvas.onmousemove = e => { const n = pick(e); canvas.title = `Turn ${n.depth}: ${typeName(n)}${n.hang?.length ? `, ${n.hang.length} winnowed` : ''}${n.flags?.length ? `. ${n.flags[0].label}` : ''}`; };
     track.append(canvas); main.append(head, track); row.append(main);
     if (state.openChat === c) {
       const lane = document.createElement('div'); lane.className = 'lane'; lane.innerHTML = laneHtml(c);
@@ -2104,7 +2104,7 @@ function renderList() {
   const from = Math.max(0, Math.floor(box.scrollTop / rowH) - 8), to = Math.min(rows.length, from + Math.ceil(box.clientHeight / rowH) + 16);
   for (let i = from; i < to; i++) {
     const n = rows[i], b = document.createElement('button'); b.className = `list-row${state.selected?.id === n.id ? ' sel' : ''}`; b.style.top = `${i * rowH}px`; b.tabIndex = -1;
-    const cols = [`${n.chatTitle}, turn ${n.depth}`, typeName(n) + (n.kept ? '' : ' (abandoned)'), state.shared ? SHARE_SIZES[n.size] : fmt(n.words ?? 0), n.flags?.[0]?.label || '', state.shared ? 'Text not shared' : (n.text || '').slice(0, 200).replace(/\s+/g, ' ')];
+    const cols = [`${n.chatTitle}, turn ${n.depth}`, typeName(n) + (n.kept ? '' : ' (winnowed)'), state.shared ? SHARE_SIZES[n.size] : fmt(n.words ?? 0), n.flags?.[0]?.label || '', state.shared ? 'Text not shared' : (n.text || '').slice(0, 200).replace(/\s+/g, ' ')];
     cols.forEach((text, c) => { const el = document.createElement('span'); el.textContent = text; if (c === 2) el.className = 'num'; if (c === 3) el.className = 'flagtxt'; b.append(el); });
     b.onclick = () => select(n); space.append(b);
   }
@@ -2442,7 +2442,7 @@ function selectShared(n, keepInView) {
   $('ring').setAttribute('cx', n.x); $('ring').setAttribute('cy', n.y); $('ring').setAttribute('visibility', 'visible');
   let d = ''; for (let a = n; a.parent; a = a.parent) d += curve(a.parent, a);
   $('trail').setAttribute('d', d);
-  $('pStatus').textContent = n.kept ? 'Kept' : 'Abandoned'; $('pStatus').classList.toggle('off', !n.kept);
+  $('pStatus').textContent = n.kept ? 'Kept' : 'Winnowed'; $('pStatus').classList.toggle('off', !n.kept);
   const name = n.failed ? 'Technical failure' : n.kind === 'continuity' ? 'Continuity or repeated text' : n.kind === 'prose' ? "Person's prose" : n.kind === 'instruction' ? 'Instruction' : n.kind === 'mixed' ? 'Prose + instruction' : n.role === 'assistant' ? 'AI reply' : 'System note';
   $('pTitle').textContent = `${name}, turn ${n.depth}`;
   $('pWords').textContent = SHARE_SIZES[n.size];
@@ -2497,7 +2497,7 @@ async function drawShareCard() {
   x.fillStyle = ink; x.font = `650 28px ${serif}`; x.fillText('Winnow', left, 70);
   x.fillStyle = keep; x.font = `600 17px ${sans}`; x.fillText('What the human wrote, kept, and cut.', left, 98);
 
-  const parts = [['To keep '], [`${fmt(t.kept)} words`, 1], [`, a person ${w.ms ? 'worked about ' : ''}`], ...(w.ms ? [[hoursText(w.ms), 1], [' and ']] : []), ['rejected '], [`${fmt(t.alts)} ${t.alts === 1 ? 'attempt' : 'attempts'}`, 1], ['.']];
+  const parts = [['To keep '], [`${fmt(t.kept)} words`, 1], [`, a person ${w.ms ? 'worked about ' : ''}`], ...(w.ms ? [[hoursText(w.ms), 1], [' and ']] : []), ['winnowed out '], [`${fmt(t.alts)} ${t.alts === 1 ? 'draft' : 'drafts'}`, 1], ['.']];
   const tokens = parts.flatMap(([text, hi]) => hi ? [{ text, hi: true }] : (text.match(/\s+|[^\s]+/g) || []).map(part => ({ text: part, hi: false })));
   const fontFor = (size, hi) => `${hi ? 650 : 500} ${size}px ${serif}`;
   const layoutText = size => {
@@ -2524,14 +2524,14 @@ async function drawShareCard() {
   const gap = 32, barW = (textW - gap) / 2, barY = 424, barH = 20, keptTotal = t.keptProse + t.keptAI, all = t.kept + t.cut || 1, share = finalProseShare(t);
   const shareText = share === 'No data' ? share : `${share.split(' / ')[0]} human / ${share.split(' / ')[1]} AI`;
   [[left, 'Final prose', shareText, [[human, keptTotal ? t.keptProse / keptTotal : 0], [keep, keptTotal ? t.keptAI / keptTotal : 0]]],
-   [left + barW + gap, 'All words', `${fmt(t.cut / all * 100)}% abandoned`, [[human, t.keptProse / all], [keep, t.keptAI / all], [cutFill, t.cut / all]]]].forEach(([bx, title, value, parts]) => {
+   [left + barW + gap, 'All words', `${fmt(t.cut / all * 100)}% winnowed`, [[human, t.keptProse / all], [keep, t.keptAI / all], [cutFill, t.cut / all]]]].forEach(([bx, title, value, parts]) => {
     x.fillStyle = muted; x.font = `500 15px ${sans}`; x.fillText(title, bx, barY - 11);
     x.fillStyle = ink; x.font = `600 15px ${sans}`; x.textAlign = 'right'; x.fillText(value, bx + barW, barY - 11); x.textAlign = 'left';
     x.fillStyle = line; x.fillRect(bx, barY, barW, barH);
     let px = bx; parts.forEach(([col, part]) => { const w2 = part * barW; if (w2 <= 0) return; x.fillStyle = col; x.fillRect(px, barY, Math.max(1, w2), barH); px += w2; });
   });
   let keyX = left; x.font = `500 14px ${sans}`;
-  [[human, 'Human'], [keep, 'AI'], [cutFill, 'Abandoned']].forEach(([col, label]) => {
+  [[human, 'Human'], [keep, 'AI'], [cutFill, 'Winnowed']].forEach(([col, label]) => {
     x.fillStyle = col; x.fillRect(keyX, barY + 36, 11, 11); x.fillStyle = muted; x.fillText(label, keyX + 17, barY + 46); keyX += x.measureText(label).width + 42;
   });
 

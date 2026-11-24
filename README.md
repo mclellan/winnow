@@ -6,7 +6,7 @@ Winnow turns [Open WebUI](https://github.com/open-webui/open-webui) chat exports
 
 - Where did the human's effort go?
 - How much of the prose did the human write?
-- How much of the AI's output was abandoned?
+- How much of the AI's output was winnowed out?
 
 **Try it:** https://mclellan.github.io/winnow/
 
@@ -24,7 +24,7 @@ Your chat logs are read by your browser and are not uploaded. Winnow has no back
 1. Export your chats from Open WebUI as JSON. You can export a single chat from its menu, or all chats from the data settings. Menu names can vary by version.
 2. Open Winnow and click **Add chat logs**, or drag the files onto the page. You can add several files.
 3. On **Summary**, click **Review** to step through messages that need a decision.
-4. Use **Clean up** for long or repeated messages, working time, and advanced sorting rules.
+4. Use **Sift** for long or repeated messages, working time, and advanced sorting rules.
 5. Use **Messages** to inspect the project in **Chapters**, **List**, or **Full map**.
 
 Before exporting, select the branch you consider final in each chat. Winnow treats the selected branch as the kept version.
@@ -37,7 +37,7 @@ Every piece of text falls into one of these categories:
 |---|---|---|
 | **Prose** | Story text written by the person | Human prose |
 | **Instruction** | Direction to the AI | Human direction, never manuscript |
-| **AI story** | AI output | Kept or abandoned AI words |
+| **AI story** | AI output | Kept or winnowed AI words |
 | **Continuity** | Summaries, handoffs, story bibles, and record keeping | Set aside |
 | **Repeated** | Text already counted elsewhere | Set aside |
 
@@ -51,11 +51,11 @@ You can correct the sorting at several levels:
 - **Built-in markers:** under **Advanced sorting**, turn off any default such as `[square brackets]`, `((double parentheses))`, `OOC:`, or `<details>` if your writing uses it differently.
 - **Line labels:** add your own labels such as `Director:`. Each one gets a checkbox beside the built-in line markers.
 - **Long messages:** set a word limit, then mark flagged messages as continuity, keep them counted, or ignore them.
-- **Technical failures:** use **Ignore** on broken inputs or outputs, such as a model stuck in a loop. Ignored messages are removed from words, attempts, repeat detection, and hours. They appear in their own section and can be restored.
+- **Technical failures:** use **Ignore** on broken inputs or outputs, such as a model stuck in a loop. Ignored messages are removed from words, drafts, repeat detection, and hours. They appear in their own section and can be restored.
 
 ## Reviewing faster
 
-- **Chapters** shows one row per chat. Bars above a row show abandoned attempts, and alerts stay visible at any zoom. Click a row to see its messages.
+- **Chapters** shows one row per chat. Bars above a row show winnowed drafts, and alerts stay visible at any zoom. Click a row to see its messages.
 - **List** shows every message in a keyboard-friendly list with the same filters.
 - **Full map** keeps the complete branching tree.
 - **Suggestions** flag likely loops, reused AI outputs, long messages, and unsure sorting. Each flag states its reason.
@@ -65,11 +65,11 @@ You can correct the sorting at several levels:
 ## How the numbers work
 
 - **Kept** is AI story text and human prose on the branch selected at export.
-- **Final prose: human / AI** compares the person's story prose with AI story text on the selected chat branch. It leaves out instructions, continuity notes, repeated text, abandoned branches, and technical failures. It does not measure the published manuscript.
-- **Abandoned** is AI story text and human prose on every other branch.
+- **Final prose: human / AI** compares the person's story prose with AI story text on the selected chat branch. It leaves out instructions, continuity notes, repeated text, winnowed drafts, and technical failures. It does not measure the published manuscript.
+- **Winnowed** is AI story text and human prose on every other branch.
 - **Repeated text** is a run of 40 or more identical words from one earlier message. Capitalization and punctuation are ignored.
 - **Retried prompts** count only changed words when at least 60% of their words match an earlier version in phrases of five or more words. The kept version receives credit for shared words.
-- **Attempts rejected** counts extra branches at each fork.
+- **Drafts winnowed out** counts extra branches at each fork.
 - **Hours worked** adds the time between consecutive messages and treats a pause over the break setting (20 minutes by default) as time away.
 - **Reading time** assumes 238 words per minute.
 
@@ -87,13 +87,13 @@ Treat the results as a careful estimate. They are not proof of authorship.
 - **Pasted text can look human.** Text from outside the loaded logs, including AI output from another tool, can be classified as human prose.
 - **Reused AI outputs need a decision.** Winnow flags them, but you decide whether each one is continuity or story.
 - **Word counts are approximate.** Hidden reasoning and tool blocks are excluded.
-- **Saved corrections are local.** Clearing browser data removes them. Use **Back up** on **Clean up** to save them to a file, and **Restore** to load them in another browser or at another address. Backups contain no message text, but they only apply to the same chat logs.
+- **Saved corrections are local.** Clearing browser data removes them. Use **Back up** on **Sift** to save them to a file, and **Restore** to load them in another browser or at another address. Backups contain no message text, but they only apply to the same chat logs.
 
 ## Sharing your results
 
 Click **Share** after loading your chat logs. Winnow creates a read-only link and can also download a PNG summary card.
 
-- **Included:** word and effort totals, hours per week without dates, node shapes, categories, kept or abandoned status, and rough message lengths.
+- **Included:** word and effort totals, hours per week without dates, node shapes, categories, kept or winnowed status, and rough message lengths.
 - **Never included:** message text, chat titles, filenames, exact timestamps, model names, or message IDs.
 - **No upload:** the data is compressed into the part of the URL after `#`, which browsers do not send to GitHub. Anyone with the link can read what it contains, and links cannot be revoked.
 - **Long projects:** if a full link would exceed 8,000 characters, Winnow turns off the node map. You can turn it back on, but some apps may cut off long links.
